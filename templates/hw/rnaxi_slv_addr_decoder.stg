@@ -1,0 +1,88 @@
+rnaxi_slv_addr_decoder(rnaxiSlvAddrDecoderForStg)::=<<
+module <rnaxiSlvAddrDecoderForStg.fsName>_rnaxi_slv_addr_dec(
+clk,
+rst,
+<rnaxiSlvAddrDecoderForStg.registers:{register | <register.instances :{ reg_inst | <reg_inst.name>_rd_en,
+<reg_inst.name>_wr_en,
+<reg_inst.name>_rdata,}>}>
+<rnaxiSlvAddrDecoderForStg.memories:{ memory | <memory.instances :{ mem_inst | <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_en,
+<rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_en,
+<rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_addr,
+<rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_data,
+<rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_data,}>}>
+<if(rnaxiSlvAddrDecoderForStg.hasRegisters)>
+reg_data,
+<endif>
+reg_wr_data,
+req_size,
+reg_rd_data,
+wr_req_rcvd,
+req_addr,
+rd_req_rcvd,
+load_rd_data);
+
+parameter REQ_TYPE_WIDTH  = 2;
+parameter REQ_ATTR_WIDTH  = 3;
+parameter REQ_SIZE_WIDTH  = 6;
+parameter REQ_DATA_WIDTH  = 32;
+
+input [REQ_SIZE_WIDTH:0] req_size;
+output reg [2047:0] reg_rd_data;
+input clk;
+input rst;
+<rnaxiSlvAddrDecoderForStg.registers:{register | <register.instances :{ reg_inst | input [(<reg_inst.registerWordWidth>-1):0] <reg_inst.name>_rdata;
+}>}>
+<rnaxiSlvAddrDecoderForStg.memories :{ memory | <memory.instances :{ mem_inst | input [(<mem_inst.rnaxiWordsWidth>-1):0] <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_data;
+}>}>
+<rnaxiSlvAddrDecoderForStg.registers:{register| <register.instances :{ reg_inst | output reg [<reg_inst.numberofBeats>:0] <reg_inst.name>_rd_en;
+output reg [<reg_inst.numberofBeats>:0] <reg_inst.name>_wr_en;
+}>}>
+<rnaxiSlvAddrDecoderForStg.memories :{ memory | <memory.instances :{ mem_inst |output reg [(<mem_inst.rnaxiWordsWidth>-1):0] <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_data;
+output reg [31:0] <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_addr;
+output reg [(<mem_inst.rnaxiWords>-1):0] <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_en;
+output reg <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_en;
+}>}>
+input wr_req_rcvd;
+input [31:0] req_addr;
+input rd_req_rcvd;
+input load_rd_data;
+<if(rnaxiSlvAddrDecoderForStg.hasRegisters)>
+output reg [2047:0] reg_data;
+<endif>
+input [2047:0] reg_wr_data;
+wire [63:0] mask;
+
+<rnaxiSlvAddrDecoderForStg.registers:{register|<register.instances :{ reg_inst |
+assign <reg_inst.name>_wr_en[<reg_inst.rnaxiWordsRange>:0] = wr_req_rcvd && (req_addr >= 32'h<reg_inst.startOffset>) && (req_addr \<= 32'h<reg_inst.endOffset>) ?  mask[<reg_inst.rnaxiWordsRange>:0] \<\< (req_addr-32'h<reg_inst.startOffset>)  : <reg_inst.rnaxiWords>'h0;
+assign <reg_inst.name>_rd_en[<reg_inst.rnaxiWordsRange>:0] = rd_req_rcvd && (req_addr >= 32'h<reg_inst.startOffset>) && (req_addr \<= 32'h<reg_inst.endOffset>) ?  mask[<reg_inst.rnaxiWordsRange>:0] \<\< (req_addr-32'h<reg_inst.startOffset>)  : <reg_inst.rnaxiWords>'h0;
+
+}>}>
+
+
+<rnaxiSlvAddrDecoderForStg.memories:{memory|<memory.instances :{ mem_inst | 
+assign <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_en[<mem_inst.rnaxiWords>-1:0] = wr_req_rcvd && (req_addr >= 32'h<mem_inst.startOffset>) && (req_addr \<= 32'h<mem_inst.endOffset>) ?  mask[<mem_inst.rnaxiWords>-1:0] \<\< (req_addr[$clog2(<mem_inst.rnaxiWords>):0])  : <mem_inst.rnaxiWords>'h0;
+assign <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_en = rd_req_rcvd && (req_addr >= 32'h<mem_inst.startOffset>) && (req_addr \<= 32'h<mem_inst.endOffset>) ;
+}>}>
+
+
+assign reg_rd_data[2047:0] = 
+<rnaxiSlvAddrDecoderForStg.registers:{register|<register.instances :{ reg_inst |load_rd_data && (req_addr >= 32'h<reg_inst.startOffset>) && (req_addr \<= 32'h<reg_inst.endOffset>) ? 2048'(<reg_inst.name>_rdata) \>> ((req_addr-32'h<reg_inst.startOffset>) * 32):
+}>}>
+<rnaxiSlvAddrDecoderForStg.memories:{memory|<memory.instances :{ mem_inst | load_rd_data && (req_addr >= 32'h<mem_inst.startOffset>) && (req_addr \<= 32'h<mem_inst.endOffset>) ? 2048'(<rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_rd_data) \>> ((req_addr[$clog2(<mem_inst.rnaxiWords>):0]) * 32):
+}>}>2048'h0;
+
+<if(rnaxiSlvAddrDecoderForStg.hasRegisters)>
+assign reg_data[2047:0] = 
+<rnaxiSlvAddrDecoderForStg.registers:{register|<register.instances :{ reg_inst |wr_req_rcvd && (req_addr >= 32'h<reg_inst.startOffset>) && (req_addr \<= 32'h<reg_inst.endOffset>) ? reg_wr_data \<\< ((req_addr-32'h<reg_inst.startOffset>) * 32) :
+}>}>2048'h0;
+<endif>
+
+<rnaxiSlvAddrDecoderForStg.memories :{ memory |<memory.instances :{ mem_inst | 
+assign <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_wr_data[<mem_inst.rnaxiWordsWidth>-1:0] = wr_req_rcvd && (req_addr >= 32'h<mem_inst.startOffset>) && (req_addr \<= 32'h<mem_inst.endOffset>) ? <mem_inst.rnaxiWordsWidth>'(reg_wr_data \<\< ((req_addr[$clog2(<mem_inst.rnaxiWords>):0]) * 32)) : <mem_inst.rnaxiWordsWidth>'h0;
+assign <rnaxiSlvAddrDecoderForStg.fsName>_<mem_inst.name>_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h<mem_inst.startOffset>) && (req_addr \<= 32'h<mem_inst.endOffset>) ? req_addr \>> $clog2(<mem_inst.rnaxiWords>) : 32'h0; 
+}>}>
+
+assign mask[63:0] = 64'hFFFF_FFFF_FFFF_FFFF \>> (64-req_size[6:0]);
+
+endmodule;
+>>

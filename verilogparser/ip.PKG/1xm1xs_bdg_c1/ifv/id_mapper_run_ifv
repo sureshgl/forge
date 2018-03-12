@@ -1,0 +1,3 @@
+bsub -I -q interactive ifv +64bit  ../rtl/id_mapper_sva.v ../rtl/id_mapper.v  +define+FORMAL +licq +top+id_mapper_sva +tcl+id_mapper_sva.tcl -l id_mapper_sva.log -q +gui
+
+

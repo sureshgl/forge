@@ -1,0 +1,3 @@
+#bsub -I -q interactive -R "rusage[iev=1:duration=1:mem=4000]" ifv +64bit -f filelist +licq +gui +top+zt_des_2rp2w_1r1w +tcl+rw_check.tcl -l rw_check.log +define+FORMAL
+bsub -I -q interactive -R "rusage[iev=1:duration=1:mem=4000]" iev +64bit -f rtl_async.f +gui +licq +top+ff_m_nrmbw_async2 +tcl+rw_check.tcl -l rw_check.log +define+FORMAL  
+#bsub -I -q interactive -R "rusage[iev=1:duration=1:mem=4000]" iev +64bit -f filelist +licq +gui +top+zt_des_2rp2w_1r1w +tcl+show_all.tcl -l show_all.log +define+FORMAL

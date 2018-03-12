@@ -1,0 +1,102 @@
+################################################################################
+## Copyright (c) 2012-2014 by Cisco Systems, Inc. All rights reserved.
+################################################################################
+set TOP $env(TOP)
+############################################################
+# Spyglass Project File (this is a Tcl based file)
+############################################################
+# IMPORTANT: This is a scripted Spyglass flow control file  
+#            Do not over-write this from the Spyglass GUI
+#            Any required changes should be merged into this file by hand
+
+# source common project setup
+# this file contains libraries settings, reports to generate, common waivers, etc
+#if {[info exists ::env(GLOBAL_SETUP)] == 1} {
+#	source $env(GLOBAL_SETUP)
+#}
+
+set_option dw yes
+set_option mthresh 25000
+set_option enable_save_restore no
+set_option enable_save_restore_builtin no ; # To report built-in message that were reported in the save run also in the restore run
+set_option enable_pgnetlist yes ; # Enables power and ground pin information to be taken into consideration from specified physical libraries
+
+# Data Import Section
+if {[info exists ::env(SOURCE)] == 1} {
+   if { $env(RTL)==1 } {
+        set_option enableSV yes
+	read_file -type sourcelist $env(SOURCE)
+   } 
+   if { $env(GATE)==1 } {
+        if { $env(BEHAV_LIB_FOR_GATE)==1 } {
+           puts "INFO:: Reading the behavioral library $env(BEHAV_LIB_LIST_FOR_GATE)"
+	   read_file -type sourcelist $env(BEHAV_LIB_LIST_FOR_GATE)
+        } 
+        puts "INFO:: Reading the netlist $env(SOURCE)"
+        read_file -type verilog $env(SOURCE)
+   } 
+}
+
+# specify Guideware methodology
+if {[info exists ::env(CURRENT_METHODOLOGY)] == 1} {
+	set_option active_methodology $env(CURRENT_METHODOLOGY)
+}
+# specify the module top scope
+set_parameter chkTopModule yes
+#set_parameter use_inferred_clocks yes
+if {[info exists ::env(TOP)] == 1} {
+	set_option top $env(TOP)
+}
+
+
+puts "INFO: CURRENT_METHODOLOGY is $env(PHYSICAL_METHODOLOGY)"
+current_methodology $env(PHYSICAL_METHODOLOGY)
+
+current_goal physical_library_preparation -top $env(TOP)
+set_parameter phy_lefListFile $env(LEFLIST)
+set_parameter phy_libListFile $env(LIBLIST)
+set_parameter phy_target "av28m_hvt_ss,av28m_svt_ss"
+#set_parameter phy_enable_no_lef_flow true
+
+current_goal physical_analysis_congestion -top $env(TOP)
+if {[info exists ::env(PHY_TECH_PATH)] == 1} {
+	set_parameter phy_tech_path $env(PHY_TECH_PATH)
+        puts "WARNING:: Using user-defined tech path $env(PHY_TECH_PATH)"
+} else {
+	set_parameter phy_tech_path $env(SPYDIR)/RESULTS/$env(TOP)/$env(TOP)_physical/$env(TOP)/physical_library_preparation/sgp_tech
+}
+set_parameter phy_sdc $env(SPYDIR)/$env(TOP)/$env(TOP).sdc
+set_parameter pt supermode
+set_goal_option addrules { PHY_ModuleSummary PHY_FlopCount PHY_DesignResources PHY_FanoutCone2 PHY_MemorySynthesis }
+set_goal_option ignorerules { PHY_LogicDepth_Core_ClkDelay PHY_LogicDepth_Peri_ClkDelay PHY_CongModules PHY_FaninCone PHY_FanoutCone PHY_CriticalObjects PHY_CellPinDensity PHY_HighFanout }
+
+set_parameter phy_enable_sequential_opt false
+set_parameter phy_enable_hbo false
+
+set_parameter phy_fanout_threshold 4000
+set_parameter phy_fanin_threshold 4000
+set_parameter phy_num_metal_layers 8
+
+
+current_goal physical_analysis_signoff -top $env(TOP)
+if {[info exists ::env(PHY_TECH_PATH)] == 1} {
+	set_parameter phy_tech_path $env(PHY_TECH_PATH)
+        puts "WARNING:: Using user-defined tech path $env(PHY_TECH_PATH)"
+} else {
+	set_parameter phy_tech_path $env(SPYDIR)/RESULTS/$env(TOP)/$env(TOP)_physical/$env(TOP)/physical_library_preparation/sgp_tech
+}
+set_goal_option addrules { PHY_ModuleSummary PHY_FlopCount PHY_DesignResources PHY_MemorySynthesis PHY_CellPinDensity }
+set_goal_option ignorerules { PHY_LogicDepth_Core_ClkDelay PHY_LogicDepth_Peri_ClkDelay PHY_TimingModules }
+
+
+set_parameter phy_sdc $env(SPYDIR)/$env(TOP)/$env(TOP).sdc
+set_parameter pt supermode
+
+set_parameter phy_optimization_effort high
+set_parameter phy_enable_sequential_opt false
+set_parameter phy_enable_hbo false
+
+set_parameter phy_fanout_threshold 4000
+set_parameter phy_fanin_threshold 4000
+set_parameter phy_num_metal_layers 8
+

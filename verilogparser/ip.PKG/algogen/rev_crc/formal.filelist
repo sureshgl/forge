@@ -1,0 +1,3 @@
+sva.v
+../../common/rtl/crc_calc.v
+../../common/rtl/crc_reverse.v

@@ -1,0 +1,6 @@
+sva.v
+../rtl/priority_encode_simple.v
+../rtl/priority_encode_log.v
+../rtl/priority_encode_dsbu.v
+../rtl/priority_encode_dsbu_shadow.v
+../rtl/priority_encode_rec.v

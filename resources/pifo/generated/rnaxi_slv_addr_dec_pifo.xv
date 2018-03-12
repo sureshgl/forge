@@ -1,0 +1,133 @@
+module rnaxi_slv_addr_dec_pifo(arb_fifo_pkt_threshold_0_rdata,
+arb_fifo_pkt_threshold_0_wr_en,
+arb_fifo_pkt_threshold_0_rd_en,
+proc_pkt_threshold_0_rdata,
+proc_pkt_threshold_0_wr_en,
+proc_pkt_threshold_0_rd_en,
+proc_pkt_threshold_1_rdata,
+proc_pkt_threshold_1_wr_en,
+proc_pkt_threshold_1_rd_en,
+proc_pkt_threshold_2_rdata,
+proc_pkt_threshold_2_wr_en,
+proc_pkt_threshold_2_rd_en,
+pifo_mem_1_wr_en,
+pifo_mem_1_rd_en,
+pifo_mem_1_addr,
+pifo_mem_1_wr_data,
+pifo_mem_1_rd_data,
+pifo_mem_2_wr_en,
+pifo_mem_2_rd_en,
+pifo_mem_2_addr,
+pifo_mem_2_wr_data,
+pifo_mem_2_rd_data,
+req_size,
+reg_rd_data,
+clk,
+rst,
+wr_req_rcvd,
+req_addr,
+rd_req_rcvd,
+load_rd_data,
+reg_data,
+reg_wr_data);
+
+parameter REQ_TYPE_WIDTH  = 2;
+parameter REQ_ATTR_WIDTH  = 3;
+parameter REQ_SIZE_WIDTH  = 6;
+parameter REQ_DATA_WIDTH  = 32;
+
+
+
+input [REQ_SIZE_WIDTH:0] req_size;
+output reg [2047:0] reg_rd_data;
+input clk;
+input rst;
+input [31:0] arb_fifo_pkt_threshold_0_rdata;
+input [31:0] proc_pkt_threshold_0_rdata;
+input [31:0] proc_pkt_threshold_1_rdata;
+input [31:0] proc_pkt_threshold_2_rdata;
+input [31:0] pifo_mem_1_rd_data;
+input [63:0] pifo_mem_2_rd_data;
+output reg [0:0] arb_fifo_pkt_threshold_0_wr_en;
+output reg [0:0] arb_fifo_pkt_threshold_0_rd_en;
+output reg [0:0] proc_pkt_threshold_0_wr_en;
+output reg [0:0] proc_pkt_threshold_0_rd_en;
+output reg [0:0] proc_pkt_threshold_1_wr_en;
+output reg [0:0] proc_pkt_threshold_1_rd_en;
+output reg [0:0] proc_pkt_threshold_2_wr_en;
+output reg [0:0] proc_pkt_threshold_2_rd_en;
+output reg [31:0] pifo_mem_1_wr_data;
+output reg [31:0] pifo_mem_1_addr;
+output reg [0:0] pifo_mem_1_wr_en;
+output reg  pifo_mem_1_rd_en;
+output reg [63:0] pifo_mem_2_wr_data;
+output reg [31:0] pifo_mem_2_addr;
+output reg [1:0] pifo_mem_2_wr_en;
+output reg  pifo_mem_2_rd_en;
+input wr_req_rcvd;
+input [31:0] req_addr;
+input rd_req_rcvd;
+input load_rd_data;
+output reg [2047:0] reg_data;
+input [2047:0] reg_wr_data;
+
+
+
+wire [63:0] mask;
+
+
+
+
+
+assign arb_fifo_pkt_threshold_0_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ?  mask[0:0] << (req_addr-32'h0)  : 1'h0;
+
+assign arb_fifo_pkt_threshold_0_rd_en[0:0] = rd_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ?  mask[0:0] << (req_addr-32'h0)  : 1'h0;
+
+assign proc_pkt_threshold_0_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h4) && (req_addr <= 32'h4) ?  mask[0:0] << (req_addr-32'h4)  : 1'h0;
+
+assign proc_pkt_threshold_0_rd_en[0:0] = rd_req_rcvd && (req_addr >= 32'h4) && (req_addr <= 32'h4) ?  mask[0:0] << (req_addr-32'h4)  : 1'h0;
+
+assign proc_pkt_threshold_1_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h5) && (req_addr <= 32'h5) ?  mask[0:0] << (req_addr-32'h5)  : 1'h0;
+
+assign proc_pkt_threshold_1_rd_en[0:0] = rd_req_rcvd && (req_addr >= 32'h5) && (req_addr <= 32'h5) ?  mask[0:0] << (req_addr-32'h5)  : 1'h0;
+
+assign proc_pkt_threshold_2_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h6) && (req_addr <= 32'h6) ?  mask[0:0] << (req_addr-32'h6)  : 1'h0;
+
+assign proc_pkt_threshold_2_rd_en[0:0] = rd_req_rcvd && (req_addr >= 32'h6) && (req_addr <= 32'h6) ?  mask[0:0] << (req_addr-32'h6)  : 1'h0;
+
+assign pifo_mem_1_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h3f) ?  mask[0:0] << (req_addr[0:0])  : 1'h0;
+
+assign pifo_mem_1_rd_en = rd_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h3f) ;
+
+assign pifo_mem_2_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h7f) ?  mask[1:0] << (req_addr[1:0])  : 2'h0;
+
+assign pifo_mem_2_rd_en = rd_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h7f) ;
+
+ assign reg_rd_data[2047:0] =  
+	load_rd_data && (req_addr >= 32'h0) && (req_addr <= 32'h0) ? ({2016'h0, arb_fifo_pkt_threshold_0_rdata }) >> ((req_addr-32'h0) * 32):
+	load_rd_data && (req_addr >= 32'h4) && (req_addr <= 32'h4) ? ({2016'h0, proc_pkt_threshold_0_rdata }) >> ((req_addr-32'h4) * 32):
+	load_rd_data && (req_addr >= 32'h5) && (req_addr <= 32'h5) ? ({2016'h0, proc_pkt_threshold_1_rdata }) >> ((req_addr-32'h5) * 32):
+	load_rd_data && (req_addr >= 32'h6) && (req_addr <= 32'h6) ? ({2016'h0, proc_pkt_threshold_2_rdata }) >> ((req_addr-32'h6) * 32):
+	load_rd_data && (req_addr >= 32'h20) && (req_addr <= 32'h3f) ? ({2016'h0, pifo_mem_1_rd_data }) >> ((req_addr[0:0]) * 32):
+	load_rd_data && (req_addr >= 32'h40) && (req_addr <= 32'h7f) ? ({1984'h0, pifo_mem_2_rd_data }) >> ((req_addr[1:0]) * 32):
+	2048'h0;
+
+assign reg_data[2047:0] =  
+	wr_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ? reg_wr_data << ((req_addr-32'h0) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h4) && (req_addr <= 32'h4) ? reg_wr_data << ((req_addr-32'h4) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h5) && (req_addr <= 32'h5) ? reg_wr_data << ((req_addr-32'h5) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h6) && (req_addr <= 32'h6) ? reg_wr_data << ((req_addr-32'h6) * 32) :
+	2048'h0;
+
+assign pifo_mem_1_wr_data[32-1:0] = wr_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h3f) ? reg_wr_data << ((req_addr[0:0]) * 32) : 32'h0;
+
+assign pifo_mem_1_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h3f) ? {1'h0,req_addr[31:1]}-32'h1 : 32'h0;
+
+assign pifo_mem_2_wr_data[64-1:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h7f) ? reg_wr_data << ((req_addr[1:0]) * 32) : 64'h0;
+
+assign pifo_mem_2_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h7f) ? {2'h0,req_addr[31:2]}-32'h2 : 32'h0;
+
+assign mask[63:0] = 64'hFFFF_FFFF_FFFF_FFFF >> (64-req_size[6:0]);
+
+
+endmodule

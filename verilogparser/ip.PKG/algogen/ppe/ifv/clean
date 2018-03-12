@@ -1,0 +1,3 @@
+rm -rf *.log csrc .formal* .iev* simv* .simv* .debug* .rtlcheck* .SSout
+rm -rf *.key
+rm -rf INCA_libs

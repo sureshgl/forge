@@ -1,0 +1,48 @@
+module example_mem_1_mem(clk,
+rst,
+example_mem_1_write,
+example_mem_1_wr_adr,
+example_mem_1_din,
+example_mem_1_read,
+example_mem_1_rd_adr,
+example_mem_1_rd_dout);
+
+parameter NUMRPRT = 1;
+parameter NUMWPRT = 1;
+parameter NUMADDR = 32;
+parameter BITDATA = 16;
+localparam BITADDR = $clog2(NUMADDR);
+
+input  clk;
+input  rst;
+input [NUMWPRT-1:0] example_mem_1_write;
+input [BITADDR*NUMWPRT-1:0] example_mem_1_wr_adr;
+input [BITDATA*NUMWPRT-1:0] example_mem_1_din;
+input [NUMRPRT-1:0] example_mem_1_read;
+input [BITADDR*NUMRPRT-1:0] example_mem_1_rd_adr;
+output reg [BITDATA*NUMRPRT-1:0] example_mem_1_rd_dout;
+
+
+generate if (1) begin: ff_mem
+
+ff_mem# (.NUMWPRT(NUMWPRT),
+	.NUMRPRT(NUMRPRT),
+	.BITADDR(BITADDR),
+	.NUMADDR(NUMADDR),
+	.WIDTH(BITDATA),
+	.FLOPOUT(0)) 
+u_example_mem_1_ffmem (.write(example_mem_1_write),
+	.wr_adr(example_mem_1_wr_adr),
+	.din(example_mem_1_din),
+	.read(example_mem_1_read),
+	.rd_adr(example_mem_1_rd_adr),
+	.rd_dout(example_mem_1_rd_dout),
+	.clk(clk),
+	.rst(rst));
+
+end else begin: memogen_mem
+                // TODO Stitch memogen
+end
+endgenerate
+
+endmodule

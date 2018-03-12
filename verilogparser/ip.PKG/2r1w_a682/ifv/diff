@@ -1,0 +1,86 @@
+50c50
+< alias run '\rm -f \!:2.log; echo $CMDP ${TCLA}/\!:1 \!:2.log; $CMDP ${TCLA}/\!:1 \!:2.log;'
+---
+> alias run '\rm -f \!:2.log; echo $CMDP ${TCLA}/\!:1.tcl -l \!:2.log; $CMDP ${TCLA}/\!:1.tcl -l \!:2.log;'
+56,70c56,69
+< run mrnrwpw_rl_tcl/mem_check mrnrwpw_rl_tcl/a1_mem_check
+< run mrnrwpw_rl_tcl/mem_range_check mrnrwpw_rl_tcl/a1_mem_range_check
+< run mrnrwpw_rl_tcl/np2_check mrnrwpw_rl_tcl/a1_np2_check
+< run mrnrwpw_rl_tcl/ecc_check mrnrwpw_rl_tcl/a1_ecc_check
+< run mrnrwpw_rl_tcl/smem_check mrnrwpw_rl_tcl/a1_smem_check
+< ##run mrnrwpw_rl_tcl/sdiff_check a1_sdiff_check
+< run mrnrwpw_rl_tcl/forward_check mrnrwpw_rl_tcl/a1_forward_check
+< run mrnrwpw_rl_tcl/sold_fwd_check mrnrwpw_rl_tcl/a1_sold_fwd_check
+< run mrnrwpw_rl_tcl/rmem_check mrnrwpw_rl_tcl/a1_rmem_check
+< run mrnrwpw_rl_tcl/vdout_int_check mrnrwpw_rl_tcl/a1_vdout_int_check
+< run mrnrwpw_rl_tcl/vmem_check mrnrwpw_rl_tcl/a1_vmem_check
+< run mrnrwpw_rl_tcl/srch_check mrnrwpw_rl_tcl/a1_srch_check
+< run mrnrwpw_rl_tcl/fakemem_check mrnrwpw_rl_tcl/a1_fakemem_check
+< run mrnrwpw_rl_tcl/dout_check mrnrwpw_rl_tcl/a1_dout_check
+< : << 'END'
+---
+> run 2rw_2ror1w_tcl/mem_check 2rw_2ror1w_tcl/mem_check
+> run 2rw_2ror1w_tcl/mem_range_check 2rw_2ror1w_tcl/mem_range_check
+> run 2rw_2ror1w_tcl/np2_check 2rw_2ror1w_tcl/np2_check
+> run 2rw_2ror1w_tcl/ecc_check 2rw_2ror1w_tcl/ecc_check
+> run 2rw_2ror1w_tcl/smem_check  2rw_2ror1w_tcl/smem_check 
+> run 2rw_2ror1w_tcl/forward_check  2rw_2ror1w_tcl/forward_check 
+> run 2rw_2ror1w_tcl/sold_fwd_check  2rw_2ror1w_tcl/sold_fwd_check 
+> run 2rw_2ror1w_tcl/rmem_check 2rw_2ror1w_tcl/rmem_check
+> run 2rw_2ror1w_tcl/vdout_int_check 2rw_2ror1w_tcl/vdout_int_check
+> run 2rw_2ror1w_tcl/vmem_check 2rw_2ror1w_tcl/vmem_check
+> run 2rw_2ror1w_tcl/srch_check 2rw_2ror1w_tcl/srch_check
+> run 2rw_2ror1w_tcl/fakemem_check 2rw_2ror1w_tcl/fakemem_check
+> run 2rw_2ror1w_tcl/dout_check 2rw_2ror1w_tcl/dout_check
+> 
+72,73d70
+< #setenv IFV_HIER_RDY des.algo_top.a1_loop.algo
+< #setenv IFV_HIER_RDY des.algo_top.a2_loop\[0\].algo
+75,83c72,80
+< run nror1w_tcl/xwrite_req_check nror1w_tcl/a2_xwrite_req_check
+< run nror1w_tcl/xmem_req_check nror1w_tcl/a2_xmem_req_check
+< run nror1w_tcl/xor_int_check nror1w_tcl/a2_xor_int_check
+< run nror1w_tcl/xor_data_check nror1w_tcl/a2_xor_data_check
+< run nror1w_tcl/xor_more_check nror1w_tcl/a2_xor_more_check
+< run nror1w_tcl/fakemem_check nror1w_tcl/a2_fakemem_check
+< run nror1w_tcl/dout_check nror1w_tcl/a2_dout_check
+< run nror1w_tcl/mem_check nror1w_tcl/a2_mem_check
+< run nror1w_tcl/mem_range_check nror1w_tcl/a2_mem_range_check
+---
+> run nror1w_tcl/xwrite_req_check  nror1w_tcl/xwrite_req_check 
+> run nror1w_tcl/xmem_req_check nror1w_tcl/xmem_req_check
+> run nror1w_tcl/xor_int_check nror1w_tcl/xor_int_check
+> run nror1w_tcl/xor_data_check nror1w_tcl/xor_data_check
+> run nror1w_tcl/xor_more_check  nror1w_tcl/xor_more_check 
+> run nror1w_tcl/fakemem_check nror1w_tcl/fakemem_check
+> run nror1w_tcl/dout_check nror1w_tcl/dout_check
+> run nror1w_tcl/mem_check nror1w_tcl/mem_check
+> run nror1w_tcl/mem_range_check nror1w_tcl/mem_range_check
+100,102c97,99
+< run align_mrnw_check t3_align_mrnw_check
+< run align_mrnw_mem_check t3_align_mrnw_mem_check
+< run align_mrnw_dout_check t3_align_mrnw_dout_check
+---
+> run align_1r1w_check align_1r1w_check
+> run align_1r1w_mem_check align_1r1w_mem_check
+> run align_1r1w_dout_check align_1r1w_dout_check
+106,107c103,104
+< run stack_check t3_stack_check
+< run stack_dout_check t3_stack_dout_check
+---
+> run stack_check stack_check
+> run stack_dout_check stack_dout_check
+112,113c109,110
+< run t_mem_check t3_mem_check
+< run t_port_check t3_port_check
+---
+> run t_mem_check t_mem_check
+> run t_port_check t_port_check
+130c127
+< run a1_pdout_err_check a1_pdout_err_check
+---
+> run a1_pdout_err_check  a1_pdout_err_check 
+132c129
+< END
+---
+> 

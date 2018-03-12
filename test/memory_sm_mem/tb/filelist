@@ -1,0 +1,3 @@
+../rtl/memoir_ff_mem.v
+../rtl/memory_sm_mem.v
+./MemorySmMemTb.sv 

@@ -1,0 +1,506 @@
+RegisterTYPE(reg_name,reg_type)::=<<
+module <reg_type; format="upper">_reg (clk, rst,<reg_type>In,<reg_type>Out);
+
+parameter BITDATA = 32;
+parameter FLOPODT = 0;
+
+input clk;
+input rst;
+input  <reg_type>In;
+output <reg_type>Out;
+
+reg [BITDATA-1:0]cfgData_c;
+
+always_comb begin : do_l
+  <reg_type>Data_c = {BITDATA{1'b0}};
+  <reg_type>Data_c = <reg_type>In;
+
+end
+
+generate if (FLOPODT) begin : fo_loop
+  always @(posedge clk) begin
+    <reg_type>Out  \<= cfgData_c;
+  end
+end else begin : fo_loop
+  always_comb begin
+    <reg_type>Out = cfgData_c;
+  end
+end
+endgenerate
+
+endmodule
+>>
+
+Register(reg_name,fieldInfos,bitdata)::=<<
+module reg_<reg_name> (
+  clk, rst,
+  cwrite, cdin, cwack, cdout,
+  <trunc(fieldInfos):{item |<reg_name>_<item.field_name>_rdat, <reg_name>_<item.field_name>_wr, <reg_name>_<item.field_name>_din,
+  }>  <last(fieldInfos):{item |<reg_name>_<item.field_name>_rdat, <reg_name>_<item.field_name>_wr, <reg_name>_<item.field_name>_din}>
+);
+
+localparam BITDATA = <bitdata>;
+localparam FLOPODT = 0;
+localparam FLOPOFL = 0;
+
+<fieldInfos:{item |localparam BITOFST_<item.field_name; format="upper"> = <item.size>;<\n>}>  
+
+// please use proper values
+//<fieldInfos:{item |//localparam BITDATA_<item.field_name; format="upper"> = <item.rst_value>;<\n>}>
+
+input                	     clk;
+input                        rst;
+input                        cwrite;
+output                       cwack;
+input  	   [BITDATA-1:0]     cdin;
+output reg [BITDATA-1:0]     cdout;
+
+<fieldInfos:{item |output reg [BITDATA_<item.field_name; format="upper">-1:0] <reg_name>_<item.field_name>_rdat;
+input      [BITDATA_<item.field_name; format="upper">-1:0] <reg_name>_<item.field_name>_din;
+input                        <reg_name>_<item.field_name>_wr;
+<\n>}>
+
+wire fwrite = (<trunc(fieldInfos):{item |<reg_name>_<item.field_name>_wr || }> <last(fieldInfos):{item |<reg_name>_<item.field_name>_wr}>); 
+
+wire cwack  = cwrite & !fwrite;
+
+<fieldInfos:{item |wire <item.field_name>_write = <reg_name>_<item.field_name>_wr || cwack; <\n>}>
+
+<fieldInfos:{item |wire [BITDATA_<item.field_name; format="upper">-1:0] <item.field_name>_din = cdin >\> BITOFST_<item.field_name; format="upper">; <\n>}>
+
+<fieldInfos:{item |wire [BITDATA_<item.field_name; format="upper">-1:0] <item.field_name>_rdin = 'b0; <\n>}>
+
+
+<fieldInfos:{item |wire [BITDATA_<item.field_name; format="upper">-1:0] <item.field_name>_dout; <\n>}>
+
+<fieldInfos:{item | conf_reg #(.BITDATA(BITDATA_<item.field_name; format="upper">))
+  <item.field_name> (
+    .clk(clk),
+    .rst(rst), .rdin(<item.field_name>_rdin),
+    .write (<item.field_name>_write), .din(<item.field_name>_din),
+    .dout(<item.field_name>_dout)
+  );<\n>} >
+
+reg  [BITDATA-1:0]     cdout_c;
+
+always_comb begin : do_l
+  cdout_c  = {BITDATA{1'b0}};
+  <fieldInfos:{item |cdout_c |= <item.field_name>_dout \<\< BITOFST_<item.field_name; format="upper">;<\n>} >
+end
+
+generate if (FLOPODT) begin : fo_loop
+  always_comb begin
+    cdout = cdout_c;
+    <fieldInfos:{item |dg_stat_<item.field_name>_rdat = <item.field_name>_dout;<\n>} >
+  end
+end else begin : fo_loop
+  always @(posedge clk) begin
+    cdout \<= cdout_c;
+    <fieldInfos:{item |dg_stat_<item.field_name>_rdat \<= <item.field_name>_dout;<\n>} >
+  end
+end
+endgenerate
+
+endmodule
+>>
+
+MemoryOfBanks(memInfo)::=<<
+module memory_<memInfo.mem_name> (
+  clk, rst,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_adr, <memInfo.mem_name>_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_adr, <memInfo.mem_name>_rd_dout
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+
+parameter NUMVROW = <memInfo.words>;
+parameter NUMADDR = NUMVROW*NUMVBNK;
+parameter BITDATA = <memInfo.bits>;
+parameter NUMVBNK = <memInfo.numberOfBanks>;
+
+localparam BITVROW = NUMVROW > 0 ? log2(NUMVROW) : 1;
+
+input                        clk;
+input                        rst;
+input  [NUMWRPT*NUMVBNK-1:0] <memInfo.mem_name>_write;
+input  [NUMWRPT*NUMVBNK*BITVROW-1:0] <memInfo.mem_name>_wr_adr ;
+input  [NUMWRPT*NUMVBNK*BITDATA-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT*NUMVBNK-1:0] <memInfo.mem_name>_read;
+input  [NUMRPRT*NUMVBNK*BITVROW-1:0] <memInfo.mem_name>_rd_adr ;
+output [NUMRPRT*NUMVBNK*BITDATA-1:0] <memInfo.mem_name>_rd_dout ;
+
+//
+//code
+//
+
+endmodule
+
+>>
+
+
+MemoryOfBanksWrap(memInfo)::=<<
+module memory_<memInfo.mem_name>_wrap (
+  clk, rst,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_adr, <memInfo.mem_name>_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_adr, <memInfo.mem_name>_rd_dout,
+  DHS_<memInfo.mem_name>_wdata,DHS_<memInfo.mem_name>_rdata,DHS_<memInfo.mem_name>_addr,
+  DHS_<memInfo.mem_name>_wen,DHS_<memInfo.mem_name>_ren,DHS_<memInfo.mem_name>_ack
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+
+parameter NUMVROW = <memInfo.words>;
+parameter NUMADDR = NUMVROW*NUMVBNK;
+parameter BITDATA = <memInfo.bits>;
+parameter NUMVBNK = <memInfo.numberOfBanks>;
+
+localparam BITVROW = NUMVROW > 0 ? log2(NUMVROW) : 1;
+parameter DATAWIDTHFORDHS = 32;
+
+
+input                        clk;
+input                        rst;
+input  [NUMWRPT*NUMVBNK-1:0] <memInfo.mem_name>_write;
+input  [NUMWRPT*NUMVBNK*BITVROW-1:0] <memInfo.mem_name>_wr_adr ;
+input  [NUMWRPT*NUMVBNK*BITDATA-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT*NUMVBNK-1:0] <memInfo.mem_name>_read;
+input  [NUMRPRT*NUMVBNK*BITVROW-1:0] <memInfo.mem_name>_rd_adr ;
+output [NUMRPRT*NUMVBNK*BITDATA-1:0] <memInfo.mem_name>_rd_dout ;
+
+
+input  [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_wdata;
+output [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_rdata;
+input  DHS_<memInfo.mem_name>_addr;
+input  DHS_<memInfo.mem_name>_wen;
+input  DHS_<memInfo.mem_name>_ren;
+output DHS_<memInfo.mem_name>_ack;
+
+memory_<memInfo.mem_name> #() memory_<memInfo.mem_name>_inst ();
+
+//
+//code
+//
+
+endmodule
+
+>>
+
+BankedMemory(memInfo)::=<<
+module memory_<memInfo.mem_name> (
+  clk, rst,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_radr,<memInfo.mem_name>_wr_badr, <memInfo.mem_name>_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_radr,<memInfo.mem_name>_rd_badr, <memInfo.mem_name>_rd_dout
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+
+parameter NUMVROW = <memInfo.words>;
+parameter BITDATA = <memInfo.bits>;
+parameter NUMVBNK = <memInfo.banks>;
+parameter NUMADDR = NUMVBNK*NUMVROW;
+
+localparameter BITVBNK = NUMVBNK > 1 ? $clog2(NUMVBNK) : 1;
+localparameter BITVROW = NUMVROW > 1 ? $clog2(NUMVROW) : 1;
+
+
+input                        clk;
+input                        rst;
+input  [NUMWPRT-1:0] <memInfo.mem_name>_write;
+input  [NUMWPRT*BITVROW-1:0] <memInfo.mem_name>_wr_radr ;
+input  [NUMWPRT*BITVBNK-1:0] <memInfo.mem_name>_wr_badr ;
+input  [NUMWPRT*BITDATA-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT-1:0] <memInfo.mem_name>_read;
+input  [NUMRPRT*BITVROW-1:0] <memInfo.mem_name>_rd_radr ;
+input  [NUMRPRT*BITVBNK-1:0] <memInfo.mem_name>_rd_badr ;
+output [NUMRPRT*BITDATA-1:0] <memInfo.mem_name>_rd_dout ;
+
+//
+//code
+//
+
+endmodule
+
+>>
+
+BankedMemoryWrap(memInfo)::=<<
+module memory_<memInfo.mem_name>_wrap (
+  clk, rst,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_radr,<memInfo.mem_name>_wr_badr, <memInfo.mem_name>_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_radr,<memInfo.mem_name>_rd_badr, <memInfo.mem_name>_rd_dout,
+  DHS_<memInfo.mem_name>_wdata,DHS_<memInfo.mem_name>_rdata,DHS_<memInfo.mem_name>_addr,
+  DHS_<memInfo.mem_name>_wen,DHS_<memInfo.mem_name>_ren,DHS_<memInfo.mem_name>_ack
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+
+parameter NUMVROW = <memInfo.words>;
+parameter BITDATA = <memInfo.bits>;
+parameter NUMVBNK = <memInfo.banks>;
+parameter NUMADDR = NUMVBNK*NUMVROW;
+
+localparameter BITVBNK = NUMVBNK > 1 ? $clog2(NUMVBNK) : 1;
+localparameter BITVROW = NUMVROW > 1 ? $clog2(NUMVROW) : 1;
+
+parameter DATAWIDTHFORDHS = 32;
+
+input                        clk;
+input                        rst;
+input  [NUMWPRT-1:0] <memInfo.mem_name>_write;
+input  [NUMWPRT*BITVROW-1:0] <memInfo.mem_name>_wr_radr ;
+input  [NUMWPRT*BITVBNK-1:0] <memInfo.mem_name>_wr_badr ;
+input  [NUMWPRT*BITDATA-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT-1:0] <memInfo.mem_name>_read;
+input  [NUMRPRT*BITVROW-1:0] <memInfo.mem_name>_rd_radr ;
+input  [NUMRPRT*BITVBNK-1:0] <memInfo.mem_name>_rd_badr ;
+output [NUMRPRT*BITDATA-1:0] <memInfo.mem_name>_rd_dout ;
+
+input  [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_wdata;
+output [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_rdata;
+input  DHS_<memInfo.mem_name>_addr;
+input  DHS_<memInfo.mem_name>_wen;
+input  DHS_<memInfo.mem_name>_ren;
+output DHS_<memInfo.mem_name>_ack;
+
+memory_<memInfo.mem_name> #() memory_<memInfo.mem_name>_inst ();
+
+
+//
+//code
+//
+
+endmodule
+
+>>
+
+
+Memory(memInfo)::=<<
+module memory_<memInfo.mem_name> (
+  clk, rst,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_adr, <memInfo.mem_name>_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_adr, <memInfo.mem_name>_rd_dout
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+parameter NUMADDR = <memInfo.words>;
+parameter BITDATA = <memInfo.bits>;
+parameter BITADDR = 1;
+
+input                        clk;
+input                        rst;
+input  [NUMWPRT-1:0] <memInfo.mem_name>_write;
+input  [BITADDR*NUMWPRT-1:0] <memInfo.mem_name>_wr_adr ;
+input  [BITDATA*NUMWPRT-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT-1:0] <memInfo.mem_name>_read;
+input  [BITADDR*NUMRPRT-1:0] <memInfo.mem_name>_rd_adr ;
+output [BITDATA*NUMRPRT-1:0] <memInfo.mem_name>_rd_dout ;
+
+generate if (memoir) begin: flpflop_mem
+
+	memoir_ff_mem #(
+	      .NUMRPRT(NUMRPRT), .NUMWPRT(NUMWPRT), .NUMADDR(NUMADDR), .BITADDR(BITADDR), .WIDTH(BITDATA), .FLOPOUT(0))
+	      memory_<memInfo.mem_name>_memoir_ff_mem_inst (.clk(clk), .rst(rst),
+	      .write(<memInfo.mem_name>_write), .wr_adr(<memInfo.mem_name>_wr_adr), .din(<memInfo.mem_name>_din), .read(<memInfo.mem_name>_read), .rd_adr(<memInfo.mem_name>_rd_adr), .rd_dout(<memInfo.mem_name>_rd_dout)
+	      );
+	      
+end else begin: nflpflop_mem
+		// TODO Stitch memogen
+        //memoir_mem #()
+        //mem_sm_mem();
+end
+endgenerate
+endmodule
+
+>>
+
+MemoryWrap(memInfo)::=<<
+module memory_<memInfo.mem_name>_wrap (
+  clk, rst,
+  DHS_<memInfo.mem_name>_wdata, DHS_<memInfo.mem_name>_rdata, DHS_<memInfo.mem_name>_addr, 
+  DHS_<memInfo.mem_name>_wen, DHS_<memInfo.mem_name>_ren, DHS_<memInfo.mem_name>_ack,
+  <memInfo.mem_name>_write, <memInfo.mem_name>_wr_adr, <memInfo.mem_name>_wr_din,
+  <memInfo.mem_name>_read, <memInfo.mem_name>_rd_adr, <memInfo.mem_name>_rd_dout
+);
+
+parameter NUMRPRT = <memInfo.readPorts>;
+parameter NUMWPRT = <memInfo.writePorts>;
+parameter NUMADDR = <memInfo.words>;
+parameter BITDATA = <memInfo.bits>; //Address width
+parameter BITADDR = 1;
+
+//parameter ECCWIDTH = <memInfo.mem_eccwidth>;
+parameter ECCWIDTH = 4;
+
+parameter MEMDWIDTH = BITDATA + ECCWIDTH;
+parameter DATAWIDTHFORDHS = 32;
+
+input                        clk;
+input                        rst;
+input  [NUMWPRT-1:0] <memInfo.mem_name>_write;
+input  [BITADDR*NUMWPRT-1:0] <memInfo.mem_name>_wr_adr ;
+input  [MEMDWIDTH*NUMWPRT-1:0] <memInfo.mem_name>_din ;
+input  [NUMRPRT-1:0] <memInfo.mem_name>_read;
+input  [BITADDR*NUMRPRT-1:0] <memInfo.mem_name>_rd_adr ;
+output [MEMDWIDTH*NUMRPRT-1:0] <memInfo.mem_name>_rd_dout ;
+
+input  [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_wdata;
+output [DATAWIDTHFORDHS-1:0] DHS_<memInfo.mem_name>_rdata;
+input  DHS_<memInfo.mem_name>_addr;
+input  DHS_<memInfo.mem_name>_wen;
+input  DHS_<memInfo.mem_name>_ren;
+output DHS_<memInfo.mem_name>_ack;
+
+reg mem_wr;
+reg mem_rd;
+reg [BITADDR-1:0]mem_w_addr;
+reg [BITADDR-1:0] mem_r_addr;
+reg [MEMDWIDTH-1:0] mem_wdata;
+reg [MEMDWIDTH-1:0] mem_rdata;
+reg cpuwr;
+reg cpurd;
+
+always@(posedge clk) begin
+  DHS_algo_<memInfo.port_prefix>_ack \<= (DHS_algo_<memInfo.port_prefix>_wen || DHS_algo_<memInfo.port_prefix>_ren) ? 1'b1 : 1'b0;
+  cpurd_d \<= cpurd;
+end 
+
+always_comb begin
+  mem_wr = 0;
+  mem_rd = 0;
+  mem_w_data = 0;
+  mem_w_addr = 0;
+  cpuwr = 0;
+  cpurd = 0;
+
+  mem_wr = (DHS_algo_<memInfo.port_prefix>_wen && !<memInfo.mem_name>_write) || (!DHS_algo_<memInfo.port_prefix>_wen && <memInfo.mem_name>_write);
+  cpuwr = (DHS_algo_<memInfo.port_prefix>_wen && !<memInfo.mem_name>_write);
+  mem_w_data = cpuwr ? ecc_wr_fun(DHS_algo_<memInfo.port_prefix>_wdata) : ecc_wr_fun(<memInfo.mem_name>_read);
+  mem_w_addr = cpuwr ? DHS_algo_<memInfo.port_prefix>_addr :  <memInfo.mem_name>_wr_adr;
+
+  mem_rd = <memInfo.port_prefix>_re_r0;
+  mem_r_addr = <memInfo.port_prefix>_a_r0;
+  <memInfo.port_prefix>_dout_w0 = ecc_rd_fun(mem_rdata);
+  
+  mem_rd = (DHS_algo_<memInfo.port_prefix>_ren && !<memInfo.mem_name>_read) || (!DHS_algo_<memInfo.port_prefix>_ren && <memInfo.mem_name>_read);
+  cpurd  = (DHS_algo_<memInfo.port_prefix>_ren && !<memInfo.mem_name>_read) ;
+  mem_r_addr = cpurd ? DHS_algo_<memInfo.port_prefix>_addr :  <memInfo.mem_name>_rd_adr;
+  <memInfo.port_prefix>_dout_w0 = !cpurd_d ? ecc_rd_fun(mem_rdata) : 0;
+  DHS_algo_<memInfo.port_prefix>_rdata = cpurd_d ? ecc_rd_fun(mem_rdata) : 0;
+end
+
+memory_<memInfo.mem_name> #(
+	      .NUMRPRT(NUMRPRT), .NUMWPRT(NUMWPRT), .NUMADDR(NUMADDR), .BITADDR(BITADDR), .WIDTH(MEMDWIDTH), .FLOPOUT(0))
+	      memory_<memInfo.mem_name>_inst (.clk(clk), .rst(rst),
+		  .<memInfo.mem_name>_write(mem_wr), .<memInfo.mem_name>_wr_adr(mem_w_addr), .<memInfo.mem_name>_din(mem_wdata), .<memInfo.mem_name>_read(mem_rd), .<memInfo.mem_name>_rd_adr(mem_r_addr), .<memInfo.mem_name>_rd_dout(mem_rdata)
+	      );
+
+
+endmodule
+
+>>
+
+NaxiTemp(memNames)::=<<
+module naxi (
+  clk, rst
+	<memNames:{name |,DHS_<name>_rdata, DHS_<name>_addr, 
+  	DHS_<name>_wen, DHS_<name>_ren, DHS_<name>_ack <\n>}>
+  	);
+  	
+parameter DATAWIDTH = 32;
+  	
+<memNames:{name |  	
+output  [DATAWIDTH-1:0] DHS_<name>_wdata;
+input 	[DATAWIDTH-1:0] DHS_<name>_rdata;
+output  DHS_<name>_addr;
+output  DHS_<name>_wen;
+output  DHS_<name>_ren;
+input 	DHS_<name>_ack;
+}>
+
+endmodule
+>>
+
+Sim_print(sim_printname,trigger_name,log_level,input_port_name)::=<<
+module sim_print_<sim_printname> (
+  clk, rst,
+  <trigger_name>
+  <input_port_name>
+  );
+input                clk;
+input                rst;
+input                <trigger_name>;
+input [BITDATA_FL1-1:0] <input_port_name>;
+always @(posedge clk)
+  if (<trigger_name>)
+    if (loglevel>=LOGLEVL_<log_level>)
+      $display("[I:%0t:%m] <trigger_name>=%0h <input_port_name>=%0h", $time, <trigger_name>, <input_port_name>);
+endmodule
+>>
+
+RegisterWrap(registersInfo)::=<<
+module register_wrap (clk, rst,
+<trunc(registersInfo):{item |<item.groupInfoList:{grpitem |<grpitem.fieldInfoList:{f_item|<f_item.field_name>,<f_item.field_name>,<\n>}>}>}><last(registersInfo):{item |<item.groupInfoList :{ grpitem | 
+<trunc(grpitem.fieldInfoList):{f_item|<f_item.field_name>,<f_item.field_name>,<\n>}><last(grpitem.fieldInfoList) : {f_item |<f_item.field_name>,<f_item.field_name><\n>}> }>}>
+);
+
+	
+
+input                	     clk;
+input                        rst;
+
+<registersInfo:
+	{item | <item.groupInfoList :{ 
+		grpitem | <grpitem.fieldInfoList :{f_item | 
+		
+output <f_item.field_name>;
+input <f_item.field_name>;
+reg #() reg_<item.reg_name>_<f_item.field_name>_inst(.clk(clk),.rst(rst),.In(<f_item.field_name>),.Out(<f_item.field_name>) );
+		}>
+	}>
+}>
+
+endmodule
+>>
+
+NaxiSlave(NaxiInfo)::=<<
+module naxi_slave (clk,rst);
+
+parameter NAXIDWIDTH =4;
+parameter MEMIF_T1_W_WIDTH = 4;
+parameter MEMIF_T1_R_WIDTH = 4;
+parameter MEMIF_T1_A_WIDTH = 4;
+
+parameter MEMIF_T2_W_WIDTH = 4;
+parameter MEMIF_T2_R_WIDTH = 4;
+parameter MEMIF_T2_A_WIDTH = 4;
+
+always @(*) begin
+	case({reg_rd_en,req_addr})
+        33'h1_0000_0000: begin
+           reg_rd_data[2047:0] = {1984'h0,reg0_sta[63:0]};
+        end
+        33'h1_0000_0008: begin
+           reg_rd_data[2047:0] = {2016'h0,reg1_sta[31:0]};
+        end
+        33'h1_0000_000C: begin
+           reg_rd_data[2047:0] = {1952'h0,reg2_sta[95:0]};
+        end
+        33'h1_0000_0018: begin
+           reg_rd_data[2047:0] = {1984'h0,reg3_sta[63:0]};
+        end
+        default: begin
+           reg_rd_data[2047:0] = 2048'h0;
+        end
+    endcase
+end
+
+
+# Instantiation of regs and memories
+<NaxiInfo> #() <nameINST> ();
+
+endmodule
+>>

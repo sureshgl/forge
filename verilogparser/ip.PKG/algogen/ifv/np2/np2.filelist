@@ -1,0 +1,3 @@
+../../rtl/infra_np2.v
+../../rtl/infra_np2_sva.v
+../../../common/rtl/np2_addr.v

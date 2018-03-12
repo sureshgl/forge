@@ -1,0 +1,71 @@
+#!/bin/csh -f
+
+set TOP=algo_2r2w4m4d_m69_top_wrap
+
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+show_all.tcl -l show_all.log
+
+#exit(1)
+
+setenv IFV_HIER algo_top.a1_loop.algo
+
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+mostbnk_check.tcl -l mostbnk_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+perm_check.tcl -l perm_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+freecnt_check.tcl -l freecnt_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+malloc_check.tcl -l malloc_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+ma_radr_check.tcl -l ma_radr_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+dout_check.tcl -l dout_check.log
+
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+forward_check.tcl -l forward_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+cnt_check.tcl -l cnt_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+head_check.tcl -l head_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+dout_check.tcl -l dout_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+link_check.tcl -l link_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+data_check.tcl -l data_check.log
+
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+mem_check.tcl -l mem_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+mem_range_check.tcl -l mem_range_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+np2_check.tcl -l np2_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+forward_check.tcl -l forward_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+sold_fwd_check.tcl -l sold_fwd_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+rmem_check.tcl -l rmem_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+vdout_int_check.tcl -l vdout_int_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+vmem_check.tcl -l vmem_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+srch_check.tcl -l srch_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+fakemem_check.tcl -l fakemem_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+dout_check.tcl -l dout_check.log
+#
+setenv IFV_HIER algo_top.t2r_loop\[\*\].t2b_loop\[\*\].align_loop.infra
+
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t2_align_check.tcl -l t2_align_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t2_mem_chk_check.tcl -l t2_mem_chk_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t2_align_dout_check.tcl -l t2_align_dout_check.log
+
+setenv IFV_HIER algo_top.t2r_loop\[\*\].t2b_loop\[\*\].stack_loop.infra
+
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+stack_check.tcl -l stack_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+stack_dout_check.tcl -l stack_dout_check.log
+
+setenv IFV_HIER algo_top.t2r_loop\[\*\].t2b_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 algo_top.t2r_loop\[\*\].t2b_loop\[\*\].stack_loop.infra
+
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t2_mem_check.tcl -l t2_mem_check.log
+iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t2_port_check.tcl -l t2_port_check.log
+
+#setenv IFV_HIER algo_top.t1_loop\[\*\].align_loop.infra
+#
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t1_align_check.tcl -l t1_align_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t1_mem_chk_check.tcl -l t1_mem_chk_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+t1_align_dout_check.tcl -l t1_align_dout_check.log
+#
+#setenv IFV_HIER algo_top.t1_loop\[\*\].refr_loop.infra
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+prefr_check.tcl -l prefr_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+refr_bitcell.tcl -l refr_bitcell.log
+#
+#setenv IFV_HIER algo_top.a1_loop.algo
+#setenv IFV_HIER_2 algo_top.t1_loop\[\*\].align_loop.infra
+#setenv IFV_HIER_3 algo_top.t1_loop\[\*\].refr_loop.infra
+#setenv IFV_HIER_4 algo_top.t2_loop\[\*\].align_loop.infra\?
+#
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+pdout_check.tcl -l pdout_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+pdout_err_check.tcl -l pdout_err_check.log
+#iev +64bit -F filelist +define+FORMAL +licq +exit +top+algo_2r2w4m4d_m69_top_wrap +tcl+port_check.tcl -l port_check.log

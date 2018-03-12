@@ -1,0 +1,55 @@
+VHeaderBlocks(StList)::=<<
+<StList:{item |<item><\n>}>
+
+>>
+
+VHeaderRegister(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+VHeaderRegisterStructure(reg_name,reg_index,start_offset,reg_total_size,reg_total_size_in_words,end_offset,read_mask,write_mask)::=<<
+`define <reg_name>_<if(reg_index)><reg_index>_<endif>OFFSET	32'h<start_offset>
+`define <reg_name>_<if(reg_index)><reg_index>_<endif>SIZE	<reg_total_size>
+`define <reg_name>_<if(reg_index)><reg_index>_<endif>SIZE_IN_WORDS	<reg_total_size_in_words>
+>>
+
+VHeaderFieldDeclarations(VHeaderFieldDeclarationList)::=<<
+
+<VHeaderFieldDeclarationList:{item |<item><\n>}>
+
+>>
+
+VHeaderFieldDeclaration(reg_name,reg_index,field_name,field_size,field_start_offset,field_end_offset,field_range,field_rst_value)::=<<
+`define <reg_name>_<if(reg_index)><reg_index>_<endif><field_name>_SIZE	<field_size>
+`define <reg_name>_<if(reg_index)><reg_index>_<endif><field_name>_START_OFFSET	<field_start_offset>
+`define <reg_name>_<if(reg_index)><reg_index>_<endif><field_name>_RANGE	<field_range>
+`define <reg_name>_<if(reg_index)><reg_index>_<endif><field_name>_RST_VALUE	<field_rst_value>
+
+>>
+
+
+VHeaderMemory(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+VHeaderMemoryStructure(mem_name,mem_index,start_offset,mem_words,mem_bits,mem_width_in_words)::=<<
+`define <mem_name>_<if(mem_index)><mem_index>_<endif>OFFSET	32'h<start_offset>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif>NUMROWS	<mem_words>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif>WIDTH	<mem_bits>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif>WIDTH_IN_WORDS	<mem_width_in_words>
+>>
+
+VHeaderMemoryDeclarations(VHeaderMemoryDeclarationList)::=<<
+
+<VHeaderFieldDeclarationList:{item |<item><\n>}>
+
+>>
+
+VHeaderMemoryDeclaration(mem_name,mem_index,field_name,field_size,field_start_offset,field_range,field_rst_value)::=<<
+`define <mem_name>_<if(mem_index)><mem_index>_<endif><field_name>_SIZE	<field_size>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif><field_name>_START_OFFSET	<field_start_offset>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif><field_name>_RANGE	<field_range>
+`define <mem_name>_<if(mem_index)><mem_index>_<endif><field_name>_RST_VALUE	8'h<field_rst_value>
+
+>>
+

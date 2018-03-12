@@ -1,0 +1,18 @@
+In order to enable flop stages within DFT wrapper, flopcmd and flopmem should be used.
+
+If two flop stages need to be added at the input of the memory within DFT wrapper, and
+one output flop stage then the following '-flop' should be enabled.
+
+memogen -a 2Ror1W -b 64 -w 1024 -f 300
+    -flop flopcmd=2:flopmem=1 -name marvell_2ror1w_1024x64
+
+If zero flop stages need to be added at the input of the memory within DFT wrapper, and
+two output flop stage then the following command line options should be enabled.
+
+memogen -a 2Ror1W -b 64 -w 1024 -f 300 -ecc parity
+    -flop flopmem=2 -name marvell_2ror1w_1024x64
+
+Note:
+-----
+flopin, flopecc, and flopout add flop stages within the algorithm logic and not in DFT
+logic.

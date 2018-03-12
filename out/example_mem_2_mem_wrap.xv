@@ -1,0 +1,84 @@
+module example_mem_2_mem_wrap(
+clk,
+rst,
+example_mem_2_hbus_phy_wr_data,
+example_mem_2_hbus_phy_rd_data,
+example_mem_2_hbus_phy_addr,
+example_mem_2_hbus_phy_wr_en,
+example_mem_2_hbus_phy_rd_en,
+example_mem_2_hbus_phy_ack,
+example_mem_2_func_write,
+example_mem_2_func_wr_adr,
+example_mem_2_func_din,
+example_mem_2_func_read,
+example_mem_2_func_rd_adr,
+example_mem_2_func_rd_dout
+);
+
+input  clk;
+input  rst;
+
+//functional core access
+input [1-1:0] example_mem_2_func_write;
+input [$clog2(32)*1-1:0] example_mem_2_func_wr_adr;
+input [(64 + 0)*1-1:0] example_mem_2_func_din;
+input [1-1:0] example_mem_2_func_read;
+input [$clog2(32)*1-1:0]example_mem_2_func_rd_adr;
+output reg [(64 + 0)*1-1:0] example_mem_2_func_rd_dout;
+
+//CPU access to port0 always 
+input [(64 + 0)-1:0] example_mem_2_hbus_phy_wr_data;
+input [31:0] example_mem_2_hbus_phy_addr; //HBUS addr bus 
+input [2-1:0]  example_mem_2_hbus_phy_wr_en; 
+input        example_mem_2_hbus_phy_rd_en;
+output reg [(64 + 0)-1:0] example_mem_2_hbus_phy_rd_data;
+output reg  example_mem_2_hbus_phy_ack;
+
+//memory I/O signals
+reg [1-1:0] mem_wr;
+reg [$clog2(32)*1-1:0] mem_w_addr;
+reg [(64 + 0)*1-1:0] mem_w_data;
+reg [1-1:0] mem_rd;
+reg [$clog2(32)*1-1:0] mem_r_addr;
+reg [(64 + 0)*1-1:0] mem_r_data;
+
+reg example_mem_2_hbus_phy_rd_en_d;
+
+always@(posedge clk) begin
+   if(rst) begin
+     example_mem_2_hbus_phy_rd_en_d <= 1'b0;
+   end else begin
+     example_mem_2_hbus_phy_rd_en_d <= example_mem_2_hbus_phy_rd_en;
+   end
+end
+assign example_mem_2_hbus_phy_ack = (|example_mem_2_hbus_phy_wr_en || example_mem_2_hbus_phy_rd_en_d) ? 1'b1 : 1'b0; //TODO: should be delayed by mem rd latency 
+
+
+assign  mem_wr = (|example_mem_2_hbus_phy_wr_en) || example_mem_2_func_write;
+assign  mem_w_data = example_mem_2_hbus_phy_wr_en ? example_mem_2_hbus_phy_wr_data : example_mem_2_func_din;
+assign  mem_w_addr = example_mem_2_hbus_phy_wr_en ? example_mem_2_hbus_phy_addr :  example_mem_2_func_wr_adr;
+
+
+
+assign  mem_rd = example_mem_2_hbus_phy_rd_en || example_mem_2_func_read;
+assign  mem_r_addr = example_mem_2_hbus_phy_rd_en ? example_mem_2_hbus_phy_addr :  example_mem_2_func_rd_adr;
+
+
+//HBUS always gets rdata from port0
+assign example_mem_2_hbus_phy_rd_data = example_mem_2_hbus_phy_rd_en_d ? mem_r_data[(64 + 0)-1:0] : {(64 + 0){1'b0}};
+assign example_mem_2_func_rd_dout = mem_r_data ;
+
+example_mem_2_mem # (.NUMRPRT(1),
+	.NUMWPRT(1),
+	.NUMADDR(32),
+	.BITDATA((64 + 0))) 
+u_example_mem_2_mem (.clk(clk),
+	.rst(rst),
+	.example_mem_2_write(mem_wr),
+	.example_mem_2_wr_adr(mem_w_addr),
+	.example_mem_2_din(mem_w_data),
+	.example_mem_2_read(mem_rd),
+	.example_mem_2_rd_adr(mem_r_addr),
+	.example_mem_2_rd_dout(mem_r_data));
+
+endmodule

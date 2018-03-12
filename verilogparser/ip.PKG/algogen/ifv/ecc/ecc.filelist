@@ -1,0 +1,3 @@
+../../../common/rtl/ecc_check.v
+../../../common/rtl/ecc_calc.v
+ecc_sva.v

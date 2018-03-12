@@ -1,0 +1,14 @@
+../rtl/algo_2r2w4m4d_m69_top_wrap.v
+../rtl/algo_2r2w4m4d_1r1w_fl_top.v
+../../common/rtl/algo_mrnmpdqw_1r1w_fl_shared.v
+../../common/rtl/core_mrnmpdqw_1r1w_fl_shared.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_check.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ip_top_sva_mrnmpdqw_1r1w_fl_shared.v
+../../common/rtl/ip_top_sva_align_ecc_1r1w.v
+../../common/rtl/ip_top_sva_stack_1r1w.v

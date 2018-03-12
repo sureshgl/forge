@@ -1,0 +1,45 @@
+#!/bin/csh -f
+
+
+run show_all show_all
+
+# Push-pop
+setenv IFV_HIER    des.algo_top.a1_loop.algo
+setenv IFV_HIER_ALIGN des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_STACK des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+run qm_forward_check qm_forward_check
+run qm_cnt_check    qm_cnt_check
+run qm_head_check    qm_head_check
+run qm_dout_check    qm_dout_check
+run qm_link_check    qm_link_check
+run qm_data_check    qm_data_check
+
+#FL check
+setenv IFV_HIER des.algo_top.a2_loop*.algo_fl
+run fl_link_check fl_link_check
+run fl_head_check fl_head_check
+
+#Align checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run align_check align_check
+run mem_chk_check mem_chk_check
+run align_dout_check align_dout_check
+
+#stack_checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run stack_check stack_check
+run stack_dout_check stack_dout_check
+
+#connectivity checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run t1_mem_check t1_mem_check
+run t1_port_check t1_port_check
+
+setenv IFV_HIER_QM des.algo_top.a1_loop.algo
+setenv IFV_HIER_FL des.algo_top.a2_loop*.algo_fl
+run ptr_check ptr_check
+

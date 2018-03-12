@@ -1,0 +1,667 @@
+#!/usr/bin/perl
+###########################################################################################
+## This file contains the constraints required for performing the bist connection checks  #
+## Usage: starlifter_gen_bist_conn_constraints_pl <block_name>                            #
+###########################################################################################
+   $block_name = shift;
+   
+   $mem_name="mem28*";
+   $mem_name_1="mem28_*";
+   $mem_name_2="slf_rf2_1r1w*";
+   $rpr_mem_name="mem28_sr*";
+   $rpr_mem_name_dcl_1="mem28_sr*pgr*";
+   $rpr_mem_name_dcl_2="mem28_sr*pgc*";
+   $rpr_mem_name_dpoif_1="mem28_sr*pbr*";
+   
+   print $mem_name,"\n";
+   
+   @block_list=(f4_peat, f4_pebc, f4_pebd, f4_pedx, f4_pefc, f4_penc, f4_peps, f4_pera, f4_perw, f4_pesh, f4_pesl, f4_piat, f4_pibc, f4_pibd, f4_pidc, f4_pim1, f4_pim2, f4_pim3, f4_pima, f4_pipr, f4_piss, f4_pum1, f4_pum2, f4_pgal2, f4_prt);
+   
+   foreach ($i=0;$i<=$#block_list;$i++) {
+     if ($block_list[$i] eq "f4_piss") {
+
+     $prefix = $block_list[$i];
+     $prefix =~ s/f4_piss/ish/;
+   
+     $clk{$block_list[$i]}=clk_750;
+   
+     $reset{$block_list[$i]}="core_mem_rst_${prefix}_750";
+   
+     $bist_pass{$block_list[$i]}="${prefix}_bist_done_pass_out";
+     $bist_fail{$block_list[$i]}="${prefix}_bist_done_fail_out";
+     $bist_run{$block_list[$i]}="${prefix}_CORE_BIST_RUN";
+     $bist_rpr{$block_list[$i]}="${prefix}_CORE_BIST_RPR_MODE";
+   
+     $cfg_bst{$block_list[$i]}="_bst_";
+     $rpr_mode{$block_list[$i]}="true";
+     }
+   else {
+     $prefix = $block_list[$i];
+     $prefix =~ s/f4_p//;
+   
+     $clk{$block_list[$i]}=clk_750;
+   
+     $reset{$block_list[$i]}="core_mem_rst_${prefix}_750";
+   
+     $bist_pass{$block_list[$i]}="${prefix}_bist_done_pass_out";
+     $bist_fail{$block_list[$i]}="${prefix}_bist_done_fail_out";
+     $bist_run{$block_list[$i]}="${prefix}_CORE_BIST_RUN";
+     $bist_rpr{$block_list[$i]}="${prefix}_CORE_BIST_RPR_MODE";
+
+     if ($block_list[$i] eq "f4_pgal2") {
+        $bist_pass_1{$block_list[$i]}="gal2_um2_bist_pass_done_out";
+        $bist_fail_1{$block_list[$i]}="gal2_um2_bist_fail_done_out";
+        $bist_run_1{$block_list[$i]}="um2_gal2_cfg_bist_run";
+        $bist_rpr_1{$block_list[$i]}="um2_gal2_cfg_rpr_mode";
+     }
+     if ($block_list[$i] eq "f4_pum2") {
+        $bist_pass_1{$block_list[$i]}="gal2_um2_bist_pass_done_out";
+        $bist_fail_1{$block_list[$i]}="gal2_um2_bist_fail_done_out";
+        $bist_run_1{$block_list[$i]}="um2_gal2_cfg_bist_run";
+        $bist_rpr_1{$block_list[$i]}="um2_gal2_cfg_rpr_mode";
+     }
+     if ($block_list[$i] eq "f4_pum1") {
+        $bist_pass_1{$block_list[$i]}="gal1_um1_bist_pass_done_out";
+        $bist_fail_1{$block_list[$i]}="gal1_um1_bist_fail_done_out";
+        $bist_run_1{$block_list[$i]}="um1_gal1_cfg_bist_run";
+        $bist_rpr_1{$block_list[$i]}="um1_gal1_cfg_rpr_mode";
+     }
+     if ($block_list[$i] eq "f4_prt") {
+        $bist_pass{$block_list[$i]}="gal1_um1_bist_pass_done_out";
+        $bist_fail{$block_list[$i]}="gal1_um1_bist_fail_done_out";
+        $bist_run{$block_list[$i]}="um1_gal1_cfg_bist_run";
+        $bist_rpr{$block_list[$i]}="um1_gal1_cfg_rpr_mode";
+
+        $bist_pass_1{$block_list[$i]}="gal2_um2_bist_pass_done_out";
+        $bist_fail_1{$block_list[$i]}="gal2_um2_bist_fail_done_out";
+        $bist_run_1{$block_list[$i]}="um2_gal2_cfg_bist_run";
+        $bist_rpr_1{$block_list[$i]}="um2_gal2_cfg_rpr_mode";
+     }
+
+     $cfg_bst{$block_list[$i]}="_bst_";
+     $rpr_mode{$block_list[$i]}="true";
+     }
+   }
+  
+   ### Bridge chiplet blocks ###
+   @block_list=(f4_bem, f4_bfp3, f4_bib, f4_bif, f4_bim, f4_bis, f4_bpl, f4_brp, f4_brs, f4_brw, f4_bsp, f4_bfp0, f4_bfp2, f4_bri);
+   
+   foreach ($i=0;$i<=$#block_list;$i++) {
+   
+     $prefix = $block_list[$i];
+     $prefix =~ s/f4_//;
+     $prefix_UC = $prefix;
+     $prefix_UC =~ tr/a-z/A-Z/;
+   
+     $clk{$block_list[$i]}=clk_750;
+   
+     ## core_mem_rst
+     if ($block_list[$i] eq "f4_bem" || $block_list[$i] eq "f4_bim" || $block_list[$i] eq "f4_bpl" || $block_list[$i] eq "f4_brw") {
+        $reset{$block_list[$i]}="CORE_MEM_RST_${prefix_UC}";
+     }
+     elsif ($block_list[$i] eq "f4_bfp0") {
+        $reset{$block_list[$i]}="core_mem_rst";
+     }
+     else {
+        $reset{$block_list[$i]}="core_mem_rst_${prefix}";
+     }
+   
+     ## bist_pass/fail
+     if ($block_list[$i] eq "f4_bfp0") {
+        $bist_pass{$block_list[$i]}="${prefix}_bist_done_pass_out";
+        $bist_fail{$block_list[$i]}="${prefix}_bist_done_fail_out";
+    }
+    else {
+        $bist_pass{$block_list[$i]}="bist_done_pass_out_${prefix}";
+        $bist_fail{$block_list[$i]}="bist_done_fail_out_${prefix}";
+    }
+      
+     ## core_bist_run
+     if ($block_list[$i] eq "f4_bsp" || $block_list[$i] eq "f4_brs" || $block_list[$i] eq "f4_bis") {
+        $bist_run{$block_list[$i]}="core_bist_run_${prefix}";
+     }
+     else {
+        $bist_run{$block_list[$i]}="${prefix}_core_bist_run";
+     }
+     
+     ## core_bist_rpr_mode
+     if ($block_list[$i] eq "f4_bis") {
+        $bist_rpr{$block_list[$i]}="core_bist_rpr_mode_${prefix}";
+     }
+     else {
+        $bist_rpr{$block_list[$i]}="${prefix}_core_bist_rpr_mode";
+     }
+   
+     if ($block_list[$i] eq "f4_bfp0" || $block_list[$i] eq "f4_bfp2") {
+        $bist_pass_1{$block_list[$i]}="fpm_fp_bist_done_pass_out";
+        $bist_fail_1{$block_list[$i]}="fpm_fp_bist_done_fail_out";
+        $bist_run_1{$block_list[$i]}="fpm_fp_core_bist_run";
+        $rpr_mode{$block_list[$i]}="false";
+     }
+     elsif ($block_list[$i] eq "f4_bri") {
+        $bist_pass{$block_list[$i]}="fpm_fp_bist_done_pass_out";
+        $bist_fail{$block_list[$i]}="fpm_fp_bist_done_fail_out";
+        $bist_run{$block_list[$i]}="fpm_fp_core_bist_run";
+        $rpr_mode{$block_list[$i]}="false";
+     }
+     else {
+        $rpr_mode{$block_list[$i]}="true";
+     }
+
+     $cfg_bst{$block_list[$i]}="_bst_";
+   }
+
+   ### MEC chiplet blocks ###
+   @block_list=(f4_mpc, f4_mvc_buf, f4_mvc_ctl, f4_mvc_pck, f4_mvc_rif);
+   
+   foreach ($i=0;$i<=$#block_list;$i++) {
+   
+     $prefix = $block_list[$i];
+     $prefix_1 = $prefix;
+     $prefix =~ s/f4_//;
+     $prefix_UC = $prefix;
+     $prefix_UC =~ tr/a-z/A-Z/;
+     $prefix_1 =~ s/f4_mvc_//;
+   
+     if ($block_list[$i] eq "f4_mpc") {
+        $clk{$block_list[$i]}=clk_core;
+     }
+     else {
+        $clk{$block_list[$i]}=clk;
+     }
+   
+     ## core_mem_rst
+     $reset{$block_list[$i]}="CORE_MEM_RST";
+   
+     ## bist_pass/fail
+     $bist_pass{$block_list[$i]}="${prefix}_bist_pass";
+     $bist_fail{$block_list[$i]}="${prefix}_bist_fail";
+      
+     ## core_bist_run
+     if ($block_list[$i] eq "f4_mvc_pck") {
+        $bist_run{$block_list[$i]}="${prefix_1}_bist_run";
+     }
+     else {
+        $bist_run{$block_list[$i]}="${prefix}_bist_run";
+    }
+     
+     ## core_bist_rpr_mode
+     #$bist_rpr{$block_list[$i]}="${prefix}_core_bist_rpr_mode";
+   
+     $cfg_bst{$block_list[$i]}="_bst_";
+     $rpr_mode{$block_list[$i]}="false";
+   }
+
+   ### DE chiplet blocks ###
+   @block_list=(f4_daif, f4_dcl, f4_dfib, f4_difi, f4_dl2ft, f4_dlbd, f4_dpoif, f4_dl2lu, f4_dl2mip, f4_dl2ri, f4_dl3lu, f4_dl3ri, f4_dsw, f4_dl2po, f4_dpl, f4_dnf);
+   foreach ($i=0;$i<=$#block_list;$i++) {
+   
+     $prefix = $block_list[$i];
+     $prefix_1 = $prefix;
+     $prefix =~ s/f4_//;
+     $prefix_UC = $prefix;
+     $prefix_UC =~ tr/a-z/A-Z/;
+     $prefix_1 =~ s/f4_d//;
+   
+     if ($block_list[$i] eq "f4_dl3ri") {
+        $clk{$block_list[$i]}=clk_500;
+     }
+     elsif ($block_list[$i] eq "f4_daif" || $block_list[$i] eq "f4_dl2ft" ||
+         $block_list[$i] eq "f4_dl2lu") {
+        $clk{$block_list[$i]}=clk750;
+     }
+     elsif ($block_list[$i] eq "f4_dl2mip") {
+        $clk{$block_list[$i]}=clk;
+     }
+     elsif ($block_list[$i] eq "f4_dnf") {
+        $clk{$block_list[$i]}=sysclk;
+     }
+     else {
+        $clk{$block_list[$i]}=clk_750;
+     }
+   
+     ## core_mem_rst
+     if ($block_list[$i] eq "f4_dfib") {
+        $reset{$block_list[$i]}="de_core_mem_rst_750";
+     }
+     else {
+        $reset{$block_list[$i]}="core_mem_rst";
+     }
+   
+     ## bist_pass/fail
+     if ($block_list[$i] eq "f4_daif" || $block_list[$i] eq "f4_dl2ri") {
+        $bist_pass{$block_list[$i]}="bist_done_pass_out";
+        $bist_fail{$block_list[$i]}="bist_done_fail_out";
+     }
+     elsif ($block_list[$i] eq "f4_dl2po") {
+        $bist_pass{$block_list[$i]}="${prefix}_bist_done_pass_out";
+        $bist_fail{$block_list[$i]}="${prefix}_bist_done_fail_out";
+     }
+     elsif ($block_list[$i] eq "f4_dl2ft" || $block_list[$i] eq "f4_dnf" || $block_list[$i] eq "f4_dpl" || $block_list[$i] eq "f4_dsw") {
+        $bist_pass{$block_list[$i]}="${prefix}_bist_pass";
+        $bist_fail{$block_list[$i]}="${prefix}_bist_fail";
+     }
+     elsif ($block_list[$i] eq "f4_dl2lu" || $block_list[$i] eq "f4_dl2mip" || $block_list[$i] eq "f4_dl3lu" || $block_list[$i] eq "f4_dl3ri") {
+        $bist_pass{$block_list[$i]}="${prefix_1}_bist_pass";
+        $bist_fail{$block_list[$i]}="${prefix_1}_bist_fail";
+     }
+     else {
+        $bist_pass{$block_list[$i]}="${prefix}_BIST_DONE_PASS_OUT";
+        $bist_fail{$block_list[$i]}="${prefix}_BIST_DONE_FAIL_OUT";
+     }
+      
+     ## core_bist_run
+     $bist_run{$block_list[$i]}="core_bist_run";
+     
+     ## core_bist_rpr_mode
+     $bist_rpr{$block_list[$i]}="core_bist_rpr_mode";
+   
+     $cfg_bst{$block_list[$i]}="*";
+     if ($block_list[$i] eq "f4_dpl") {
+        $rpr_mode{$block_list[$i]}="false";
+     }
+     else {
+        $rpr_mode{$block_list[$i]}="true";
+     }
+
+   }
+
+
+   ### VOQ chiplet blocks ###
+   @block_list=(f4_vam, f4_vcn, f4_veb, f4_veb_mip_buf, f4_vep, f4_veq, f4_vif, f4_vim, f4_vir, f4_vis, f4_vmb, f4_vqa, f4_vrf, f4_vrl, f4_vro_slice, f4_vtf, f4_voqip_FncTop);
+   foreach ($i=0;$i<=$#block_list;$i++) {
+       if ($block_list[$i] eq "f4_vam") {
+          $clk{$block_list[$i]}=clk;
+   
+          $reset{$block_list[$i]}    ="vam_vam_core_vam_amax_vam_amax_tech_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vam_vam_core_vam_amax_vam_amax_tech_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vam_vam_core_vam_amax_vam_amax_tech_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vam_vam_core_vam_amax_vam_amax_tech_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vam_vam_core_vam_amax_vam_amax_tech_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vcn") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vcn_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vcn_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vcn_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vcn_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vcn_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_veb") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="veb_veb_core_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="veb_veb_core_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="veb_veb_core_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="veb_veb_core_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="veb_veb_core_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_veb_mip_buf") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="veb_mip_buf_mip_mip_1r2w_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="veb_mip_buf_mip_mip_1r2w_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="veb_mip_buf_mip_mip_1r2w_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="veb_mip_buf_mip_mip_1r2w_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="veb_mip_buf_mip_mip_1r2w_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vep") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vep_vep_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vep_vep_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vep_vep_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vep_vep_CORE_BIST_RUN";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="false";
+       }
+       if ($block_list[$i] eq "f4_veq") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="veq_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="veq_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="veq_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="veq_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="veq_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vif") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vif_vif_top_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vif_vif_top_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vif_vif_top_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vif_vif_top_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vif_vif_top_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vim") {
+          $clk{$block_list[$i]}=clk;
+   
+          $reset{$block_list[$i]}    ="vim_vim_core_vim_slave_tech_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vim_vim_core_vim_slave_tech_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vim_vim_core_vim_slave_tech_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vim_vim_core_vim_slave_tech_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vim_vim_core_vim_slave_tech_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vir") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vir_vir_core_vir_auto_conn_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vir_vir_core_vir_auto_conn_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vir_vir_core_vir_auto_conn_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vir_vir_core_vir_auto_conn_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vir_vir_core_vir_auto_conn_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vis") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vis_vis_top_vis_fifo_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vis_vis_top_vis_fifo_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vis_vis_top_vis_fifo_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vis_vis_top_vis_fifo_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vis_vis_top_vis_fifo_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vmb") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vmb_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vmb_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vmb_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vmb_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vmb_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vqa") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vqa_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vqa_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vqa_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vqa_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vqa_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vrf") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vrf_vrf_core_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vrf_vrf_core_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vrf_vrf_core_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vrf_vrf_core_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vrf_vrf_core_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vrl") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vrl_vrl_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vrl_vrl_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vrl_vrl_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vrl_vrl_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vrl_vrl_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vro_slice") {
+          $clk{$block_list[$i]}=clk;
+   
+          $reset{$block_list[$i]}    ="vro_slice_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vro_slice_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vro_slice_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vro_slice_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vro_slice_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_vtf") {
+          $clk{$block_list[$i]}=clk_core;
+   
+          $reset{$block_list[$i]}    ="vtf_CORE_MEM_RST";
+   
+          $bist_pass{$block_list[$i]}="vtf_BIST_DONE_PASS_OUT";
+          $bist_fail{$block_list[$i]}="vtf_BIST_DONE_FAIL_OUT";
+          $bist_run{$block_list[$i]} ="vtf_CORE_BIST_RUN";
+          $bist_rpr{$block_list[$i]} ="vtf_CORE_BIST_RPR_MODE";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="true";
+       }
+       if ($block_list[$i] eq "f4_voqip_FncTop") {
+          $clk{$block_list[$i]}=FncPcsClk;
+   
+          $reset{$block_list[$i]}    ="FncMemBistRst";
+   
+          $bist_pass{$block_list[$i]}="FncMemBistPass";
+          $bist_fail{$block_list[$i]}="FncMemBistFail";
+          $bist_run{$block_list[$i]} ="FncMemBistRun";
+   
+          $cfg_bst{$block_list[$i]}  ="*";
+          $rpr_mode{$block_list[$i]} ="false";
+       }
+
+   }
+
+   
+
+
+###########################################################################
+## Generating sgdc constraints file for bist_connection checks
+###########################################################################
+    open(f1,">${block_name}/${block_name}_bist_conn.sgdc") || die "Could not open file ${block_name}/${block_name}_bist_conn.sgdc for writing\n";
+    
+    if ($block_name eq "f4_vro_slice") {
+	    print f1 "current_design f4_vro_slice\n\n"; 
+	}
+    elsif ($block_name eq "f4_voqip_FncTop") {
+	    print f1 "current_design f4_voqip_FncTop\n\n"; 
+	}
+	else {
+	    print f1 "current_design $block_name\n\n"; 
+	}
+
+    if ($block_name eq "f4_bfp2") {
+        print f1 "    clock               -name $clk{$block_name} -testclock\n";
+
+        print f1 "    require_path        -from \"$bist_pass_1{$block_name}\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+        print f1 "    require_strict_path -from \"$bist_pass_1{$block_name}\" -to \"dc3_ip_reg_sta*::user_field\"\n\n";
+
+        print f1 "    require_path        -from \"$bist_fail_1{$block_name}\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+        print f1 "    require_strict_path -from \"$bist_fail_1{$block_name}\" -to \"dc3_ip_reg_sta*::user_field\"\n\n";
+        
+        print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\"  -to \"$bist_run_1{$block_name}\"\n\n";
+    }
+    elsif ($block_name eq "f4_bri") {
+        print f1 "    clock               -name $clk{$block_name} -testclock\n";
+        print f1 "    require_strict_path -from \"f4_bfp0::$bist_pass{$block_name}\" -to \"f4_bfp2::$bist_pass{$block_name}\"\n\n";
+        print f1 "    require_strict_path -from \"f4_bfp0::$bist_fail{$block_name}\" -to \"f4_bfp2::$bist_fail{$block_name}\"\n\n";
+        print f1 "    require_strict_path -from \"f4_bfp2::$bist_run{$block_name}\" -to \"f4_bfp0::$bist_run{$block_name}\"\n\n";
+    }
+    elsif ($block_name eq "f4_prt") {
+        print f1 "    clock               -name $clk{$block_name} -testclock\n";
+        print f1 "    require_path -from \"f4_pgal2::$bist_pass_1{$block_name}\" -to_one_of \"f4_pum1::$bist_pass{$block_name}\" -except_from \"f4_prt.f4_pgal2_inst.$bist_pass_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pgal2::$bist_fail_1{$block_name}\" -to_one_of \"f4_pum1::$bist_fail{$block_name}\" -except_from \"f4_prt.f4_pgal2_inst.$bist_fail_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pum1::$bist_run{$block_name}\"     -to_one_of \"f4_pgal2::$bist_run_1{$block_name}\" -except_to \"f4_prt.f4_pgal2_inst.$bist_run_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pum1::$bist_rpr{$block_name}\"     -to_one_of \"f4_pgal2::$bist_rpr_1{$block_name}\" -except_to \"f4_prt.f4_pgal2_inst.$bist_rpr_1{$block_name}\"\n\n";
+
+        print f1 "    require_path -from \"f4_pgal2::$bist_pass_1{$block_name}\" -to_one_of \"f4_pum2::$bist_pass_1{$block_name}\" -except_from \"f4_prt.f4_pgal1_inst.$bist_pass_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pgal2::$bist_fail_1{$block_name}\" -to_one_of \"f4_pum2::$bist_fail_1{$block_name}\" -except_from \"f4_prt.f4_pgal1_inst.$bist_fail_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pum2::$bist_run_1{$block_name}\"   -to_one_of \"f4_pgal2::$bist_run_1{$block_name}\" -except_to \"f4_prt.f4_pgal1_inst.$bist_run_1{$block_name}\"\n\n";
+        print f1 "    require_path -from \"f4_pum2::$bist_rpr_1{$block_name}\"   -to_one_of \"f4_pgal2::$bist_rpr_1{$block_name}\" -except_to \"f4_prt.f4_pgal1_inst.$bist_rpr_1{$block_name}\"\n\n";
+    }
+    else {
+    
+        print f1 "    clock               -name $clk{$block_name} -testclock\n";
+        print f1 "    define_tag          -tag reset -name $reset{$block_name}           -value 0\n\n";
+        
+        print f1 "    require_value       -tag reset -name \"${mem_name}::CORE_MEM_RST\" -value 0\n";
+        if ($block_name eq "f4_pefc") {
+		}
+        if ($block_name eq "f4_pefc") {
+        	print f1 "    require_strict_path -from \"$reset{$block_name}\"             -to \"${mem_name}::CORE_MEM_RST\"\n\n";
+		}
+		else {
+        	print f1 "    require_strict_path -from \"$reset{$block_name}\"             -to \"${mem_name}::CORE_MEM_RST\"\n\n";
+	    }
+        print f1 "    require_value       -name \"${mem_name_1}::TEST__TDR_RST\"           -value 1\n\n";
+        
+        if ($block_name eq "f4_pefc") {
+        	print f1 "    require_structure   -from \"${mem_name}::BIST_DONE_PASS_OUT\"  -to        \"$bist_pass{$block_name}\"             -structure AND\n";
+		}
+		else {
+        	print f1 "    require_structure   -from \"${mem_name}::BIST_DONE_PASS_OUT\" -to        \"$bist_pass{$block_name}\"             -structure AND\n";
+		}
+
+        if ($block_name eq "f4_pgal2" || $block_name eq "f4_bfp0") {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_PASS_OUT\" -to_one_of \"$bist_pass_1{$block_name}\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_PASS_OUT\" -to \"$bist_pass_1{$block_name}\"  \"$bist_pass{$block_name}\"\n\n";
+        }
+		elsif ($block_name eq "f4_pefc") {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_PASS_OUT\"  -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_PASS_OUT\"  -to \"dc3_ip_reg_sta*::user_field\"  \"$bist_pass{$block_name}\"\n\n";
+		}
+        else {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_PASS_OUT\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_PASS_OUT\" -to \"dc3_ip_reg_sta*::user_field\"  \"$bist_pass{$block_name}\"\n\n";
+        }
+        if ($block_name eq "f4_pum2" || $block_name eq "f4_pum1") {
+            print f1 "    require_path        -from \"$bist_pass_1{$block_name}\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"$bist_pass_1{$block_name}\" -to \"dc3_ip_reg_sta*::user_field\"\n\n";
+
+            print f1 "    require_path        -from \"$bist_fail_1{$block_name}\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"$bist_fail_1{$block_name}\" -to \"dc3_ip_reg_sta*::user_field\"\n\n";
+            
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\" -to \"$bist_rpr_1{$block_name}\"\n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\"  -to \"$bist_run_1{$block_name}\"\n\n";
+        }
+        
+        if ($block_name eq "f4_pefc") {
+        	print f1 "    require_structure   -from \"${mem_name}::BIST_DONE_FAIL_OUT\"  -to        \"$bist_fail{$block_name}\"             -structure OR\n";
+		}
+		else {
+        	print f1 "    require_structure   -from \"${mem_name}::BIST_DONE_FAIL_OUT\" -to        \"$bist_fail{$block_name}\"             -structure OR\n";
+	    }
+        if ($block_name eq "f4_pgal2" || $block_name eq "f4_bfp0") {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_FAIL_OUT\" -to_one_of \"$bist_fail_1{$block_name}\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_FAIL_OUT\" -to \"$bist_fail_1{$block_name}\"  \"$bist_fail{$block_name}\"\n\n";
+        }
+		elsif ($block_name eq "f4_pefc") {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_FAIL_OUT\"  -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_FAIL_OUT\"  -to \"dc3_ip_reg_sta*::user_field\"  \"$bist_fail{$block_name}\"\n\n";
+		}
+        else {
+            print f1 "    require_path        -from \"${mem_name}::BIST_DONE_FAIL_OUT\" -to_one_of \"dc3_ip_reg_sta*::user_field\" -path_type buffered\n";
+            print f1 "    require_strict_path -from \"${mem_name}::BIST_DONE_FAIL_OUT\" -to \"dc3_ip_reg_sta*::user_field\"  \"$bist_fail{$block_name}\"\n\n";
+        }
+        
+        if ($block_name eq "f4_pgal2") {
+            print f1 "    require_path        -from_one_of      \"$bist_rpr_1{$block_name}\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\"\n";
+            print f1 "    require_path        -from_one_of      \"$bist_run_1{$block_name}\"  -to \"${mem_name}::CORE_BIST_RUN\"\n\n";
+        }
+        elsif ($block_name eq "f4_bfp0") {
+            print f1 "    require_path        -from_one_of      \"$bist_run_1{$block_name}\"  -to \"${mem_name}::CORE_BIST_RUN\"\n\n";
+        }
+        elsif ($block_name eq "f4_dcl" || $block_name eq "f4_dl2po" || $block_name eq "f4_dl2ri" || $block_name eq "f4_dl2po" || $block_name eq "f4_dpoif") {
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\" -to \"${rpr_mem_name_dcl_1}::CORE_BIST_RPR_MODE\"\n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\" -to \"${rpr_mem_name_dcl_2}::CORE_BIST_RPR_MODE\"\n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\"  -to \"${mem_name}::CORE_BIST_RUN\"\n\n";
+            if ($block_name eq "f4_dpoif") {
+                print f1 "    require_path        -from_one_of      \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name_dpoif_1}::CORE_BIST_RPR_MODE\"\n";
+            }
+        }
+		elsif ($block_name eq "f4_pefc") {
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\" \n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\"  -to \"${mem_name}::CORE_BIST_RUN\" \n\n";
+		}
+		elsif ($block_name eq "f4_voqip_FncTop") {
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfw*::user_field\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\" \n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfw*::user_field\"  -to \"${mem_name}::CORE_BIST_RUN\" \n\n";
+		}
+        else {
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\"\n";
+            print f1 "    require_path        -from_one_of      \"dc3_ip_reg$cfg_bst{$block_name}cfg*::user_field\"  -to \"${mem_name}::CORE_BIST_RUN\"\n\n";
+        }
+        
+		if ($block_name eq "f4_pefc") {
+        	print f1 "    require_path        -from \"$bist_run{$block_name}\" -to \"${mem_name}::CORE_BIST_RUN\" \n";
+		}
+		else {
+        	print f1 "    require_path        -from \"$bist_run{$block_name}\" -to \"${mem_name}::CORE_BIST_RUN\"\n";
+		}
+        if ($rpr_mode{$block_name} eq "true") {
+            if ($block_name eq "f4_dcl" || $block_name eq "f4_dl2po" || $block_name eq "f4_dl2ri" || $block_name eq "f4_dl2po" || $block_name eq "f4_dpoif") {
+                print f1 "    require_path        -from \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name_dcl_1}::CORE_BIST_RPR_MODE\"\n";
+                print f1 "    require_path        -from \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name_dcl_2}::CORE_BIST_RPR_MODE\"\n";
+            if ($block_name eq "f4_dpoif") {
+                print f1 "    require_path        -from_one_of      \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name_dpoif_1}::CORE_BIST_RPR_MODE\"\n";
+            }
+            }
+		    elsif ($block_name eq "f4_pefc") {
+                print f1 "    require_path        -from \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\" \n";
+		    }
+            else {
+                print f1 "    require_path        -from \"$bist_rpr{$block_name}\" -to \"${rpr_mem_name}::CORE_BIST_RPR_MODE\"\n";
+            }
+        }
+        
+        close f1;
+
+    }
+
+    if (-e "${block_name}/${block_name}_sgdc.list") {
+       system("ls ${block_name}/${block_name}_bist_conn.sgdc >> ${block_name}/${block_name}_sgdc.list");
+    } else {
+       system("ls ${block_name}/${block_name}_bist_conn.sgdc > ${block_name}/${block_name}_sgdc.list");
+    }
+
+    print "Done generating bist_conn sgdc constraints for block $block_name ... \n";

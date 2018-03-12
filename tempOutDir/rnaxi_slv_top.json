@@ -1,0 +1,40 @@
+{
+  "memories" : [ {
+    "instances" : [ {
+      "name" : "blah_mem_0",
+      "rnaxiWordsWidth" : "64",
+      "rnaxiWords" : "2",
+      "bits" : "34",
+      "words" : "17",
+      "startOffset" : "0",
+      "endOffset" : "21",
+      "readPortValue" : "2",
+      "writePortValue" : "1",
+      "eccWidth" : "0",
+      "isWriteMultiport" : false,
+      "isReadMultiport" : true,
+      "instanceNumber" : 0,
+      "isInterfaceOnly" : true
+    } ]
+  }, {
+    "instances" : [ {
+      "name" : "blah_mem2_0",
+      "rnaxiWordsWidth" : "64",
+      "rnaxiWords" : "2",
+      "bits" : "34",
+      "words" : "17",
+      "startOffset" : "0",
+      "endOffset" : "21",
+      "readPortValue" : "2",
+      "writePortValue" : "1",
+      "eccWidth" : "0",
+      "isWriteMultiport" : false,
+      "isReadMultiport" : true,
+      "instanceNumber" : 0,
+      "isInterfaceOnly" : false
+    } ]
+  } ],
+  "hasMemories" : true,
+  "fsName" : null,
+  "hasRegisters" : true
+}

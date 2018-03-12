@@ -1,0 +1,35 @@
+module example_rnaxi_slv_top();
+
+rnaxi_slv   u_example_rnaxi_slv(
+	.u_req_valid (u_req_valid_example),
+	.u_req_intr  (u_req_intr_example),
+	.u_req_type  (u_req_type_example),
+	.u_req_attr  (u_req_attr_example),
+	.u_req_size  (u_req_size_example),
+	.u_req_data  (u_req_data_example),
+	.d_req_stall (d_req_stall_example),
+	.u_req_stall (u_req_stall_example),
+	.d_req_valid (d_req_valid_example),
+	.d_req_intr  (d_req_intr_example),
+	.d_req_type  (d_req_type_example),
+	.d_req_attr  (d_req_attr_example),
+	.d_req_size  (d_req_size_example),
+	.d_req_data  (d_req_data_example)
+);
+
+wire ack_rcvd;
+
+example_rnaxi_slv_addr_dec  u_example_rnaxi_slv_addr_dec ();
+
+wire mem_ack_rcvd;
+example_rnaxi_mem_phy_wrap  u_example_rnaxi_mem_phy_wrap ();
+example_mem_1_mem_wrap u_example_mem_1_mem_wrap() ;
+example_mem_2_mem_wrap u_example_mem_2_mem_wrap() ;
+example_mem_3_mem_wrap u_example_mem_3_mem_wrap() ;
+
+
+wire reg_ack_rcvd;
+example_rnaxi_reg_wrap u_example_rnaxi_reg_wrap ();
+
+assign ack_rcvd = mem_ack_rcvd || reg_ack_rcvd;
+endmodule

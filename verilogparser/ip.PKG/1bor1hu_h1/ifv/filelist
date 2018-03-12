@@ -1,0 +1,6 @@
+../../common/rtl/algo_nbor1u_1r1w_nocam.v
+../../common/rtl/core_nbor1u_1r1w_nocam.v
+../../common/rtl/ip_top_sva_nbor1u_1r1w_nocam.v
+../../common/rtl/crc_calc.v
+../../algogen/prio_enc/rtl/priority_encode_id.v
+../../algogen/prio_enc/rtl/priority_encode.v

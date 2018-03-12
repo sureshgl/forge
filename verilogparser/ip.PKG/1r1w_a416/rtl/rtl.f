@@ -1,0 +1,16 @@
+algo_1r1w_a416_top_wrap.v
+algo_1r1w_a416_sva_wrap.v
+../../common/rtl/algo_mrnw_pque_f32_top.v
+../../common/rtl/algo_mrnw_pque_f32.v
+../../common/rtl/core_mrnw_pque_f32.v
+../../2ru_a43/rtl/algo_nr2u_1r1w_a43.v
+../../2ru_a43/rtl/core_nr2u_1r1w_a43.v
+../../common/rtl/algo_nru_1r1w.v
+../../common/rtl/core_nru_1r1w.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_check.v
+../../common/rtl/ecc_calc.v

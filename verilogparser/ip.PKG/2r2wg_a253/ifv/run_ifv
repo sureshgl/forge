@@ -1,0 +1,54 @@
+#!/bin/csh -f
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+show_all.tcl -l show_all.log +licq +exit
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_mem_check.tcl -l mem_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_mem_range_check.tcl -l mem_range_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_ecc_check.tcl -l ecc_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_smem_check.tcl -l smem_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_forward_check.tcl -l forward_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_pdat_fwd_check.tcl -l pdat_fwd_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_rmem_check.tcl -l rmem_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_vdout_int_check.tcl -l vdout_int_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_fakemem_check.tcl -l fakemem_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+1r1w_rl2_dout_check.tcl -l dout_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.t1_loop\[\*\].align_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t1_align_check.tcl -l t1_align_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t1_align_dout_check.tcl -l t1_align_dout_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.t2_loop\[\*\].align_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t2_align_check.tcl -l t2_align_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t2_align_dout_check.tcl -l t2_align_dout_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.t2_loop\[\*\].stack_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+stack_check.tcl -l t2_stack_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+stack_dout_check.tcl -l t2_stack_dout_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.t2_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t2_loop\[\*\].stack_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t2_mem_check.tcl -l t2_mem_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t2_port_check.tcl -l t2_stack_port_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.t1_loop\[\*\].align_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+pdout_check.tcl -l pdout_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t1_port_check.tcl -l t1_port_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.t2_loop\[\*\].align_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+sdout_check.tcl -l sdout_check.log +licq +exit
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+t2_port_check.tcl -l t2_align_port_check.log +licq +exit
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+iev +64bit -f filelist +top+memoir_2r2w_147456x28 +define+FORMAL +tcl+mem_chk_check.tcl -l mem_chk_check.log +licq +exit
+

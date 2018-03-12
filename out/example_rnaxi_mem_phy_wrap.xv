@@ -1,0 +1,133 @@
+module example_rnaxi_mem_phy_wrap (
+clk,
+rst,
+mem_ack_rcvd,
+example_mem_1_wr_en,
+example_mem_1_wr_data,
+example_mem_1_addr,
+example_mem_1_rd_en,
+example_mem_1_rd_data,
+example_mem_1_hbus_phy_addr,
+example_mem_1_hbus_phy_wr_data,
+example_mem_1_hbus_phy_rd_data,
+example_mem_1_hbus_phy_ack,
+example_mem_1_hbus_phy_wr_en,
+example_mem_1_hbus_phy_rd_en
+,example_mem_2_wr_en,
+example_mem_2_wr_data,
+example_mem_2_addr,
+example_mem_2_rd_en,
+example_mem_2_rd_data,
+example_mem_2_hbus_phy_addr,
+example_mem_2_hbus_phy_wr_data,
+example_mem_2_hbus_phy_rd_data,
+example_mem_2_hbus_phy_ack,
+example_mem_2_hbus_phy_wr_en,
+example_mem_2_hbus_phy_rd_en,example_mem_3_wr_en,
+example_mem_3_wr_data,
+example_mem_3_addr,
+example_mem_3_rd_en,
+example_mem_3_rd_data,
+example_mem_3_hbus_phy_addr,
+example_mem_3_hbus_phy_wr_data,
+example_mem_3_hbus_phy_rd_data,
+example_mem_3_hbus_phy_ack,
+example_mem_3_hbus_phy_wr_en,
+example_mem_3_hbus_phy_rd_en
+);
+
+input  clk;
+input  rst;
+input [1-1:0] example_mem_1_wr_en;  
+input [31:0] example_mem_1_wr_data;
+input [31:0] example_mem_1_addr;
+input        example_mem_1_rd_en;
+input [31:0] example_mem_1_hbus_phy_rd_data;
+input        example_mem_1_hbus_phy_ack;
+
+output reg [31:0] example_mem_1_rd_data;
+output reg [31:0] example_mem_1_hbus_phy_addr;
+output reg [31:0] example_mem_1_hbus_phy_wr_data;
+output reg [1-1:0]  example_mem_1_hbus_phy_wr_en; 
+output reg        example_mem_1_hbus_phy_rd_en;
+wire  example_mem_1_ack_out;input [2-1:0] example_mem_2_wr_en;  
+input [31:0] example_mem_2_wr_data;
+input [31:0] example_mem_2_addr;
+input        example_mem_2_rd_en;
+input [31:0] example_mem_2_hbus_phy_rd_data;
+input        example_mem_2_hbus_phy_ack;
+
+output reg [31:0] example_mem_2_rd_data;
+output reg [31:0] example_mem_2_hbus_phy_addr;
+output reg [31:0] example_mem_2_hbus_phy_wr_data;
+output reg [2-1:0]  example_mem_2_hbus_phy_wr_en; 
+output reg        example_mem_2_hbus_phy_rd_en;
+wire  example_mem_2_ack_out;input [2-1:0] example_mem_3_wr_en;  
+input [31:0] example_mem_3_wr_data;
+input [31:0] example_mem_3_addr;
+input        example_mem_3_rd_en;
+input [31:0] example_mem_3_hbus_phy_rd_data;
+input        example_mem_3_hbus_phy_ack;
+
+output reg [31:0] example_mem_3_rd_data;
+output reg [31:0] example_mem_3_hbus_phy_addr;
+output reg [31:0] example_mem_3_hbus_phy_wr_data;
+output reg [2-1:0]  example_mem_3_hbus_phy_wr_en; 
+output reg        example_mem_3_hbus_phy_rd_en;
+wire  example_mem_3_ack_out;
+
+output reg  mem_ack_rcvd;
+
+rnaxi_mem_phy# (.MEM_ROW_SIZE_IN_WORDS(1),
+	.MEM_ROW_DATA_WIDTH(32),
+	.MEM_ADDR_WIDTH(32)) 
+u_example_mem_1_rnaxi_mem_phy (.clk(clk),
+	.rst(rst),
+	.mem_wr_en(example_mem_1_wr_en),
+	.mem_rd_en(example_mem_1_rd_en),
+	.mem_wr_data(example_mem_1_wr_data),
+	.mem_phy_rd_data(example_mem_1_hbus_phy_rd_data),
+	.mem_addr(example_mem_1_addr),
+	.ack_in(example_mem_1_hbus_phy_ack),
+	.mem_phy_wr_data(example_mem_1_hbus_phy_wr_data),
+	.mem_rd_data(example_mem_1_rd_data),
+	.mem_phy_wr_en(example_mem_1_hbus_phy_wr_en),
+	.mem_phy_addr(example_mem_1_hbus_phy_addr),
+	.mem_phy_rd_en(example_mem_1_hbus_phy_rd_en),
+	.ack_out(example_mem_1_ack_out));rnaxi_mem_phy# (.MEM_ROW_SIZE_IN_WORDS(2),
+	.MEM_ROW_DATA_WIDTH(64),
+	.MEM_ADDR_WIDTH(32)) 
+u_example_mem_2_rnaxi_mem_phy (.clk(clk),
+	.rst(rst),
+	.mem_wr_en(example_mem_2_wr_en),
+	.mem_rd_en(example_mem_2_rd_en),
+	.mem_wr_data(example_mem_2_wr_data),
+	.mem_phy_rd_data(example_mem_2_hbus_phy_rd_data),
+	.mem_addr(example_mem_2_addr),
+	.ack_in(example_mem_2_hbus_phy_ack),
+	.mem_phy_wr_data(example_mem_2_hbus_phy_wr_data),
+	.mem_rd_data(example_mem_2_rd_data),
+	.mem_phy_wr_en(example_mem_2_hbus_phy_wr_en),
+	.mem_phy_addr(example_mem_2_hbus_phy_addr),
+	.mem_phy_rd_en(example_mem_2_hbus_phy_rd_en),
+	.ack_out(example_mem_2_ack_out));rnaxi_mem_phy# (.MEM_ROW_SIZE_IN_WORDS(2),
+	.MEM_ROW_DATA_WIDTH(64),
+	.MEM_ADDR_WIDTH(32)) 
+u_example_mem_3_rnaxi_mem_phy (.clk(clk),
+	.rst(rst),
+	.mem_wr_en(example_mem_3_wr_en),
+	.mem_rd_en(example_mem_3_rd_en),
+	.mem_wr_data(example_mem_3_wr_data),
+	.mem_phy_rd_data(example_mem_3_hbus_phy_rd_data),
+	.mem_addr(example_mem_3_addr),
+	.ack_in(example_mem_3_hbus_phy_ack),
+	.mem_phy_wr_data(example_mem_3_hbus_phy_wr_data),
+	.mem_rd_data(example_mem_3_rd_data),
+	.mem_phy_wr_en(example_mem_3_hbus_phy_wr_en),
+	.mem_phy_addr(example_mem_3_hbus_phy_addr),
+	.mem_phy_rd_en(example_mem_3_hbus_phy_rd_en),
+	.ack_out(example_mem_3_ack_out));
+
+assign mem_ack_rcvd =  example_mem_1_ack_out  || example_mem_2_ack_out|| example_mem_3_ack_out;
+
+endmodule

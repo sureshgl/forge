@@ -1,0 +1,17 @@
+algo_1k2l_a404_top_wrap.v
+algo_1k2l_a404_sva_wrap.v
+algo_1k2l_a404_top.v
+../../common/rtl/algo_mrnw_fque_doppler.v
+../../common/rtl/core_mrnw_fque_doppler.v
+../../common/rtl/algo_mrnw_pque_doppler.v
+../../common/rtl/core_mrnw_pque_doppler.v
+../../common/rtl/algo_nr2w_1r1w.v
+../../common/rtl/core_nr2w_1r1w.v
+../../1r2w_a63/rtl/infra_align_ecc_1r1w_a63.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_check.v
+../../common/rtl/ecc_calc.v

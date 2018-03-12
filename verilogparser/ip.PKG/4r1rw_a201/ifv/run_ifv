@@ -1,0 +1,67 @@
+#!/bin/csh -f
+
+run show_all show_all
+
+setenv IFV_HIER des.algo_top.a1A_loop.algo
+
+run mem_check mem_check
+run mem_range_check mem_range_check
+run xor_int_check xor_int_check
+run xor_data_check xor_data_check
+run xor_more_check xor_more_check
+run fakemem_check fakemem_check
+run dout_check dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run align_check align_check
+run mem_chk_check mem_chk_check
+run align_dout_check align_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run stack_check stack_check
+run stack_dout_check stack_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run t1_mem_check t1_mem_check
+run t1_port_check t1_port_check
+
+setenv IFV_HIER des.algo_top.a1A_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run pdout_serr_check pdout_serr_check
+run pdout_check pdout_check
+run port_check port_check
+
+
+setenv IFV_HIER des.algo_top.a1B_loop.algo
+
+run a1B_mem_range_check a1B_mem_range_check
+run a1B_fakemem_check a1B_fakemem_check
+run a1B_dout_check a1B_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run a1B_align_check a1B_align_check
+run a1B_mem_chk_check a1B_mem_chk_check
+run a1B_align_dout_check a1B_align_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run a1B_stack_check a1B_stack_check
+run a1B_stack_dout_check a1B_stack_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run a1B_t1_mem_check a1B_t1_mem_check
+run a1B_t1_port_check a1B_t1_port_check
+
+setenv IFV_HIER des.algo_top.a1B_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run a1B_pdout_check a1B_pdout_check
+run a1B_port_check a1B_port_check

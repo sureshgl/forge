@@ -1,0 +1,25 @@
+The list of commands & associate switches/arguments show the settings used by MemoirSystems Inc. in extracting the lib cells
+from the memory-vendor's physical library. Six different physical libs have been extracted from the ARM-Tsmc40g compiler.
+
+The estimates for area, power, etc will NOT match with the users's version of the physical memory if the user uses different switches 
+for extraction. The argument values for -words / -bits switches below are just for example. The user should insert appropriate values.
+
+--------------------------------------------------------------------------------------
+
+sram_dp_hde_rvt_hvt_rvt ascii -instname arm_tsmc40g_sram_dp_hde_128x4_8_u -words 128 -bits 4 -frequency 1 -mux 8 -pipeline off -write_mask on -wp_size 1 -write_thru off -top_layer "m5-m9" -power_type otc -redundancy on -rcols 2 -rrows 4 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -rows_p_bl 256 -check_instname off -diodes on -drive 6 -dnw off -dpccm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+
+
+sram_sp_hde_rvt_hvt_rvt ascii -instname arm_tsmc40g_sram_sp_hde_1920x12_32_u -words 1920 -bits 12 -frequency 1 -mux 32 -pipeline off -write_mask on -wp_size 1 -write_thru off -top_layer "m5-m9" -power_type otc -redundancy on -rcols 2 -rrows 4 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -rows_p_bl 256 -check_instname off -diodes on -drive 6 -asvm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+
+
+sram_sp_hsc_rvt_hvt_rvt ascii -instname arm_tsmc40g_sram_sp_hsc_8192x42_16_u -words 8192 -bits 42 -frequency 1 -mux 16 -pipeline off -write_mask on -wp_size 1 -write_thru off -top_layer "m5-m9" -power_type otc -redundancy on -rcols 2 -rrows 4 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -rows_p_bl 64 -check_instname off -diodes on -drive 6 -asvm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+
+
+rf_sp_hde_rvt_hvt_rvt ascii -instname arm_tsmc40g_rf_sp_hde_512x101_2_u -words 512 -bits 101 -frequency 1 -mux 2 -pipeline off -write_mask on -wp_size 1 -write_thru off -top_layer "m5-m9" -power_type otc -redundancy on -rcols 2 -rrows 0 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -check_instname off -diodes on -drive 4 -asvm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+
+
+rf_sp_hsd_rvt_rvt_hvt ascii -instname arm_tsmc40g_rf_sp_hsd_256x120_2_u -words 256 -bits 120 -frequency 1 -mux 2 -pipeline off -write_mask on -wp_size 1 -write_thru off -top_layer "m5-m9" -power_type otc -redundancy on -rcols 1 -rrows 0 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -check_instname off -diodes on -drive 4 -asvm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+
+
+rf_2p_hse_rvt_hvt_rvt ascii -instname arm_tsmc40g_rf_2p_hse_512x144_2_u -words 512 -bits 144 -frequency 1 -mux 2 -pipeline off -write_mask on -wp_size 1 -top_layer "m5-m9" -power_type otc -redundancy on -rcols 1 -rrows 0 -bmux on -ser none -power_gating on -retention on -ema on -atf off -cust_comment "" -bus_notation on -left_bus_delim "[" -right_bus_delim "]" -pwr_gnd_rename "vddpe:VDDPE,vddce:VDDCE,vsse:VSSE" -prefix "" -name_case upper -check_instname off -diodes on -drive 4 -asvm on -synopsys.libname MEMOIR -synopsys.nldm on -synopsys.ccs off -synopsys.ecsm off -lef-fp.site_def on -corners ss_0p81v_0p81v_m40c,ffg_0p99v_0p99v_125c
+

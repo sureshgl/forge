@@ -1,0 +1,13 @@
+algo_4cor1a_c40_top_wrap.v
+algo_4cor1a_c40_sva_wrap.v
+../../4cor1a_c40/rtl/algo_4cor1a_top.v
+../../common/rtl/algo_ncor1a_1r1w.v
+../../common/rtl/core_ncor1a_1r1w.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v
+../../common/rtl/np2_addr.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/algo_mrnrwpw_ref.v

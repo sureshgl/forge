@@ -1,0 +1,8 @@
+current_design ${TOP}
+
+cdc_false_path -to "mem28*::CORE_MEM_RST"
+cdc_false_path -to "mem28*::CORE_BIST_RUN"
+cdc_false_path -to "mem28*::CORE_BIST_RPR_MODE"
+cdc_false_path -from "mem28*::BIST_DONE_PASS_OUT"
+cdc_false_path -from "mem28*::BIST_DONE_FAIL_OUT"
+

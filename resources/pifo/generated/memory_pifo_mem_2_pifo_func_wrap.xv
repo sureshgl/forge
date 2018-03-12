@@ -1,0 +1,93 @@
+module memory_pifo_mem_2_pifo_func_wrap(clk,
+rst,
+hbus_pifo_mem_2_pifo_phy_wr_data,
+hbus_pifo_mem_2_pifo_phy_rd_data,
+hbus_pifo_mem_2_pifo_phy_addr,
+hbus_pifo_mem_2_pifo_phy_wr_en,
+hbus_pifo_mem_2_pifo_phy_rd_en,
+hbus_pifo_mem_2_pifo_phy_ack,
+pifo_func_write,
+pifo_func_wr_adr,
+pifo_func_din,
+pifo_func_read,
+pifo_func_rd_adr,
+pifo_func_rd_dout);
+
+parameter NUMRPRT = 1;
+parameter NUMWPRT = 1;
+parameter NUMADDR = 32;
+parameter BITDATA = 64;
+parameter BITADDR = $clog2(NUMADDR);
+parameter ECCWIDTH = 0;
+parameter MEMDWIDTH = BITDATA + ECCWIDTH;
+parameter HBUS_MEM_INTF_ADDR_WIDTH = 32;
+
+
+
+input  clk;
+input  rst;
+input [NUMWPRT-1:0] pifo_func_write;
+input [BITADDR*NUMWPRT-1:0] pifo_func_wr_adr;
+input [MEMDWIDTH*NUMWPRT-1:0] pifo_func_din;
+input [NUMRPRT-1:0] pifo_func_read;
+input [BITADDR*NUMRPRT-1:0] pifo_func_rd_adr;
+input [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_2_pifo_phy_wr_data;
+input [HBUS_MEM_INTF_ADDR_WIDTH-1:0] hbus_pifo_mem_2_pifo_phy_addr;
+input [3:0] hbus_pifo_mem_2_pifo_phy_wr_en;
+input  hbus_pifo_mem_2_pifo_phy_rd_en;
+output reg [MEMDWIDTH*NUMRPRT-1:0] pifo_func_rd_dout;
+output reg [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_2_pifo_phy_rd_data;
+output reg  hbus_pifo_mem_2_pifo_phy_ack;
+
+
+
+
+
+
+
+reg mem_wr;
+reg mem_rd;
+reg [BITADDR-1:0]mem_w_addr;
+reg [BITADDR-1:0] mem_r_addr;
+reg [MEMDWIDTH-1:0] mem_w_data;
+reg [MEMDWIDTH-1:0] mem_r_data;
+reg cpurd_d;
+reg hbus_pifo_mem_2_pifo_phy_rd_en_d;
+reg pifo_func_read_d;
+always@(posedge clk) begin
+   if(rst) begin
+     pifo_func_read_d <= 1'b0;
+     hbus_pifo_mem_2_pifo_phy_rd_en_d <= 1'b0;
+   end else begin
+     pifo_func_read_d <= pifo_func_read;
+     hbus_pifo_mem_2_pifo_phy_rd_en_d <= hbus_pifo_mem_2_pifo_phy_rd_en;
+   end
+end
+assign hbus_pifo_mem_2_pifo_phy_ack = (|hbus_pifo_mem_2_pifo_phy_wr_en || hbus_pifo_mem_2_pifo_phy_rd_en_d) ? 1'b1 : 1'b0; //TODO: consider forwarding latency fronm the spec
+
+assign  mem_wr = (|hbus_pifo_mem_2_pifo_phy_wr_en) ||  pifo_func_write;
+
+assign  mem_w_data = hbus_pifo_mem_2_pifo_phy_wr_en ? hbus_pifo_mem_2_pifo_phy_wr_data : pifo_func_din;
+assign  mem_w_addr = hbus_pifo_mem_2_pifo_phy_wr_en ? hbus_pifo_mem_2_pifo_phy_addr :  pifo_func_wr_adr;
+
+assign  mem_rd = hbus_pifo_mem_2_pifo_phy_rd_en || pifo_func_read;
+assign  mem_r_addr = hbus_pifo_mem_2_pifo_phy_rd_en ? hbus_pifo_mem_2_pifo_phy_addr :  pifo_func_rd_adr;
+
+assign  hbus_pifo_mem_2_pifo_phy_rd_data = hbus_pifo_mem_2_pifo_phy_rd_en_d ? mem_r_data : {(MEMDWIDTH*NUMRPRT){1'b0}};
+assign  pifo_func_rd_dout = pifo_func_read_d ? mem_r_data : {(MEMDWIDTH*NUMRPRT){1'b0}};
+
+
+memory_pifo_mem_2_pifo_func# (.NUMRPRT(NUMRPRT),
+	.NUMWPRT(NUMWPRT),
+	.NUMADDR(NUMADDR),
+	.BITDATA(MEMDWIDTH)) 
+memory_pifo_mem_2_pifo_func_inst (.clk(clk),
+	.rst(rst),
+	.pifo_func_write(mem_wr),
+	.pifo_func_wr_adr(mem_w_addr),
+	.pifo_func_din(mem_w_data),
+	.pifo_func_read(mem_rd),
+	.pifo_func_rd_adr(mem_r_addr),
+	.pifo_func_rd_dout(mem_r_data));
+
+endmodule

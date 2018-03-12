@@ -1,0 +1,4 @@
+Version 3.3.5703
+
+Command line options for flop stage insertion have changed. Please refer to User Guide section 3.3 for details.
+

@@ -1,0 +1,12 @@
+../sim/ip_top.v
+../../../../ip/4ror1w_a94/rtl/algo_4ror1w_top.v
+../../../../ip/common/rtl/algo_nror1w.v
+../../../../ip/common/rtl/core_nror1w.v
+../../../../ip/common/rtl/ip_top_sva_nror1w.v
+../../../../ip/common/rtl/np2_addr.v
+../../../../ip/common/rtl/infra_align_ecc_dwsn.v
+../../../../ip/common/rtl/align_ecc_dwsn.v
+../../../../ip/common/rtl/ip_top_sva_align_ecc_dwsn.v
+../../../../ip/common/rtl/infra_refr_1stage.v
+../../../../ip/common/rtl/refr_1stage.v
+../../../../ip/common/rtl/ip_top_sva_refr_1stage.v

@@ -1,0 +1,10 @@
+#!/bin/csh -f
+
+set TOP=algo_nbor1u_1r1w_nocam
+
+#setenv IFV_HIER a1_loop.algo
+
+bsub -I -q memoir "ifv -v v10.20.041 +64bit -F filelist +define+FORMAL +licq +top+algo_nbor1u_1r1w_nocam +tcl+search_check.tcl -l search_check.log +gui" 
+#bsub -I -q memoir "iev -v v10.20.041 +64bit -F filelist +define+FORMAL +licq +exit +top+algo_nbor1u_1r1w_nocam +tcl+search_check.tcl -l search_check.log"
+
+#bsub -I -q memoir "ifv -v v10.20.041 +64bit -F filelist +define+FORMAL +licq +top+algo_nbor1u_1r1w_nocam +tcl+fifo_check.tcl -l fifo_check.log +gui" 

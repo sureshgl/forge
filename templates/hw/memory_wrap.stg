@@ -1,0 +1,205 @@
+memory_wrap(memoryWrapForStg)::=<<
+<if(memoryWrapForStg.memory.isInterfaceOnly)>
+
+
+module <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_mem_wrap(
+clk,
+rst,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_write,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_wr_adr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_din,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_bw,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_read,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_adr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_dout,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_ack
+);
+
+input  clk;
+input  rst;
+input  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_ack;
+output <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_write;
+output [$clog2(<memoryWrapForStg.memory.words>)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_wr_adr;
+output [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_din;
+output [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_bw;
+output <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_read;
+output [$clog2(<memoryWrapForStg.memory.words>)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_adr;
+input [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data;
+input [32-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr;
+input [<memoryWrapForStg.memory.rnaxiWords>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en;   
+input  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en;
+input [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_dout; //always gets from port0
+output reg [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data;
+output reg  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack;
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack =  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_ack;
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_write = |<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en; 
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_din = (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data) ;
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_wr_adr = ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) ;
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_read = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en ; 
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_adr = ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) ;
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data = (<memoryWrapForStg.memory.rnaxiWords>*32)'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_rd_dout);
+
+reg [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] hbus_phy_bw;
+generate for (genvar i=0; i \< <memoryWrapForStg.memory.rnaxiWords>; i++) begin : bwlp
+  assign hbus_phy_bw[i*32 +: 32] = {32{<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en[i]}};
+end
+endgenerate
+
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_mem_bw = (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(hbus_phy_bw);
+
+endmodule
+
+<else>
+
+
+module <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_mem_wrap(
+clk,
+rst,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_write,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_wr_adr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_din,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_bw,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_flopout_en,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_read,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_ready,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_adr,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_fout,
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_dout
+);
+
+input  clk;
+input  rst;
+
+//FIXME: ECC is calculated and added by MEMOGEN - remove ecc stuff from here
+//functional core access
+input [<memoryWrapForStg.memory.writePortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_write;
+input [$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.writePortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_wr_adr;
+input [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_din;
+input [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_bw;
+input                       <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_flopout_en;
+input [<memoryWrapForStg.memory.readPortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_read;
+input [$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.readPortValue>-1:0]<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_adr;
+output reg [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.readPortValue>-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_dout;
+output [<memoryWrapForStg.memory.words>*(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0]   <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_fout;
+output                       <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_ready;
+
+
+//CPU access to port0 always 
+input [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data;
+input [31:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr; //HBUS addr bus 
+input [<memoryWrapForStg.memory.rnaxiWords>-1:0]  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en; 
+input        <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en;
+output reg [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data;
+output reg  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack;
+
+//memory I/O signals
+reg [<memoryWrapForStg.memory.writePortValue>-1:0] mem_wr;
+reg [$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.writePortValue>-1:0] mem_w_addr;
+reg [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:0] mem_w_data;
+reg [<memoryWrapForStg.memory.readPortValue>-1:0] mem_rd;
+reg [$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.readPortValue>-1:0] mem_r_addr;
+reg [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.readPortValue>-1:0] mem_r_data;
+
+reg [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:0] mem_bw;
+wire mem_flopout_en = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_flopout_en;
+
+reg [(<memoryWrapForStg.memory.rnaxiWords>*32)-1:0] hbus_phy_bw;
+reg <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en_d;
+
+always@(posedge clk) begin
+   if(rst) begin
+     <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en_d \<= 1'b0;
+   end else begin
+     <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en_d \<= <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en;
+   end
+end
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_ack = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en || <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en_d) ? 1'b1 : 1'b0; //TODO: should be delayed by mem rd latency 
+
+generate for (genvar i=0; i \< <memoryWrapForStg.memory.rnaxiWords>; i++) begin : bwlp
+  assign hbus_phy_bw[i*32 +: 32] = {32{<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en[i]}};
+end
+endgenerate
+  
+<if(memoryWrapForStg.memory.isWriteMultiport)>
+
+wire  mem_wr_0 = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) || <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_write[0:0];
+assign  mem_wr = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_write[<memoryWrapForStg.memory.writePortValue>-1:1],mem_wr_0};
+
+wire [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0] mem_w_data_0 = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data) : <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_din[(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0];
+assign  mem_w_data = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_din[(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)],mem_w_data_0};
+
+wire [(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0] mem_bw_0 = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(hbus_phy_bw) : <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_bw[(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)-1:0];
+assign  mem_bw = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_bw[(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)*<memoryWrapForStg.memory.writePortValue>-1:(<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)],mem_bw_0};
+
+wire [$clog2(<memoryWrapForStg.memory.words>)-1:0] mem_w_addr_0 = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) : <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_wr_adr[$clog2(<memoryWrapForStg.memory.words>)-1:0];
+assign  mem_w_addr = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_wr_adr[$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.writePortValue>-1:$clog2(<memoryWrapForStg.memory.words>)],mem_w_addr_0};
+
+<else>
+
+assign  mem_wr = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) || <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_write;
+assign  mem_w_data = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_data) : <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_din;
+assign  mem_bw = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? (<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>)'(hbus_phy_bw) : <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_bw;
+assign  mem_w_addr = (|<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_wr_en) ? ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) :  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_wr_adr;
+
+<endif>
+
+<if(memoryWrapForStg.memory.isReadMultiport)>
+
+wire  mem_rd_0 = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en || <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_read[0:0];
+assign  mem_rd = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_read[<memoryWrapForStg.memory.readPortValue>-1:1],mem_rd_0};
+
+wire [$clog2(<memoryWrapForStg.memory.words>)-1:0] mem_r_addr_0 = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en ? ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) :  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_adr[$clog2(<memoryWrapForStg.memory.words>)-1:0];
+assign  mem_r_addr = {<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_adr[$clog2(<memoryWrapForStg.memory.words>)*<memoryWrapForStg.memory.readPortValue>-1:$clog2(<memoryWrapForStg.memory.words>)],mem_r_addr_0};
+
+<else>
+
+assign  mem_rd = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en || <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_read;
+assign  mem_r_addr = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en ? ($clog2(<memoryWrapForStg.memory.words>))'(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_addr) :  <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_adr;
+
+<endif>
+
+//HBUS always gets rdata from port0
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_data = <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_hbus_phy_rd_en_d ? (<memoryWrapForStg.memory.rnaxiWords>*32)'(mem_r_data) : {(<memoryWrapForStg.memory.rnaxiWords>*32){1'b0}};
+assign <memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_dout = mem_r_data ;
+
+<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_mem # (.NUMRPRT(<memoryWrapForStg.memory.readPortValue>),
+	.NUMWPRT(<memoryWrapForStg.memory.writePortValue>),
+	.NUMADDR(<memoryWrapForStg.memory.words>),
+	.BITDATA((<memoryWrapForStg.memory.bits> + <memoryWrapForStg.memory.eccWidth>))) 
+u_<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_mem (.clk(clk),
+	.rst(rst),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_write(mem_wr),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_wr_adr(mem_w_addr),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_din(mem_w_data),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_bw(mem_bw),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_flopout_en(mem_flopout_en),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_read(mem_rd),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_rd_adr(mem_r_addr),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_rd_fout(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_rd_fout),
+	.<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_ready(<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_func_ready),
+  .<memoryWrapForStg.fsName>_<memoryWrapForStg.memory.name>_rd_dout(mem_r_data));
+
+endmodule
+
+<endif>
+
+>>

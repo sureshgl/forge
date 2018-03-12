@@ -1,0 +1,226 @@
+html(htmlForStg)::=<<
+
+\<html>
+\<h1>Module :Pifo\</h1>
+\<h4 onclick="myFunction()">ExpandAll\</h4>
+\<h2>Registers\</h2>
+
+
+\<head>
+\<script>
+	function showhide(farg) {
+		div = document.getElementById(farg);
+		if (div.style.display != "none") {
+			div.style.display = "none";
+		\} else {
+			div.style.display = "block";
+		\}
+	\}
+	
+	function myFunction() {
+	    var y = document.getElementsByClassName("itemClass");
+	    for (var a = 0; a \< y.length; a++) {
+	        if (y[a].style.display != "none") {
+	        	y[a].style.display = "none";
+			\} else {
+				y[a].style.display = "block";
+			\}
+	    \}
+	\}
+	
+\</script>
+\</head>
+\<style type="text/css">
+.Table {
+	display: table;
+\}
+
+.divTable {
+	 width: 50%;
+  	text-align: left;
+  
+\}
+h3 {
+	 color: SlateBlue;
+	 cursor:pointer;
+	 text-decoration: underline;
+\}
+
+h1 {
+	 color: Tomato;
+\}
+
+h2 {
+	 color: MediumSeaGreen;
+\}
+
+h4 {
+	 color: Orange;
+\}
+
+.divTableRow {
+	display: table-row;
+\}
+
+.divTableHeading {
+	font-weight: bold;
+	background-color: goldenrod;
+  	color: black; 
+	display: table-header-group;
+\}
+
+.divTableHead {
+  	padding: 10px;
+  	border: 1px solid goldenrod; 
+	display: table-cell;
+	font-weight: bold;
+	background-color: goldenrod;
+  	color: black; 
+\}
+
+.divTableCell {
+	border: 1px solid #999999;
+	display: table-cell;
+	padding: 3px 10px;	
+	background-color: lemonchiffon; 
+\}
+
+.divTableCelll {
+	border: 1px solid #999999;
+	display: table-cell;
+	padding: 3px 10px;	
+	font-weight: bold;
+	background-color: goldenrod; 	 
+\}
+
+.divTableFoot {
+	background-color: #EEE;
+	display: table-footer-group;
+	font-weight: bold;
+\}
+
+.divTableBody {
+	display: table-row-group;
+	
+\}
+\</style>
+	
+\<body>
+	<htmlForStg.registers:{register |
+	 \<h3 id="button" onclick="showhide('<register.name>')"><register.name>\</h3>			
+	\<div class="itemClass" id ="<register.name>" style="display: none">
+	 <register.instances :{ reg_inst |
+		\<p>Register: <reg_inst.name>\</p>
+		\<div class="divTable">
+			\<div class="divTableBody">
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Offset\</div>
+					\<div class="divTableCell"><reg_inst.startOffset>\</div>
+				\</div>
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Reset value\</div>
+					\<div class="divTableCell">0000\</div>
+				\</div>
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Size\</div>
+					\<div class="divTableCell"><reg_inst.totalSize>\</div>
+				\</div>
+			\</div>			
+		\<p>\</p>
+		\<div class="divTable">
+			\<div class="divTableBody">
+				\<div class="divTableRow">
+					\<div class="divTableHead">Field Range\</div>
+					\<div class="divTableHead">Reset value\</div>
+					\<div class="divTableHead">Access Type\</div>
+					\<div class="divTableHead">Field Type\</div>
+					\<div class="divTableHead">Field Name\</div>
+					\<div class="divTableHead">Description\</div>
+				\</div>
+				<reg_inst.fields:{ field |
+				\<div class="divTableRow">
+					\<div class="divTableCell"><field.regDataRange>\</div>
+					\<div class="divTableCell"><field.rstValue>\</div>
+					<if(field.readOnly)>
+					\<div class="divTableCell">RO\</div>
+					<endif>					
+					<if(field.readWrite)>
+					\<div class="divTableCell">RW\</div>
+					<endif>
+					<if(field.writeOnly)>
+					\<div class="divTableCell">WO\</div>
+					<endif>
+					\<div class="divTableCell">CFG\</div>
+					\<div class="divTableCell"><field.name>\</div>
+					\<div class="divTableCell"><field.des>\</div>
+				\</div>
+	 		\</div>
+	 	\</div>
+	 \</div>
+	 }>}>	
+\</div>	 	
+}>
+\<h2>Memories\</h2>
+<htmlForStg.memories:{memory |
+	 \<h3 id="button" onclick="showhide('<memory.name>')"><memory.name>\</h3>			
+	\<div class="itemClass" id ="<memory.name>" style="display: none">
+	 <memory.instances :{ mem_inst |
+		\<p>Memory: <mem_inst.name>\</p>
+		\<div class="divTable">
+			\<div class="divTableBody">
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Offset\</div>
+					\<div class="divTableCell"><mem_inst.startOffset>\</div>
+				\</div>
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Words\</div>
+					\<div class="divTableCell"><mem_inst.words>\</div>
+				\</div>
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Bits\</div>
+					\<div class="divTableCell"><mem_inst.bits>\</div>
+				\</div>
+				\<div class="divTableRow">
+					\<div class="divTableCelll">Portcapability\</div>
+					\<div class="divTableCell"><mem_inst.portCap>\</div>
+				\</div>
+				\</div>
+				
+	
+		\<p>\</p>
+		\<div class="divTable">
+			\<div class="divTableBody">
+				\<div class="divTableRow">
+					\<div class="divTableHead">Field Range\</div>
+					\<div class="divTableHead">Reset value\</div>
+					\<div class="divTableHead">Access Type\</div>
+					\<div class="divTableHead">Field Type\</div>
+					\<div class="divTableHead">Field Name\</div>
+					\<div class="divTableHead">Description\</div>
+				\</div>
+				<mem_inst.fields:{ field |	
+				\<div class="divTableRow">
+					\<div class="divTableCell"><field.regDataRange>\</div>
+					\<div class="divTableCell"><field.rstValue>\</div>
+					<if(field.readOnly)>
+					\<div class="divTableCell">RO\</div>
+					<endif>					
+					<if(field.readWrite)>
+					\<div class="divTableCell">RW\</div>
+					<endif>
+					<if(field.writeOnly)>
+					\<div class="divTableCell">WO\</div>
+					<endif>
+					\<div class="divTableCell">CFG\</div>
+					\<div class="divTableCell"><field.name>\</div>
+					\<div class="divTableCell"><field.des>\</div>
+				\</div>
+	 		\</div>
+	 	\</div>
+	 \</div>
+	 }>}>	
+\</div>	 	
+}>
+\</body>
+\</html>
+>>

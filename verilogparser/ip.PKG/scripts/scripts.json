@@ -1,0 +1,85 @@
+{
+   "__comment" : "v->t->[src-file->A, dst-file->B]",
+   "all" : {
+      "all" : [
+      ]
+   },
+   "ibm"  : {
+      "cu-32hp" : [
+         {            
+            "src" : "synthesis.tcl",
+            "dst" : "synthesis.tcl"
+         },
+         {
+            "src" : "equivalence.dofile",
+            "dst" : "equivalence.dofile"
+         },
+         {            
+            "src" : "timing.tcl",
+            "dst" : "timing.tcl"
+         } 
+      ]
+   },
+   "arm" : {
+      "tsmc40g" : [
+         {            
+            "src" : "synthesis.tcl",
+            "dst" : "synthesis.tcl"
+         },
+         {
+            "src" : "equivalence.dofile",
+            "dst" : "equivalence.dofile"
+         },
+         {            
+            "src" : "timing.tcl",
+            "dst" : "timing.tcl"
+         } 
+      ]
+   },
+   "marvell" : {
+      "tsmc28hpm" : [
+         {            
+            "src" : "synthesis.tcl",
+            "dst" : "synthesis.tcl"
+         },
+         {
+            "src" : "equivalence.dofile",
+            "dst" : "equivalence.dofile"
+         },
+         {            
+            "src" : "timing.tcl",
+            "dst" : "timing.tcl"
+         } 
+      ]
+   },
+   "scaled" : {
+      "40nm" : [
+         {
+            "src" : "synthesis.tcl",
+            "dst" : "synthesis.tcl"
+         },
+         {
+            "src" : "equivalence.dofile",
+            "dst" : "equivalence.dofile"
+         },
+         {
+            "src" : "timing.tcl",
+            "dst" : "timing.tcl"
+         }
+      ],
+      "28nm" : [
+         {
+            "src" : "synthesis.tcl",
+            "dst" : "synthesis.tcl"
+         },
+         {
+            "src" : "equivalence.dofile",
+            "dst" : "equivalence.dofile"
+         },
+         {
+            "src" : "timing.tcl",
+            "dst" : "timing.tcl"
+         }
+      ]
+   }
+}

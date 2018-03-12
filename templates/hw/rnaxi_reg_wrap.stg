@@ -1,0 +1,101 @@
+rnaxi_reg_wrap(rnaxiRegWrapForStg)::=<<
+module <rnaxiRegWrapForStg.fsName>_rnaxi_reg_wrap(
+clk,
+rst,
+<rnaxiRegWrapForStg.registers:{register | <register.instances :{ reg_inst |
+<reg_inst.fields:{field |<reg_inst.name>_<field.name>,
+<if(field.readTrigger)><reg_inst.name>_<field.name>_rd_trigger, <endif>
+<if(field.writeTrigger)><reg_inst.name>_<field.name>_wr_trigger, <endif>}>
+<reg_inst.name>_rdata,
+<reg_inst.name>_wr_en,
+<reg_inst.name>_rd_en,
+}>}>
+reg_data,
+reg_ack_rcvd
+);
+
+
+input clk;
+input rst;
+<rnaxiRegWrapForStg.registers:{register | <register.instances :{ reg_inst | <reg_inst.fields:{field |
+output reg [<field.size>-1:0] <reg_inst.name>_<field.name>;
+<if(field.readTrigger)>output reg <reg_inst.name>_<field.name>_rd_trigger;<endif>
+<if(field.writeTrigger)>output reg <reg_inst.name>_<field.name>_wr_trigger; <endif>
+}>
+output reg [((<reg_inst.numberofBeats>+1)*32)-1:0] <reg_inst.name>_rdata;
+input [<reg_inst.numberofBeats>:0] <reg_inst.name>_wr_en;
+input [<reg_inst.numberofBeats>:0] <reg_inst.name>_rd_en;
+}>}>
+input [2047:0] reg_data;
+output reg reg_ack_rcvd;
+
+
+<rnaxiRegWrapForStg.registers:{register | <register.instances :{ reg_inst |
+reg [(<reg_inst.registerWordWidth>)-1:0] <reg_inst.name>_rd_mask;
+reg [(<reg_inst.registerWordWidth>)-1:0] <reg_inst.name>_wr_mask;
+}>}>
+
+
+<rnaxiRegWrapForStg.registers:{register | <register.instances :{ reg_inst | generate
+	genvar genvar_<reg_inst.name>;
+    	for(genvar_<reg_inst.name>=0; genvar_<reg_inst.name>\< (<reg_inst.numberofBeats>+1); genvar_<reg_inst.name>++) begin: <reg_inst.name>
+      		assign <reg_inst.name>_wr_mask[(((genvar_<reg_inst.name>+1)*32)-1)-:32] = {32{<reg_inst.name>_wr_en[genvar_<reg_inst.name>]\}\};
+      		assign <reg_inst.name>_rd_mask[(((genvar_<reg_inst.name>+1)*32)-1)-:32] = {32{<reg_inst.name>_rd_en[genvar_<reg_inst.name>]\}\};
+	end
+endgenerate
+}>}>
+
+
+<rnaxiRegWrapForStg.registers:{register | <register.instances :{ reg_inst | <reg_inst.fields:{ field |
+rnaxi_rw_reg# (.FIELD_WIDTH(<field.size>),
+	.FIELD_RST_VALUE(<field.rstValue>),
+	<if(field.writeTrigger)>
+	.FIELD_WRITE_TRIGGER(1'b1),
+	<else>
+	.FIELD_WRITE_TRIGGER(1'b0),
+	<endif>
+	<if(field.readTrigger)>
+	.FIELD_READ_TRIGGER(1'b1),
+	<else>
+	.FIELD_READ_TRIGGER(1'b0),
+	<endif>
+	<if(field.readClear)>
+	.FIELD_READ_CLEAR(1'b1)
+	<else>
+	.FIELD_READ_CLEAR(1'b0)
+	<endif>
+	) 
+u_<reg_inst.name>_<field.name> (.clk(clk),
+	.rst(rst),
+	.field_wr_data(reg_data <field.regDataRange>),
+	<if(field.writeAttribute)>
+	.field_wr_en(<reg_inst.name>_wr_mask<field.regDataRange>),
+	<else>
+	.field_wr_en(),
+	<endif>
+	<if(field.readAttribute)>
+	.field_rd_en(<reg_inst.name>_rd_mask<field.regDataRange>),
+	<else>
+	.field_rd_en(),
+	<endif>
+	.field_out(<reg_inst.name>_<field.name>),
+	<if(field.readTrigger)>
+	.field_rd_trigger(<reg_inst.name>_<field.name>_rd_trigger),
+	<else>
+	.field_rd_trigger(),
+	<endif>
+	<if(field.writeTrigger)>
+	.field_wr_trigger(<reg_inst.name>_<field.name>_wr_trigger));
+	<else>
+	.field_wr_trigger());
+	<endif>
+}>}>}>
+
+<rnaxiRegWrapForStg.registers:{register |<register.instances :{ reg_inst |
+assign <reg_inst.name>_rdata [<reg_inst.registerWordWidth>-1:0] = {<reg_inst.leftWordsWidth>'h0<reg_inst.fields :{field |<if(field.readAttribute)> ,<reg_inst.name>_<field.name>[<field.size>-1:0]  <else> ,<field.size>'h0 <endif> }>\};
+}>}>
+
+assign reg_ack_rcvd = <first(rnaxiRegWrapForStg.registers):{register|<first(register.instances) :{ reg_inst |<reg_inst.name>_wr_en || <reg_inst.name>_rd_en}> <rest(register.instances) :{ reg_inst | || <reg_inst.name>_wr_en || <reg_inst.name>_rd_en}>}> <rest(rnaxiRegWrapForStg.registers):{register | <register.instances :{ reg_inst | || <reg_inst.name>_wr_en || <reg_inst.name>_rd_en}>}>;
+
+endmodule
+>>

@@ -1,0 +1,166 @@
+CHeaderBlocks(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+CHeaderRegister(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+CHeaderRegisterClassname(reg_name)::=<<
+
+class CFG_<reg_name>_class : public CMrlRegister {
+>>
+
+CHeaderRegisterClassDeclaration(reg_name,reg_off,reg_size)::=<<
+public:
+	CFG_<reg_name>_class(
+		string name = "CFG_<reg_name>",
+		u64 offsetArg            = <reg_off>, // index = 0x1
+		u64 sizeArg              = <reg_size>, 
+		mrl_type_t mrlType       = CMrlComponent::MRL_REGISTER,
+		component_type_t regType = CMrlComponent::REG_CFG,
+		CMrlComponent*   parentP = NULL
+	);
+    
+	CFG_<reg_name>_class(
+		const CFG_<reg_name>_class& rhs
+	);
+
+	virtual ~CFG_<reg_name>_class();
+
+	static const int SIZE   = <reg_size>;
+   
+	using CMrlComponent::operator=;
+   
+	CFG_<reg_name>_class& operator=(
+		const CFG_<reg_name>_class& rhs
+	);   
+>>
+
+CHeaderRegisterFieldDeclarations(CHeaderRegisterFieldDeclarationList)::=<<
+
+	// Fields' declaration
+<CHeaderRegisterFieldDeclarationList:{item |<item><\n>}>
+>>
+
+CHeaderRegisterFieldDeclaration(field_name,field_size)::=<<
+	typedef MrlComponentT<field_size> <field_name>_t;   
+	typedef ac_int\<<field_size>, false> <field_name>_ac_int_t;	
+>>
+
+CHeaderRegisterFieldInstantiations(CHeaderRegisterFieldInstantiationList)::=<<
+	// Fields' instantiations #1
+<CHeaderRegisterFieldInstantiationList:{item |<item><\n>}>
+>>
+
+CHeaderRegisterFieldInstantiation(field_name,field_size)::=<<
+	MrlComponentT\<<field_size>\> <field_name>;
+>>
+
+CHeaderRegisterSetOperationMode()::=<<
+
+	virtual void SetOperationMode ( 
+		const string& operationMode, bool recurse = true, bool setit = true
+	);
+
+};
+>>
+
+
+CHeaderMemory(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+CHeaderMemoryProxyClassname(memory_name,memory_size)::=<<
+class <memory_name>_class;
+class <memory_name>_class_Prxy : public CMrlRegister {
+public:
+	<memory_name>_class_Prxy(
+		string name            = "<memory_name>",
+		u64 rowNb              = 0,
+		CMrlComponent* parentP = NULL
+	);
+
+ 	<memory_name>_class_Prxy(
+		ac_bv* externalStorageP, 
+		u32 acBitOffset = 0, 
+		bool bigEndian = true, 
+		u64 sizeArg = <memory_size>, 
+		const string& name = "<memory_name>" 
+ 	);
+    
+	<memory_name>_class_Prxy(
+		const <memory_name>_class_Prxy& rhs
+	);
+   
+	virtual ~<memory_name>_class_Prxy();
+
+	static const int SIZE = <memory_size>;
+    
+	using CMrlComponent::operator=;
+   
+	<memory_name>_class_Prxy& operator=(
+		const <memory_name>_class_Prxy& rhs
+	);
+
+	u64 RowNb;
+	
+>>
+
+CHeaderMemoryFieldDeclarations(CHeaderMemoryFieldDeclarationList)::=<<
+
+	// Fields' declaration
+<CHeaderMemoryFieldDeclarationList:{item |<item><\n>}>
+>>
+
+CHeaderMemoryFieldDeclaration(field_name,field_size)::=<<
+	typedef MrlComponentT<field_size> <field_name>_t;   
+	typedef ac_int\<<field_size>, false> <field_name>_ac_int_t;	
+>>
+
+CHeaderMemoryFieldInstantiations(CHeaderMemoryFieldInstantiationList)::=<<
+	// Fields' instantiations #1
+<CHeaderMemoryFieldInstantiationList:{item |<item><\n>}>
+>>
+
+CHeaderMemoryFieldInstantiation(field_name,field_size)::=<<
+	MrlComponentT\<<field_size>\> <field_name>;
+>>
+
+CHeaderMemoryClassname(memory_name)::=<<
+
+class <memory_name>_class : public CMrlMemory\<<memory_name>_class_Prxy>{
+>>
+
+CHeaderMemoryConstructor(memory_name,memory_offset,memory_words,memory_bits)::=<<
+public:
+	<memory_name>_class(
+		string name = "<memory_name>", 
+		u64 offsetArg = <memory_offset>, // index = 0x14
+		mrl_type_t memoryMrlType = CMrlComponent::MRL_MEMORY,
+		component_type_t memoryComponentType = CMrlComponent::MEM_FLOP_ARRAY,
+		u32 memDepthArg = <memory_bits>,
+		u32 memWidthArg = <memory_words>,
+		CMrlComponent* parentP = NULL
+	);
+		
+>>
+
+CHeaderMemoryDeclaration(memory_name,memory_words)::=<<
+	typedef <memory_name>_class_Prxy    Row;
+	typedef ac_int\<<memory_words>, false> Entry;
+	
+	static const int SIZE            = 32;
+	
+>>
+
+CHeaderMemorySetOperationMode()::=<<
+	virtual void SetOperationMode (
+		const string& operationMode, bool recurse = true, bool setit = true 
+	);
+};
+	
+>>
+
+
+   

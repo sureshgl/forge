@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+run show_all show_all
+
+setenv IFV_HIER des
+
+run dout_check dout_check
+run fakemem_check fakemem_check

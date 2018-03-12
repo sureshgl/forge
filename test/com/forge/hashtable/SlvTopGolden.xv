@@ -1,0 +1,33 @@
+module ex_rnaxi_slv_top();
+
+rnaxi_slv   u_ex_rnaxi_slv(
+	.u_req_valid (u_req_valid_ex),
+	.u_req_intr  (u_req_intr_ex),
+	.u_req_type  (u_req_type_ex),
+	.u_req_attr  (u_req_attr_ex),
+	.u_req_size  (u_req_size_ex),
+	.u_req_data  (u_req_data_ex),
+	.d_req_stall (d_req_stall_ex),
+	.u_req_stall (u_req_stall_ex),
+	.d_req_valid (d_req_valid_ex),
+	.d_req_intr  (d_req_intr_ex),
+	.d_req_type  (d_req_type_ex),
+	.d_req_attr  (d_req_attr_ex),
+	.d_req_size  (d_req_size_ex),
+	.d_req_data  (d_req_data_ex)
+);
+
+wire ack_rcvd;
+
+ex_rnaxi_slv_addr_dec  u_ex_rnaxi_slv_addr_dec ();
+
+wire mem_ack_rcvd;
+ex_rnaxi_mem_phy_wrap  u_ex_rnaxi_mem_phy_wrap ();
+ex_blah_mem_0_mem_wrap u_ex_blah_mem_0_mem_wrap() ;
+ex_blah_mem2_0_mem_wrap u_ex_blah_mem2_0_mem_wrap() ;
+
+
+zt_des_1s1su_1r1ru u_zt_des_1s1su_1r1ru(); zt_des_2s1su_1r1ru u_zt_des_2s1su_1r1ru();zt_des_1r1su_1r1ru u_zt_des_1r1su_1r1ru(); zt_des_2r1su_1r1ru u_zt_des_2r1su_1r1ru(); 
+
+assign ack_rcvd = mem_ack_rcvd;
+endmodule

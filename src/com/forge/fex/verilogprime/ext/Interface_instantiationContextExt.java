@@ -1,0 +1,38 @@
+package com.forge.fex.verilogprime.ext;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+
+import com.forge.fex.verilogprime.gen.VerilogPrimeParser.Interface_instantiationContext;
+import com.forge.fex.verilogprime.utils.PopulateExtendedContextVisitor;
+
+public class Interface_instantiationContextExt extends AbstractBaseExt {
+
+	public Interface_instantiationContextExt(Interface_instantiationContext ctx) {
+		addToContexts(ctx);
+		parent = ctx;
+	}
+
+	@Override
+	public Interface_instantiationContext getContext() {
+		return (Interface_instantiationContext) contexts.get(contexts.size() - 1);
+	}
+
+	@Override
+	public ParserRuleContext getContext(String str) {
+		return new PopulateExtendedContextVisitor().visit(getPrimeParser(str).interface_instantiation());
+	}
+
+	@Override
+	public void setContext(ParserRuleContext ctx) {
+		if (ctx != null) {
+			if (ctx instanceof Interface_instantiationContext) {
+				addToContexts(ctx);
+			} else {
+				throw new ClassCastException(ctx.getClass().getSimpleName() + " cannot be cased to "
+						+ Interface_instantiationContext.class.getName());
+			}
+		} else {
+			addToContexts(null);
+		}
+	}
+}

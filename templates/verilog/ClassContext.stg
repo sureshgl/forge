@@ -1,0 +1,40 @@
+contextClassSkel(classname,rulename)::=<<
+
+package com.forge.fex.verilogprime.ext;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+import com.forge.fex.verilogprime.utils.PopulateExtendedContextVisitor;
+
+import com.forge.fex.verilogprime.gen.VerilogPrimeParser.<classname>;
+
+public class <classname>Ext extends AbstractBaseExt{
+
+	public <classname>Ext(<classname> ctx) {
+		addToContexts(ctx);
+		parent = ctx;
+	}
+	
+	@Override
+	public <classname> getContext(){
+		return (<classname>)contexts.get(contexts.size()-1);
+	}
+	
+	@Override
+	public ParserRuleContext getContext(String str){
+		return new PopulateExtendedContextVisitor().visit(getPrimeParser(str).<rulename>());
+	}
+	
+	@Override
+	public void setContext(ParserRuleContext ctx){
+		if(ctx != null){
+			if(ctx instanceof <classname>){
+				addToContexts((<classname>) ctx);
+			} else {
+				throw new ClassCastException(ctx.getClass().getSimpleName() + " cannot be cased to "+<classname>.class.getName());
+			}
+		} else {
+			addToContexts(null);
+		}
+	}
+}
+>>

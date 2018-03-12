@@ -1,0 +1,93 @@
+#!/bin/csh -f
+
+
+run show_all show_all
+
+# Push-pop
+setenv IFV_HIER    des.algo_top.a1_loop.algo_qm
+setenv IFV_HIER_ALIGN des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_STACK des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+run qm_forward_check qm_forward_check
+run qm_cnt_check    qm_cnt_check
+run qm_head_check    qm_head_check
+run qm_mdat_check    qm_mdat_check
+run qm_dout_check    qm_dout_check
+run qm_link_check    qm_link_check
+run qm_data_check    qm_data_check
+
+#nptr check
+setenv IFV_HIER des.algo_top.nptr_loop*.algo
+run nr2w_mem_check nptr_mem_check 
+run nr2w_mem_range_check nptr_mem_range_check 
+run nr2w_np2_check nptr_np2_check 
+run nr2w_forward_check nptr_forward_check 
+run nr2w_rmem_check nptr_rmem_check 
+run nr2w_vdout_int_check nptr_vdout_int_check 
+run nr2w_fakemem_check nptr_fakemem_check 
+run nr2w_dout_check nptr_dout_check 
+
+#Data check
+setenv IFV_HIER des.algo_top.data_loop*.algo
+run nr2w_mem_check data_mem_check 
+run nr2w_mem_range_check data_mem_range_check 
+run nr2w_np2_check data_np2_check 
+run nr2w_forward_check data_forward_check 
+run nr2w_rmem_check data_rmem_check 
+run nr2w_vdout_int_check data_vdout_int_check 
+run nr2w_fakemem_check data_fakemem_check 
+run nr2w_dout_check data_dout_check 
+
+#FL check
+setenv IFV_HIER des.algo_top.a2_loop*.algo_fl
+run fl_link_check fl_link_check
+run fl_head_check fl_head_check
+
+#Align checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+
+run align_check nr2w_align_check
+run mem_chk_check nr2w_mem_chk_check
+run align_dout_check nr2w_align_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run align_check fl_align_check
+run mem_chk_check fl_mem_chk_check
+run align_dout_check fl_align_dout_check
+
+#stack_checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+run stack_check nr2w_stack_check
+run stack_dout_check nr2w_stack_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run stack_check fl_stack_check
+run stack_dout_check fl_stack_dout_check
+
+#connectivity checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+run t1_mem_check nr2w_t1_mem_check
+run t1_port_check nr2w_t1_port_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run t1_mem_check fl_t1_mem_check
+run t1_port_check fl_t1_port_check
+
+setenv IFV_HIER des.algo_top.nptr_loop*.algo
+setenv IFV_HIER des.algo_top.data_loop*.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+run pdout_check nr2w_pdout_check
+run port_check nr2w_port_check
+
+setenv IFV_HIER des.algo_top.a1_loop.algo_qm
+setenv IFV_HIER des.algo_top.a2_loop*.algo_fl
+
+#run pdout_check pdout_check
+#run port_check port_check
+

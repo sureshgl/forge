@@ -1,0 +1,25 @@
+IP from F32 team. Used for F32 buffer.
+
+
+
+(From F32 team):
+Synopsis:
+The ip_async_fifo is a risky design because it requires user to qualify data_out with !af_empty properly and rely on synthesis tool not synthesizing to glitchy gates.
+If the qualification is not done properly, it can cause metastibility in downstream flops.
+
+It is highly recommended to use ip_async_fifo2 or ip_async_fifo2_reg instead of ip_async_fifo.
+
+========================================================================
+IMPORTANT NOTE: Use "ip_async_fifo2" instead of "ip_async_fifo"
+
+Description:
+The data_out from ip_async_fifo is un-sync'd. It should be qualified with !af_emtpy before being used.
+But user may not pay enough attention to this fact such that data_out is used directly in his design without being properly gated by !af_empty.
+Furthemore, even if data_out is being gated by !af_empty in RTL, it does not guarantee that Synthesis tool will not synthesize to glitchy gates which can compromise the !af_empty qualification in gate level.
+(For glitchy gates problem, please refer to EDCS-1105626 Logic glitches)
+The ip_async_fifo2 is highly recommended because the data_out has been gated by !af_empty and the gating uses NOR2 gate instantiation with set_dont_touch which will guarantee that !af_empty gating will not be re-synthesized.
+
+Usage (How to use ip_async_fifo2):
+1. Create vendor/technology specific "vendor__nor2_gate" module in your project.  Example can be found in "monticello/mtc_ip/rtl/vendor__nor2_gate.v"
+2. Add "`define USE_VENDOR__NOR2_GATE 1" in your <project>.vh file.
+

@@ -1,0 +1,308 @@
+#!/usr/local/bin/perl
+################################################################################
+## Copyright (c) 2012-2014 by Cisco Systems, Inc. All rights reserved.
+################################################################################
+
+###################################################################################
+# Version 1.0: 11/07/11 Initial release                                           #
+#                                                                                 #
+# USAGE:                                                                          #
+#   map_vf_paths_pl -f vf_file1 -f vf_file2 -t module_top -o outputfile(full path)#
+#   Written for Flanker project                                                   #
+###################################################################################
+
+open (outF, ">TEMP_PERL_VF_OUT");
+
+print outF "#!/usr/bin/csh\n";
+print outF "echo +libext+.verilog.rtl+.v+.vb+.av+.vh+\n";
+print outF "setenv SRC_DIR \${PROJECT_ROOT}\n";
+print outF "setenv THE_DESIGN fln_top\n"; # Dummy print not useful
+
+$OUT_FILE = 0;
+$VF_FILE = 0;
+
+
+###########################################
+###           Parse options             ###
+###########################################
+foreach ($i=0;$i<=$#ARGV;$i++) {
+
+  if ($ARGV[$i] =~ /-f/) {
+     $F_OPTION = 1;
+  }
+  elsif ($F_OPTION == 1) {
+    $F_OPTION = 0;
+    $FILE_LIST[$VF_FILE] = $ARGV[$i];
+    $VF_FILE++ ;
+  }
+
+  if ($ARGV[$i] =~ /-t/) {
+     $BLOCK_NAME = 1;
+  }
+  elsif ($BLOCK_NAME == 1) {
+    $BLOCK_NAME = 0;
+    $blk = $ARGV[$i];
+  }
+
+  if ($ARGV[$i] =~ /-o/) {
+     $OUT_FILE = 1;
+  }
+  elsif ($OUT_FILE == 1) {
+    $OUT_FILE = 2;
+    $OUT_FILE_NAME = $ARGV[$i];
+  }
+
+  if ($ARGV[$i] =~ /-h/) {
+     #print help message
+     print "SCRIPT USAGE: $0 -f vf_file1 -f vf_file2 -t modue_top -o outputfile(full path)\n"; 
+  }
+}
+
+###########################################
+###       Process all .vf files         ###
+###########################################
+foreach ($i=0;$i<$VF_FILE;$i++) {
+    print $FILE_LIST[$i], "\n" ;
+    open (f1,$FILE_LIST[$i]);
+    $SRCH_PATH_IDX = 0;
+
+    if ($FILE_LIST[$i] =~ /dc_setup.tcl/) {
+       # Just pick only set commands for IP VER from this file
+       while ($_ = <f1>) {
+         s/\"//g;
+         if (($_ =~ /link_library/) || ($_ =~ /join /) || ($_ =~ /THE_DESIGN/) || ($_ =~ /\[\s*list /) || ($_ =~ /TLUPLUS_MAX_FILE/)) {
+             ## Ignore these lines
+	 }
+         elsif (($SRCH_PATH ==1 ) && ($_ !~ /\]/) && (($_ !~ /\bbeh\b/) || ($_ !~ /\blib\b/))) {
+           s/\\\s*$//;
+           print outF "echo \'-y\' ",$_;
+	   chomp;
+	   s/^\s*//;
+	   s/\s*$//;
+	   $search_paths[$SRCH_PATH_IDX] = $_;
+	   $SRCH_PATH_IDX++;
+         }
+         elsif (($SRCH_PATH ==1 ) && ($_ =~ /\]/) && (($_ !~ /\bbeh\b/) || ($_ !~ /\blib\b/))) {
+           # Ignore printing this line
+           $SRCH_PATH = 0; 
+           if ($_ !~ /^\]/) {
+             s/\]//;
+             print outF "echo \'-y\' ",$_;
+	     chomp;
+	     s/^\s*//;
+	     s/\s*$//;
+	     $search_paths[$SRCH_PATH_IDX] = $_;
+	     $SRCH_PATH_IDX++;
+           }
+         }
+         elsif (($SRCH_PATH ==2 )  && (($_ !~ /\bbeh\b/) || ($_ !~ /\blib\b/)) ) {
+           if ($_ !~ /\\\s*$/) {
+              # End of srch_path list
+   	   $SRCH_PATH = 0;
+           }
+           s/\\\s*$//;
+           print outF "echo \'-y\' ",$_,"\n";
+	   chomp;
+	   s/^\s*//;
+	   s/\s*$//;
+	   $search_paths[$SRCH_PATH_IDX] = $_;
+	   $SRCH_PATH_IDX++;
+         }
+	 elsif ($_ =~ /search_path/) {
+   	   if ($_ =~ /\\\s*$/) {
+             #different format, where there is no square brackets "[" to start/end list
+   	     $SRCH_PATH = 2;
+   	   }
+   	   elsif ($_ =~ /\[\s*$/) {
+   	     $SRCH_PATH = 1;
+   	   }
+	 }
+         elsif ($_ =~ /^\s*set/) {
+            if ($_ =~ /set /) {
+                s/set/setenv/;
+	    }
+	    print outF $_;
+	 }
+       }
+    }
+    else {
+       while ($_ = <f1>) {
+        # s/\\$//; # Substitute \ if it is the last character.Is it needed here
+        s/\'//g;	    
+        s/set rtl_files//;
+        s/^[ ]*analyze .* [\"]//;
+        s/\"//g;
+        s/\)//g;
+        s/^\.$//g;
+	s/\s+\{/ /g;
+        s/\$env\(/\$/g;
+        s/\s+[\{\}\[\]]$//g;
+        s/\$env(\(.*\))/$1/;
+   
+        if (($prev_line_comment == 1) && ($_ =~ /\\\s*$/)) {
+           #Extension of previous comment line
+           chomp;	
+   	   print outF "echo \'#",$_,"\'\n";
+        }
+        elsif (($prev_line_comment == 1) && ($_ !~ /\\\s*$/)) {
+           #Extension of previous comment line
+           chomp;	
+   	   $prev_line_comment = 0;
+   	   print outF "echo \'#",$_,"\'\n";
+        }
+        elsif ($_ =~ /^[ ]*#/) {
+           # Ignore comments
+           chomp;
+           print outF "echo \'",$_,"\'\n";
+           if ($_ =~ /\\\s*$/) {
+              # if last character is forward slash, comment continues in next line
+              $prev_line_comment = 1;
+           }
+        }
+      #  elsif ($_ =~ /^set\s*SRC_DIR/) {
+      #       print outF "setenv SRC_DIR \$\{PROJECT_ROOT\}\n"; 
+      #  }
+        elsif ($IF_STMNT_SHELL_TOP == 1) {
+   	if ($_ =~ /\}\s*$/) {
+              # Last line of the if statement
+              $IF_STMNT_SHELL_TOP = 0;
+            }
+        }
+        elsif (($SRCH_PATH ==1 ) && ($_ !~ /\]/) && ($_ !~ /\bbeh\b/)) {
+          s/\\\s*$//;
+          print outF "echo \'-y\' ",$_;
+	  chomp;
+	  s/^\s*//;
+	  s/\s*$//;
+	  $search_paths[$SRCH_PATH_IDX] = $_;
+	  $SRCH_PATH_IDX++;
+        }
+        elsif (($SRCH_PATH ==1 ) && ($_ =~ /\]/) && ($_ !~ /\bbeh\b/)) {
+          # Ignore printing this line
+          $SRCH_PATH = 0; 
+          if ($_ !~ /^\]/) {
+            s/\]//;
+            print outF "echo \'-y\' ",$_;
+	    chomp;
+	    s/^\s*//;
+	    s/\s*$//;
+	    $search_paths[$SRCH_PATH_IDX] = $_;
+	    $SRCH_PATH_IDX++;
+          }
+        }
+        elsif (($SRCH_PATH ==2 )  && ($_ !~ /\bbeh\b/)) {
+          if ($_ !~ /\\\s*$/) {
+             # End of srch_path list
+   	  $SRCH_PATH = 0;
+          }
+          s/\\\s*$//;
+          print outF "echo \'-y\' ",$_,"\n";
+	  chomp;
+	  s/^\s*//;
+	  s/\s*$//;
+	  $search_paths[$SRCH_PATH_IDX] = $_;
+	  $SRCH_PATH_IDX++;
+        }
+        elsif ($LINK_LIB == 1) {
+          # if link lib and if the current line has blackslash in the end - line continuation
+          # meaning the next line is also a link library
+          # Skip printing this line
+          if ($_ !~ /\\\s*$/) { $LINK_LIB = 0; }
+        }
+        elsif ($_ =~ /search_path/) {
+           # Ignore this line
+   	   if ($_ =~ /\\\s*$/) {
+             #different format, where there is no square brackets "[" to start/end list
+   	     $SRCH_PATH = 2;
+   	   }
+   	   elsif ($_ =~ /\[\s*$/) {
+   	     $SRCH_PATH = 1;
+   	   }
+        }
+        elsif ($_ =~ /set link_library/) {
+          # Ignore this line
+   	  $LINK_LIB = 1;
+        }
+        elsif (($_ =~ /^\s*if /) || ($_ =~ /\belse\b/)) {
+          # if statement section beginning. Skip all lines until end of this section
+          $IF_STMNT_SHELL_TOP = 1;
+        }
+        elsif ($_ =~ /\bbeh\b/) {
+          #Commenting out behavioural model
+	  chomp;
+          s/\\\s*$//;
+          print outF "echo \'# \'",$_,"\n"; 
+        }
+        elsif (($_ =~ /\s*\bsource\b/) || ($_ =~ /^\s*define_design_lib/) || (/^\s*suppress_message/) || (/^file mkdir/) || ($_ =~ /join\s+/) ) {
+          ## All these lines are intended for dc-shell, need not be printed in the output vf file
+        }
+        elsif ( ($_ =~ /^[ ]*set /) && ($_ !~ /set ts_def /) ) {
+           s/set/setenv/;
+           print outF $_ ;
+        }
+        elsif ($_ =~ /^[ ]*setenv /) {
+           print outF $_ ;
+        }
+        else {
+           s/\\$//;
+	   if ($_ =~ /^\s*\-y\s+/) {
+	      chomp;
+	      s/^\s*//;
+	      s/\s*$//;
+	      $search_paths[$SRCH_PATH_IDX] = $_;
+	      $SRCH_PATH_IDX++;
+              print outF "echo ",$_,"\n";
+	   }
+           elsif (($_ =~ /^\s*\//) || ($_ =~ /^\s*\$/)) {
+               # File name starting with an absolute/full path, or a env variable
+               print outF "echo ",$_ ;
+	   }
+	   elsif ($_ !~ /^\s*$/) {
+               # Don't print this file. Let spyglass, search and find these files
+	       # from the search path
+	       #
+	       ##-- # File name is relative, need to see if they exist in one of the
+	       ##-- # search paths to include the full path in the file list
+	       ##-- $FOUND = 0;
+	       ##-- chomp; 
+	       ##-- s/^\s*//; 
+	       ##-- s/\s*$//; 
+	       ##-- foreach ($i=0;$i<$SRCH_PATH_IDX;$i++) {
+               ##--    $full_file_name =  $search_paths[$i] . "\/" . $_;
+	       ##--    # print $full_file_name,"\n";
+	       ##--    if (-e $full_file_name) {
+               ##--       $FOUND = 1;
+	       ##--       # print "File FOUND: ",$full_file_name,"\n";
+	       ##--       break;
+	       ##--    }
+	       ##-- }
+	       ##-- if ($FOUND == 1) {
+               ##--    print outF "echo ",$full_file_name,"\n";
+	       ##-- }
+	       ##-- else {
+               ##--    print outF "echo ",$_ ,"\n";
+	       ##-- }
+	   }
+        }
+       }
+    }
+    close f1;
+}
+
+close outF ;
+
+###########################################
+###      write out _rtl.vf file         ###
+###########################################
+$final_out_file_name = ${blk};
+$final_out_file_name .= "_rtl.vf";
+
+if ($OUT_FILE == 0) {
+  #No output file name specified
+  system( "csh  TEMP_PERL_VF_OUT > $final_out_file_name" );
+}
+else {
+  #Output file name specified
+  system( "csh  TEMP_PERL_VF_OUT > $OUT_FILE_NAME" );
+}
+

@@ -1,0 +1,14 @@
+algo_1r1w_b711_top_wrap.v
+algo_1r1w_b711_sva_wrap.v
+algo_nr1w_b711_dup_top.v
+../../common/rtl/algo_nr1wa_dup2.v
+../../common/rtl/core_nr1wa_dup2.v
+../../common/rtl/np2_addr_ramwrap.v
+../../common/rtl/infra_align_1r1wa_ramwrap.v
+../../common/rtl/align_1r1wa_ramwrap.v
+../../common/rtl/infra_stack_1r1wa_ramwrap.v
+../../common/rtl/stack_1r1wa_ramwrap.v
+../../flop_array/async/rtl/ff_m_mem_cell_async.v
+../../flop_array/async/rtl/ff_m_mem_wrap_async.v
+../../flop_array/async/rtl/ff_m_nrmbw_async.v
+../../flop_array/async/rtl/ff_m_nrmbw_async_wrap.v

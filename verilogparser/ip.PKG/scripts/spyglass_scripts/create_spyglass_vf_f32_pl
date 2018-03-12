@@ -1,0 +1,50 @@
+#!/usr/local/bin/perl
+
+$subchip = shift;
+print $subchip,"\n";
+if (-e "${subchip}") {
+print "INFO: ${subchip} directory exists";
+} else {
+print "INFO: creating ${subchip} directory";
+system ("mkdir ${subchip};");
+      }
+#if (-e "${subchip}/${subchip}.vf") {
+#   print "INFO: Backing up exisiting vf file ...";
+#   system ("mv ${subchip}/${subchip}.vf ${subchip}/${subchip}.vf.bak");
+#}
+
+system (touch "${subchip}_TEMP_VF_OUT_FILE_");
+if (-e "../../${subchip}/rtl/${subchip}_ip.vf") {
+	$ip_vf_file = "../../${subchip}/rtl/${subchip}_ip.vf";
+   } else {
+   die "ERROR: vf file for ip used in subchip $ip_vf_file doesn't exist. Quitting...";
+}
+if (-e "../../${subchip}/rtl/${subchip}.vf") {
+	$rtl_vf_file = "../../${subchip}/rtl/${subchip}.vf";
+} else {
+   die "ERROR: vf file for subchip rtl doesn't exist. Quitting...";
+}
+#system ("rm $concat_vf_file;");
+$tmp = $subchip."_ip.vf";
+$tmp1 = $subchip.".vf";
+$tmp2 = $subchip."_concat.vf";
+system ("cat ../../$subchip/rtl/$tmp  ../../$subchip/rtl/$tmp1 >> $subchip/$tmp2");
+        $concat_vf_file = "${subchip}/${subchip}_concat.vf" ;
+open (concatF,"<$concat_vf_file") || die "ERROR : concatinated rtl vf file doesn't exist in ${subchip}/inputs dir";
+open (concatF_OUT,">tmp") || die "ERROR : concatinated rtl vf file doesn't exist in ${subchip}/inputs dir";
+while ($_ =<concatF>) {
+next if /^\s*$/;
+chomp;
+($option)=split(/ /,$_);
+$str = "\$PROJECT_ROOT/".$_;
+if (($option =~ /-v/) || ($option =~ /-f/)) {
+ print concatF_OUT "$option $str\n" ;
+  } else {
+ print concatF_OUT "$str\n" ;
+ }
+}
+close (concatF);
+close (concatF_OUT);
+system ("mv tmp $concat_vf_file;");
+$tmp3 = $subchip.".vf";
+system ("mv $concat_vf_file $subchip/$tmp3;"); 

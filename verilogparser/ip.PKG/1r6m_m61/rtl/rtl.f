@@ -1,0 +1,13 @@
+algo_1r6m_m61_top_wrap.v
+algo_1r6m_m61_sva_wrap.v
+algo_1r6m_1r1w_fl_top.v
+../../common/rtl/algo_mrnwa_1r1w_fl.v
+../../common/rtl/core_mrnwa_1r1w_fl.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_check.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/algo_mrnrwpw_ref.v

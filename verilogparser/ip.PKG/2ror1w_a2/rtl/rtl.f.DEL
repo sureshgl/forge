@@ -1,0 +1,5 @@
+algo_2ror1w_a2_top_wrap.v
+algo_2ror1w_a2_top.v
+../../common/rtl/algo_nror1w.v
+../../common/rtl/core_nror1w.v
+../../common/rtl/np2_addr.v

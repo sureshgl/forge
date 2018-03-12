@@ -1,0 +1,14 @@
+algo_2r1w_a182_top_wrap.v
+algo_2r1w_a182_sva_wrap.v
+algo_2r1w_2rw_rl_top.v
+../../common/rtl/algo_mrnrwpw_1rw_rl.v
+../../common/rtl/core_mrnrwpw_1rw_rl.v
+../../common/rtl/mux_mrnrwpw_1rw_rl.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v
+../../common/rtl/infra_align_ecc_mrnw.v
+../../common/rtl/align_ecc_mrnw.v
+../../common/rtl/infra_stack_mrnw.v
+../../common/rtl/stack_mrnw.v
+../../common/rtl/algo_mrnrwpw_ref.v

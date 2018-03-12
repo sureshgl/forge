@@ -1,0 +1,75 @@
+{
+   "primary_design_constraints" : [
+      "des.algo_top.a1_loop.algo.assume_select_addr_range",
+      "des.algo_top.a1_loop.algo.assume_select_addr_stable",
+      "des.algo_top.a1_loop.algo.assume_select_bit_range",
+      "des.algo_top.a1_loop.algo.assume_select_bit_stable",
+      "des.algo_top.assume_select_addr_range",
+      "des.algo_top.assume_select_addr_stable",
+      "des.algo_top.assume_select_bit_range",
+      "des.algo_top.assume_select_bit_stable",
+      "des.algo_top.assume_select_rbnk_range",
+      "des.algo_top.assume_select_rbnk_stable",
+      "des.algo_top.assume_select_rrow_range",
+      "des.algo_top.assume_select_rrow_stable",
+      "des.algo_top.t1_loop.*.align_loop.infra.assume_select_addr_range",
+      "des.algo_top.t1_loop.*.align_loop.infra.assume_select_addr_stable",
+      "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assume_pmem_derr_check",
+      "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assume_pmem_err_check",
+      "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assume_pmem_nerr_check",
+      "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assume_pmem_serr_check",
+      "des.algo_top.t1_loop.*.refr_loop.infra.assume_select_rbnk_range",
+      "des.algo_top.t1_loop.*.refr_loop.infra.assume_select_rbnk_stable",
+      "des.algo_top.t1_loop.*.refr_loop.infra.assume_select_rrow_range",
+      "des.algo_top.t1_loop.*.refr_loop.infra.assume_select_rrow_stable",
+      "des.algo_top.t2_loop.*.align_loop.infrad.assume_select_addr_range",
+      "des.algo_top.t2_loop.*.align_loop.infrad.assume_select_addr_stable",
+      "des.algo_top.t2_loop.*.align_loop.infrad.ip_top_sva.assume_mem_derr_check",
+      "des.algo_top.t2_loop.*.align_loop.infrad.ip_top_sva.assume_mem_nerr_check",
+      "des.algo_top.t2_loop.*.align_loop.infrad.ip_top_sva.assume_mem_serr_check",
+      "des.algo_top.t2_loop.*.align_loop.infras.assume_select_addr_range",
+      "des.algo_top.t2_loop.*.align_loop.infras.assume_select_addr_stable",
+      "des.algo_top.t2_loop.*.align_loop.infras.ip_top_sva.assume_mem_derr_check",
+      "des.algo_top.t2_loop.*.align_loop.infras.ip_top_sva.assume_mem_nerr_check",
+      "des.algo_top.t2_loop.*.align_loop.infras.ip_top_sva.assume_mem_serr_check",
+      "des.algo_top.t2_loop.*.stack_loop.infra.assume_select_addr_range",
+      "des.algo_top.t2_loop.*.stack_loop.infra.assume_select_addr_stable",
+      "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assert_mem_check",
+      "des.algo_top.t2_loop.*.stack_loop.infra.ip_top_sva.assert_mem_check"
+   ],
+   "conditional_properties" : {
+      "ALWAYS" : [
+         {
+            "expected" : "Pass_Trigger_Fail",
+            "regexp" : [
+               "des.algo_top.a1_loop.algo.ip_top_sva_2.t2_loop.*.assert_t2_rw_pseudo_check"
+            ]
+         }
+      ],
+      "ECC_PARITY" : [
+         {
+            "expected" : "Pass_Trigger_Fail",
+            "regexp" : [
+               "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assert_dout_derr_check"
+            ]
+         }
+      ],
+      "ECC_NONE" : [
+         {
+            "expected" : "Pass_Trigger_Fail",
+            "regexp" : [
+               "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assert_dout_derr_check",
+               "des.algo_top.t1_loop.*.align_loop.infra.ip_top_sva.assert_dout_serr_check"
+            ]
+         }
+      ],
+      "NO_BANK_REFRESH" : [
+         {
+            "expected" : "Pass_Trigger_Fail",
+            "regexp" : [
+               "des.algo_top.t1_loop.*.refr_loop.infra.ip_top_sva_2.assert_pref_half_check"
+            ]
+         }
+      ]
+   }
+}

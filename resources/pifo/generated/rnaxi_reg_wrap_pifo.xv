@@ -1,0 +1,179 @@
+module rnaxi_reg_wrap_pifo(clk,
+rst,
+arb_fifo_pkt_threshold_0_thresh,
+arb_fifo_pkt_threshold_0_thresh_wr_trigger,
+arb_fifo_pkt_threshold_0_thresh_rd_trigger,
+arb_fifo_pkt_threshold_0_rdata,
+arb_fifo_pkt_threshold_0_wr_en,
+arb_fifo_pkt_threshold_0_rd_en,
+proc_pkt_threshold_0_thresh,
+proc_pkt_threshold_0_rdata,
+proc_pkt_threshold_0_wr_en,
+proc_pkt_threshold_0_rd_en,
+proc_pkt_threshold_1_thresh,
+proc_pkt_threshold_1_rdata,
+proc_pkt_threshold_1_wr_en,
+proc_pkt_threshold_1_rd_en,
+proc_pkt_threshold_2_thresh,
+proc_pkt_threshold_2_rdata,
+proc_pkt_threshold_2_wr_en,
+proc_pkt_threshold_2_rd_en,
+reg_data,
+reg_ack_rcvd);
+
+
+
+
+input clk;
+input rst;
+input [2047:0] reg_data;
+output reg reg_ack_rcvd;
+input [0:0] arb_fifo_pkt_threshold_0_wr_en;
+input [0:0] arb_fifo_pkt_threshold_0_rd_en;
+input [0:0] proc_pkt_threshold_0_wr_en;
+input [0:0] proc_pkt_threshold_0_rd_en;
+input [0:0] proc_pkt_threshold_1_wr_en;
+input [0:0] proc_pkt_threshold_1_rd_en;
+input [0:0] proc_pkt_threshold_2_wr_en;
+input [0:0] proc_pkt_threshold_2_rd_en;
+output reg [31:0] arb_fifo_pkt_threshold_0_rdata;
+output reg [31:0] proc_pkt_threshold_0_rdata;
+output reg [31:0] proc_pkt_threshold_1_rdata;
+output reg [31:0] proc_pkt_threshold_2_rdata;
+output reg [15:0] arb_fifo_pkt_threshold_0_thresh;
+output reg  arb_fifo_pkt_threshold_0_thresh_wr_trigger;
+output reg  arb_fifo_pkt_threshold_0_thresh_rd_trigger;
+output reg [15:0] proc_pkt_threshold_0_thresh;
+output reg [15:0] proc_pkt_threshold_1_thresh;
+output reg [15:0] proc_pkt_threshold_2_thresh;
+
+
+
+
+
+
+
+reg [31:0] arb_fifo_pkt_threshold_0_rd_mask;
+reg [31:0] arb_fifo_pkt_threshold_0_wr_mask;
+
+reg [31:0] proc_pkt_threshold_0_rd_mask;
+reg [31:0] proc_pkt_threshold_0_wr_mask;
+
+reg [31:0] proc_pkt_threshold_1_rd_mask;
+reg [31:0] proc_pkt_threshold_1_wr_mask;
+
+reg [31:0] proc_pkt_threshold_2_rd_mask;
+reg [31:0] proc_pkt_threshold_2_wr_mask;
+
+generate
+	genvar i0;
+    	for(i0=0; i0<1; i0++) begin: arb_fifo_pkt_threshold_0
+      		assign arb_fifo_pkt_threshold_0_wr_mask[(((i0+1)*32)-1)-:32] = {32{arb_fifo_pkt_threshold_0_wr_en[i0]}};
+      		assign arb_fifo_pkt_threshold_0_rd_mask[(((i0+1)*32)-1)-:32] = {32{arb_fifo_pkt_threshold_0_rd_en[i0]}};
+	end
+endgenerate
+
+generate
+	genvar i1;
+    	for(i1=0; i1<1; i1++) begin: proc_pkt_threshold_0
+      		assign proc_pkt_threshold_0_wr_mask[(((i1+1)*32)-1)-:32] = {32{proc_pkt_threshold_0_wr_en[i1]}};
+      		assign proc_pkt_threshold_0_rd_mask[(((i1+1)*32)-1)-:32] = {32{proc_pkt_threshold_0_rd_en[i1]}};
+	end
+endgenerate
+
+generate
+	genvar i2;
+    	for(i2=0; i2<1; i2++) begin: proc_pkt_threshold_1
+      		assign proc_pkt_threshold_1_wr_mask[(((i2+1)*32)-1)-:32] = {32{proc_pkt_threshold_1_wr_en[i2]}};
+      		assign proc_pkt_threshold_1_rd_mask[(((i2+1)*32)-1)-:32] = {32{proc_pkt_threshold_1_rd_en[i2]}};
+	end
+endgenerate
+
+generate
+	genvar i3;
+    	for(i3=0; i3<1; i3++) begin: proc_pkt_threshold_2
+      		assign proc_pkt_threshold_2_wr_mask[(((i3+1)*32)-1)-:32] = {32{proc_pkt_threshold_2_wr_en[i3]}};
+      		assign proc_pkt_threshold_2_rd_mask[(((i3+1)*32)-1)-:32] = {32{proc_pkt_threshold_2_rd_en[i3]}};
+	end
+endgenerate
+
+
+
+
+rnaxi_rw_reg# (.FIELD_WIDTH(16),
+	.FIELD_RST_VALUE(16'hF0),
+	.FIELD_WRITE_TRIGGER(1'b1),
+	.FIELD_READ_TRIGGER(1'b1),
+	.FIELD_READ_CLEAR(1'b1)) 
+u_arb_fifo_pkt_threshold_0_thresh (.clk(clk),
+	.rst(rst),
+	.field_wr_data(reg_data [15:0]),
+	.field_wr_en(arb_fifo_pkt_threshold_0_wr_mask[15:0]),
+	.field_rd_en(arb_fifo_pkt_threshold_0_rd_mask[15:0]),
+	.field_out(arb_fifo_pkt_threshold_0_thresh),
+	.field_rd_trigger(arb_fifo_pkt_threshold_0_thresh_rd_trigger),
+	.field_wr_trigger(arb_fifo_pkt_threshold_0_thresh_wr_trigger));
+
+
+
+
+rnaxi_rw_reg# (.FIELD_WIDTH(16),
+	.FIELD_RST_VALUE(16'h0FF),
+	.FIELD_WRITE_TRIGGER(1'b0),
+	.FIELD_READ_TRIGGER(1'b0),
+	.FIELD_READ_CLEAR(1'b0)) 
+u_proc_pkt_threshold_0_thresh (.clk(clk),
+	.rst(rst),
+	.field_wr_data(reg_data [15:0]),
+	.field_wr_en(proc_pkt_threshold_0_wr_mask[15:0]),
+	.field_rd_en(proc_pkt_threshold_0_rd_mask[15:0]),
+	.field_out(proc_pkt_threshold_0_thresh),
+	.field_rd_trigger(),
+	.field_wr_trigger());
+
+
+
+
+rnaxi_rw_reg# (.FIELD_WIDTH(16),
+	.FIELD_RST_VALUE(16'h0FF),
+	.FIELD_WRITE_TRIGGER(1'b0),
+	.FIELD_READ_TRIGGER(1'b0),
+	.FIELD_READ_CLEAR(1'b0)) 
+u_proc_pkt_threshold_1_thresh (.clk(clk),
+	.rst(rst),
+	.field_wr_data(reg_data [15:0]),
+	.field_wr_en(proc_pkt_threshold_1_wr_mask[15:0]),
+	.field_rd_en(proc_pkt_threshold_1_rd_mask[15:0]),
+	.field_out(proc_pkt_threshold_1_thresh),
+	.field_rd_trigger(),
+	.field_wr_trigger());
+
+
+
+
+rnaxi_rw_reg# (.FIELD_WIDTH(16),
+	.FIELD_RST_VALUE(16'h0FF),
+	.FIELD_WRITE_TRIGGER(1'b0),
+	.FIELD_READ_TRIGGER(1'b0),
+	.FIELD_READ_CLEAR(1'b0)) 
+u_proc_pkt_threshold_2_thresh (.clk(clk),
+	.rst(rst),
+	.field_wr_data(reg_data [15:0]),
+	.field_wr_en(proc_pkt_threshold_2_wr_mask[15:0]),
+	.field_rd_en(proc_pkt_threshold_2_rd_mask[15:0]),
+	.field_out(proc_pkt_threshold_2_thresh),
+	.field_rd_trigger(),
+	.field_wr_trigger());
+
+assign arb_fifo_pkt_threshold_0_rdata[31:0] = {16'h0,arb_fifo_pkt_threshold_0_thresh[15:0]};
+
+assign proc_pkt_threshold_0_rdata[31:0] = {16'h0,proc_pkt_threshold_0_thresh[15:0]};
+
+assign proc_pkt_threshold_1_rdata[31:0] = {16'h0,proc_pkt_threshold_1_thresh[15:0]};
+
+assign proc_pkt_threshold_2_rdata[31:0] = {16'h0,proc_pkt_threshold_2_thresh[15:0]};
+
+assign reg_ack_rcvd = (|arb_fifo_pkt_threshold_0_wr_en) || (|arb_fifo_pkt_threshold_0_rd_en) ||(|proc_pkt_threshold_0_wr_en) || (|proc_pkt_threshold_0_rd_en) ||(|proc_pkt_threshold_1_wr_en) || (|proc_pkt_threshold_1_rd_en) || (|proc_pkt_threshold_2_wr_en) || (|proc_pkt_threshold_2_rd_en) ;
+
+
+endmodule

@@ -1,0 +1,15 @@
+algo_1r6w_a113_top_wrap.v
+algo_1r6w_a113_sva_wrap.v
+algo_mrnw_queue_top.v
+../../common/rtl/algo_mrnw_queue.v
+../../common/rtl/core_mrnw_queue.v
+../../common/rtl/algo_mrnw_1r1w_mt2.v
+../../common/rtl/core_mrnw_1r1w_mt2.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_check.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/algo_mrnrwpw_ref.v

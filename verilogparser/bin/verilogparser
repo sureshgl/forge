@@ -1,0 +1,7 @@
+if [ -L $0 ];then
+dir=`readlink $0|xargs dirname`
+else
+dir=`dirname $0`
+fi
+
+java -ea -Xmx4g -cp "$dir/dist/*" com.memoir.vp.runner.ParamReplacer "$@"

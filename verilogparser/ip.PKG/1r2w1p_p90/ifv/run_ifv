@@ -1,0 +1,77 @@
+#!/bin/csh -f
+
+if($#argv == 0) then
+    echo "Usage: $0 <top_module_name> [-noob]i [-refr]"
+    echo "   this runs only from <cut-dir>/run_sample/<cut-name> dir"
+    echo "   -noob : use this if cut was generated with -noob"
+    echo "   -refr : use this if cut was generated for eDRAM"
+    exit (1);
+endif
+echo "cmdline: $0 $argv"
+set TOP=$argv[1]
+set NOOB=0
+setenv IFV_REFR 0
+if ($#argv == 2) then
+    if ($argv[2] == '-noob') then
+        set NOOB=1
+    else if ($argv[2] == '-refr') then
+        setenv IFV_REFR 1
+    endif
+else if ($#argv == 3) then
+    if (($argv[2] == '-noob') || ($argv[3] == '-noob')) then
+      set NOOB=1
+    endif
+    if (($argv[2] == '-refr') || ($argv[2] == '-refr')) then
+      setenv IFV_REFR 1
+    endif
+endif
+set SCRIPT=`readlink -f "$0"`
+set SCRIPTPATH=`dirname "$SCRIPT"`
+set BINPATH=`dirname "$0"| sed 's:verilogparser/.*$:verilogparser:'`
+set BINDIR=`readlink -f "$BINPATH"`
+set IPDIR="$BINDIR/ip_obfuscated"
+
+set TOPV="../../../rtl/${TOP}.v"
+set DESLIB=`\ls ${IPDIR}/common/rtl/memoir_design_library*.v`
+if ($NOOB == 1) then
+   set DESLIB=`\ls ${IPDIR}/memoir_design_library*.v`
+endif
+echo "design library used: $DESLIB"
+
+set TCLA="+tcl+${SCRIPTPATH}"
+set CMDP="iev +64bit -F filelist +define+FORMAL +licq +exit +top+${TOP}"
+
+\rm -fr INCA_libs filelist
+
+echo $SCRIPTPATH
+echo $TOPV >! filelist
+echo "$DESLIB" >> filelist
+
+alias run '\rm -f \!:2.log; echo $CMDP ${TCLA}/\!:1.tcl -l \!:2.log; $CMDP ${TCLA}/\!:1.tcl -l \!:2.log;'
+
+run show_all show_all
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+
+run mem_check mem_check
+run mem_range_check mem_range_check
+run fakemem_check fakemem_check
+run dout_check dout_check
+
+# setenv IFV_HIER des.algo_top.t1_loop\[\*\].refr_loop.infra
+#run prefr_check prefr_check
+#run refr_bitcell refr_bitcell
+
+setenv IFV_HIER des.algo_top.t1_loop\[\*\].align_loop.infra
+
+run align_check align_check
+run mem_chk_check mem_chk_check
+run align_dout_check align_dout_check
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_3 des.algo_top.t\*_loop\[\*\].refr_loop.infra
+
+run pdout_check pdout_check
+run port_check port_check
+

@@ -1,0 +1,301 @@
+#!/usr/cisco/bin/perl
+
+use strict;
+use warnings;
+use Text::CSV;
+use Spreadsheet::WriteExcel;
+
+
+use Getopt::Long;
+our $opt_help;
+our $opt_in_csv;
+our $opt_in_csv_list;
+our $opt_out_xls;
+our $out_file;
+our $row_count=0;
+our @col_width;
+our $opt_auto_fit_col=0;
+our $auto_col_width = 0; # Set this to 1 if auto col width correction is needed.
+our $IN_LIST;
+our $worksheet;
+our $file_name;
+our $max_columns;
+
+my $check_cmdline_opt = GetOptions ("in_csv=s", "in_csv_list=s", "out_xls=s", "auto_fit_col=n", "help");
+
+if ($opt_help) {
+  &print_help_msg();
+}
+else {
+  if ($opt_in_csv) {
+	  # open (inF,"<$opt_in_csv") || die "Can't open $opt_in_csv for reading...\n";
+     $file_name = $opt_in_csv ;
+     $IN_LIST = 0;
+  }
+  elsif ($opt_in_csv_list) {
+     open (inF_list,"<$opt_in_csv_list") || die "Can't open $opt_in_csv_list for reading...\n";
+     $IN_LIST = 1;
+  }
+  else {
+     print "ERROR: input csv file or csv_list file missing\n";
+     &print_help_msg();
+  }
+
+  if (!$opt_out_xls) {
+     if ($IN_LIST == 0) {
+        $out_file = $opt_in_csv."\.xls";
+     }
+     else {
+        $out_file = $opt_in_csv_list."\.xls";
+     }
+  }
+  else {
+     $out_file = $opt_out_xls;
+  }
+
+  if ($opt_auto_fit_col) {
+     #Set auto column width ;
+     $auto_col_width = $opt_auto_fit_col;
+  }
+}
+
+if ($IN_LIST == 1) {
+   our $csv = Text::CSV->new();
+   my $workbook = Spreadsheet::WriteExcel->new($out_file);
+
+   #####################################################
+   ##               Create formats here               ##
+   #####################################################
+   
+   our $bold = $workbook->add_format();
+   our $align_right = $workbook->add_format();
+   our $bold_alignr_blue = $workbook->add_format();
+   our $bold_alignr_green = $workbook->add_format();
+   our $bold_alignr_red = $workbook->add_format();
+   our $bold_alignr_ora = $workbook->add_format();
+   $bold_alignr_blue->set_bold(1);
+   $bold_alignr_blue->set_align('right');
+   $bold_alignr_blue->set_color('blue');
+   $bold_alignr_green->set_bold(1);
+   $bold_alignr_green->set_align('right');
+   $bold_alignr_green->set_color('green');
+   $bold_alignr_red->set_bold(1);
+   $bold_alignr_red->set_align('right');
+   $bold_alignr_red->set_color('red');
+   $bold_alignr_ora->set_bold(1);
+   $bold_alignr_ora->set_align('right');
+   $bold_alignr_ora->set_color('brown');
+   $bold->set_bold(1);
+   $align_right->set_align('right');
+
+   ############      End Formatting       ##############
+   
+
+   while ($file_name = <inF_list>) {
+
+      open (inF,"<$file_name") || die "Can't open $file_name for reading...\n";
+
+      if ($file_name =~ /\.csv/) {
+
+         ## Strip hierarchy name to set worksheet name
+         my @l = split(/\//,$file_name);
+         my $worksheet_name = $l[$#l]; #Get file name;
+         $worksheet_name =~ s/\..*$//; # Remove file name extensions
+         $worksheet_name =~ s/_qor//; # Remove file name extensions
+         chomp $worksheet_name;
+         $worksheet = $workbook->add_worksheet($worksheet_name);
+	 $worksheet->set_column(0, 0, 30); #new
+         $row_count=2;
+         $max_columns=0; 
+         $worksheet->write($row_count, 0,$worksheet_name,$bold_alignr_green);
+	 $row_count++;
+
+         while ($_ = <inF>) {
+              if ($csv->parse($_)) {
+                 my @columns = $csv->fields();
+          	 my $columns_ref = \@columns;
+
+                 if ($_ =~ /^$/) {
+            	       $worksheet->write($row_count, 0,"");
+		 } else {
+   		    if (($columns[0] =~ /\bGOAL: \b/) || ($columns[0] =~ /\bBLOCK NAME\b/) || ($columns[0] =~ /\bCDC Synchronization schemes\b/)||($columns[0] =~ /\bchiplet\b/)) {
+            	       $worksheet->write_row($row_count, 0,$columns_ref,$bold_alignr_blue);
+   		    }
+   		    elsif (($columns[0] =~ /\bhandshake\b/) || ($columns[0] =~ /\bAnd gate\b/) || ($columns[0] =~ /\bfifo\b/) || ($columns[0] =~ /\bcommon enable\b/) || ($columns[0] =~ /\brecirculation flop\b/) || ($columns[0] =~ /\bmux-select\b/) || ($columns[0] =~ /\bSynchronization at other gates\b/) || ($columns[0] =~ /\bW415\b/) || ($columns[0] =~ /\bUndrivenInTerm-ML\b/) || ($columns[0] =~ /\bHangingNetPreReq-ML\b/) || ($columns[0] =~ /\bW287a\b/) || ($columns[0] =~ /\bSTARC05-2.1.3.1\b/) || ($columns[0] =~ /\bW123\b/) || ($columns[0] =~ /\bCombLoop\b/) || ($columns[0] =~ /\bBufClk\b/) || ($columns[0] =~ /\bFlopClockConstant\b/) || ($columns[0] =~ /\bRegOutputs\b/) || ($columns[0] =~ /\bRegInput-ML\b/) || ($columns[0] =~ /\bW391\b/) || ($columns[0] =~ /\bInferLatch\b/) || ($columns[0] =~ /\bFATAL\b/) || ($columns[0] =~ /Ac_unsync/) || ($columns[0] =~ /\bSTARC05-2.2.3.3\b/) || ($columns[0] =~ /\bW426\b/) || ($columns[0] =~ /\bW110\b/) || ($columns[0] =~ /\bW146\b/) || ($columns[0] =~ /\bW263\b/) || ($columns[0] =~ /\bW336\b/) || ($columns[0] =~ /\bW398\b/) || ($columns[0] =~ /\bW424\b/) || ($columns[0] =~ /\bW468\b/) || ($columns[0] =~ /\bW499\b/) || ($columns[0] =~ /\bsim_race02\b/) || ($columns[0] =~ /\bClock_info03a\b/) || ($columns[0] =~ /\bErrorAnalyzeBBox\b/) ){
+            	       $worksheet->write_row($row_count, 0,$columns_ref,$bold_alignr_red);
+   		    }
+   		    elsif (($columns[0] =~ /\bSTARC-2.10.6.1\b/) || ($columns[0] =~ /\bW122\b/) || ($columns[0] =~ /\bW164a\b/)||($columns[0] =~ /\bW426\b/) || ($columns[0] =~ /\bW362\b/)  || ($columns[0] =~ /\bFlopEConst\b/) || ($columns[0] =~ /\bW116\b/) || ($columns[0] =~ /\bW164b\b/) || ($columns[0] =~ /\bUndrivenOutPort-ML\b/) || ($columns[0] =~ /\bUnloadedInPort-ML\b/) || ($columns[0] =~ /\bNoAssignX-ML\b/) || ($columns[0] =~ /\bW486\b/) || ($columns[0] =~ /\bW480\b/) || ($columns[0] =~ /\bW175\b/)) {
+            	       $worksheet->write_row($row_count, 0,$columns_ref,$bold_alignr_ora);
+		    }
+   		    else {
+                       foreach (my $i=0;$i<=$#columns;$i++) {
+                          if ($columns[$i] !~ /[A-Za-z]/) {
+            	           $worksheet->write_number($row_count, $i,$columns[$i],$align_right);
+   	                  }
+   		          else {
+            	           $worksheet->write($row_count, $i,$columns[$i],$align_right);
+   		          }
+   	               }
+   		    }
+   
+                    if ($max_columns < $#columns) {$max_columns = $#columns;}
+             
+                    if ($opt_auto_fit_col == 1) {
+                       autofit_columns(@columns);
+                    }
+	         }
+          	 $row_count++;
+              } else {
+                  my $err = $csv->error_input;
+                  print "Failed to parse line: $err";
+              }
+         }
+	 if ($file_name !~ /all_chiplets_summary/) {
+            $worksheet->freeze_panes('C8');
+         }
+       }
+       elsif ($file_name =~ /\.png/) {
+           ## Insert image
+	   # my @l = split(/\//,$file_name);
+	   # my $worksheet_name = $l[$#l]; #Get file name;
+	   # $worksheet_name =~ s/\..*$//; # Remove file name extensions
+	   # chomp $worksheet_name;
+	   # my $worksheet1 = $workbook->add_worksheet($worksheet_name);
+	   # $worksheet1->insert_image("A1","sample.jpg");
+       }
+       close inF;
+   }
+   $workbook->close();
+}
+else {
+   our $csv = Text::CSV->new();
+   my $workbook = Spreadsheet::WriteExcel->new($out_file);
+
+   #####################################################
+   ##               Create formats here               ##
+   #####################################################
+   
+   our $bold = $workbook->add_format();
+   our $align_right = $workbook->add_format();
+   our $bold_alignr_blue = $workbook->add_format();
+   our $bold_alignr_green = $workbook->add_format();
+   our $bold_alignr_red = $workbook->add_format();
+   $bold_alignr_blue->set_bold(1);
+   $bold_alignr_blue->set_align('right');
+   $bold_alignr_blue->set_color('blue');
+   $bold_alignr_green->set_bold(1);
+   $bold_alignr_green->set_align('right');
+   $bold_alignr_green->set_color('green');
+   $bold_alignr_red->set_bold(1);
+   $bold_alignr_red->set_align('right');
+   $bold_alignr_red->set_color('red');
+   $bold->set_bold(1);
+   $align_right->set_align('right');
+
+   ############      End Formatting       ##############
+   
+
+      open (inF,"<$file_name") || die "Can't open $file_name for reading...\n";
+
+      if ($file_name =~ /\.csv/) {
+
+         ## Strip hierarchy name to set worksheet name
+         my @l = split(/\//,$file_name);
+         my $worksheet_name = $l[$#l]; #Get file name;
+         $worksheet_name =~ s/\..*$//; # Remove file name extensions
+         $worksheet_name =~ s/_qor//; # Remove file name extensions
+         chomp $worksheet_name;
+         $worksheet = $workbook->add_worksheet($worksheet_name);
+	 $worksheet->set_column(0, 0, 30); #new
+         $row_count=2;
+         $max_columns=0; 
+         $worksheet->write($row_count, 0,$worksheet_name,$bold_alignr_green);
+	 $row_count++;
+
+         while ($_ = <inF>) {
+              if ($csv->parse($_)) {
+                 my @columns = $csv->fields();
+          	 my $columns_ref = \@columns;
+                 if ($_ =~ /^$/) {
+            	       $worksheet->write($row_count, 0,"");
+		 } else {
+   		    if (($columns[0] =~ /\bGOAL: \b/) || ($columns[0] =~ /\bBLOCK NAME\b/) || ($columns[0] =~ /\bCDC Synchronization schemes\b/)) {
+            	       $worksheet->write_row($row_count, 0,$columns_ref,$bold_alignr_blue);
+   		    }
+   		    elsif (($columns[0] =~ /\bhandshake\b/) || ($columns[0] =~ /\bAnd gate\b/) || ($columns[0] =~ /\bfifo\b/) || ($columns[0] =~ /\bcommon enable\b/) || ($columns[0] =~ /\brecirculation flop\b/) || ($columns[0] =~ /\bmux-select\b/) || ($columns[0] =~ /\bSynchronization at other gates\b/) || ($columns[0] =~ /Ac_unsync/)) {
+            	       $worksheet->write_row($row_count, 0,$columns_ref,$bold_alignr_red);
+   		    }
+   		    else {
+                       foreach (my $i=0;$i<=$#columns;$i++) {
+                          if ($columns[$i] !~ /[A-Za-z]/) {
+            	           $worksheet->write_number($row_count, $i,$columns[$i],$align_right);
+   	                  }
+   		          else {
+            	           $worksheet->write($row_count, $i,$columns[$i],$align_right);
+   		          }
+   	               }
+   		    }
+   
+                    if ($max_columns < $#columns) {$max_columns = $#columns;}
+             
+                    if ($opt_auto_fit_col == 1) {
+                       autofit_columns(@columns);
+                    }
+	         }
+          	 $row_count++;
+              } else {
+                  my $err = $csv->error_input;
+                  print "Failed to parse line: $err";
+              }
+         }
+         $worksheet->freeze_panes('C8');
+       }
+       elsif ($file_name =~ /\.png/) {
+           ## Insert image
+	   # my @l = split(/\//,$file_name);
+	   # my $worksheet_name = $l[$#l]; #Get file name;
+	   # $worksheet_name =~ s/\..*$//; # Remove file name extensions
+	   # chomp $worksheet_name;
+	   # my $worksheet1 = $workbook->add_worksheet($worksheet_name);
+	   # $worksheet1->insert_image("A1","sample.jpg");
+       }
+       close inF;
+       $workbook->close();
+}
+
+sub autofit_columns {
+	my @columns = shift;
+            ## Initialize the col_width array ##
+            if ($row_count == 0) {
+              foreach (my $i=0;$i<=$#columns;$i++) {
+                $col_width[$i] = 0; 
+              }
+            }
+         
+            ##  Autofit column width ##
+            foreach (my $i=0;$i<=$#columns;$i++) {
+              if ( $col_width[$i] < length($columns[$i]) ) {
+                 $col_width[$i] = length($columns[$i]);
+                 $worksheet->set_column(0, $i, $col_width[$i]);
+              }
+            }
+}
+sub print_help_msg {
+    print <<EOFSTR;
+
+    COMMAND USAGE:
+    ########################################################################################
+    csv_to_excel_pl (options)
+    USAGE:
+        csv_to_excel_pl      -help               : Prints this help message                       
+                             -in_csv|in_csv_list : input csv file or list of csv files                                   
+                             -out_xls            : output excel file
+			     -auto_fit_col       : 0 -> To disable auto col width adjustment
+			                           1 -> To enable auto col width adjustment
+    ########################################################################################
+EOFSTR
+exit 0;
+}
+
+
+

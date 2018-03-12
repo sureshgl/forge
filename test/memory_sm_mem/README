@@ -1,0 +1,16 @@
+Run below cmds in tb dir.
+
+1) To compile TB:
+make vcs
+
+2) To run any test:
+make run TESTNAME=<test_name> RUNTIME_ARGS="+numReqs=<num_requests>"
+
+eg.,
+make run TESTNAME=memWrRdTest RUNTIME_ARGS="+numReqs=50"
+
+3) Clean 
+make clean
+
+4) To launch waveform viewer:
+make dve 

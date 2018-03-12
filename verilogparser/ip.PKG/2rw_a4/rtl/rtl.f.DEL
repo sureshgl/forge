@@ -1,0 +1,10 @@
+algo_2rw_a4_top_wrap.v
+algo_2rw_1rw_top.v
+../../common/rtl/algo_2rw_2ror1w.v
+../../common/rtl/core_2rw_2ror1w.v
+../../common/rtl/mux_2rw_2ror1w.v
+../../common/rtl/algo_nror1w.v
+../../common/rtl/core_nror1w.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v
+../../common/rtl/np2_addr.v

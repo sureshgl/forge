@@ -1,0 +1,1 @@
+ifv +64bit -F formal.filelist +define+FORMAL +licq +top+sva +tcl+formal.tcl -l lformal.log -q +exit 

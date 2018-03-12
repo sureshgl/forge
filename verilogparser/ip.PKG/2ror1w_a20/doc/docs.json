@@ -1,0 +1,29 @@
+{
+   "__comment" : "v->t->[src-file->A, dst-file->B]",
+   "ibm"  : {
+      "cu-32hp" : [
+         { "src" : "AMP_2Ror1W_UserGuide.pdf",
+           "dst" : "AMP_2Ror1W_UserGuide.pdf"
+         },
+         { "src" : "AMP_2Ror1W_Databook.pdf",
+           "dst" : "AMP_2Ror1W_Databook.pdf"
+         }
+      ]
+   },
+   "arm" : {
+      "tsmc40g" : [
+      ],
+      "tsmc28" : [
+      ],
+      "all" : [
+      ]
+   },
+   "tsmc" : {
+      "28hpm" : [
+      ]
+   },
+   "all" : {
+      "all" : [
+      ]
+   }
+}

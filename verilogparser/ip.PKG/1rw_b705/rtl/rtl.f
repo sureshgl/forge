@@ -1,0 +1,12 @@
+algo_1rw_b705_top_wrap.v
+algo_1rw_b705_sva_wrap.v
+algo_nror1w_b705_dup_top.v
+../../common/rtl/algo_nror1w_dup2.v
+../../common/rtl/core_nror1w_dup2.v
+../../common/rtl/infra_align_1r1w_ramwrap.v
+../../common/rtl/align_1r1w_ramwrap.v
+../../common/rtl/np2_addr_ramwrap.v
+../../common/rtl/infra_stack_1r1w_ramwrap.v
+../../common/rtl/stack_1r1w_ramwrap.v
+../../smurf/rtl/memoir_ff_mem_bw.v
+../../smurf/rtl/memoir_ff_mem.v

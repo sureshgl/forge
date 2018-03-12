@@ -1,0 +1,32 @@
+#!/bin/csh -f
+
+run show_all show_all
+
+setenv IFV_HIER    des.algo_top.a1_loop.algo
+setenv IFV_HIER_ALIGN des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_STACK des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+# Push-pop
+run forward_check forward_check
+run cnt_check     cnt_check
+run head_check    head_check
+run dout_check    dout_check
+run link_check    link_check
+run data_check    data_check
+
+# Align to push-pop checks
+run ldout_check   ldout_check
+run ddout_check   ddout_check
+
+#Align checks
+run align_check      align_check
+run mem_chk_check    mem_chk_check
+run align_dout_check align_dout_check
+
+#Stack checks
+run stack_check      stack_check
+run stack_dout_check stack_dout_check
+
+# Align to stack connectivity checks
+run t1_mem_check  t1_mem_check 
+run t1_port_check t1_port_check

@@ -1,0 +1,9 @@
+./rnaxi_reg_wrap_pifo.xv
+./rnaxi_slv_addr_dec_pifo.xv
+./rnaxi_mem_phy_wrap_pifo.xv
+./memory_pifo_mem_1_pifo_func.xv
+./memory_pifo_mem_2_pifo_func.xv
+./memory_pifo_mem_1_pifo_func_wrap.xv
+./memory_pifo_mem_2_pifo_func_wrap.xv
+./rnaxi_slv_top_pifo.xv
+./pifo.xv

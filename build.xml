@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="forge" default="build" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+ 
+  <property name="toolname" value="forge" />
+ 
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="../forge/ant/contrib/ant-contrib-1.0b3.jar" />
+    </classpath>
+  </taskdef>
+
+  <target name="load-props" description="loading properties from forge.properties files">
+    <loadproperties srcfile="cfg/forge.properties" />
+  </target>
+	
+   <target name="init-version" depends="load-props">
+	    <echo message="Invoking ANT for ${project.name}"></echo>
+	</target>
+	
+  <target name="init-tool" depends="init-version">
+    <mkdir dir="${class.dir}" />
+  </target>
+
+  <target name="resolve-forge-classpath" depends="init-tool" description="setting classpath for forge project">
+    <!-- these will be packaged in fat-jar !-->
+    <fileset id="forge.libs.fileset" dir="${lib.dir}">
+      <patternset includes="*.jar" />
+    </fileset>
+  	
+  	<path id="commonlibs.classpath">
+  	      <fileset refid="forge.libs.fileset" />
+    </path>
+
+    <property name="jar.name" value="${dist.dir}/${project.name}.jar" />
+    <path id="jar.full.path" location="${jar.name}" />
+    <property name="jar.full.path" refid="jar.full.path" />
+  	
+  	<path id="forge.classpath">
+  		<pathelement location="./../${toolname}/${class.dir}" />
+  	</path>
+  	
+  	<property name="commonlibpath" refid="commonlibs.classpath" />
+  	<property name="short.classpath" value="${basedir}/cfg/${path.separator}${jar.full.path}${path.separator}${commonlibpath}" />
+  	<property name="fatjar.name" value="${dist.dir}/${project.name}-fat.jar"/>
+  	<path id="fullfatjarpath"> <pathelement location="${fatjar.name}" /> </path>
+  	<property name="fatjar.classpath" refid="fullfatjarpath" />
+  </target>
+ 
+  <target name="compile" depends="resolve-forge-classpath" description="compiles src, tools, target,utils directory and places class files in classes directory">
+    <javac includeantruntime="false" srcdir="${src.dir}:${tools.dir}:${utils.dir}:${target.dir}" destdir="${class.dir}" debug="true" debuglevel="lines,vars,source" fork="true">
+      <classpath refid="commonlibs.classpath" />
+      <classpath>
+        <pathelement location="${cfg.dir}" />
+      </classpath>
+      <compilerarg value="-Xlint" />
+    </javac>
+
+    <!-- copy other resources -->
+    <copy todir="${class.dir}">
+      <fileset dir="${target.dir}">
+        <include name="**/*.tokens" />
+      </fileset>
+      <fileset dir="${src.dir}">
+        <include name="**/*.txt" />
+      </fileset>
+      <fileset dir="${templates.dir}">
+        <include name="**/*.stg" />
+        <include name="**/*.dofile" />
+     </fileset>
+      <fileset dir="${cfg.dir}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="build" depends="init-tool,jar" />
+
+  <target name="jar" depends="compile">
+    <fileset id="parsers.libs.fileset" dir="${lib.dir}">
+      <patternset includes="**/*.jar" excludes="${arg.proteus.excl.jars}" />
+    </fileset>
+    <jar jarfile="${jar.name}" basedir="${class.dir}" duplicate="fail" filesetmanifest="merge">
+
+      <manifest>
+        <attribute name="VERSION" value="${full.version}" />
+        <attribute name="Main-Class" value="${mainclass}" />
+      </manifest>
+    </jar>
+  	<write-forge-binary cmdline="java -ea -Xmx4g -cp forge-fat.jar ${mainclass}" />
+  </target>
+	
+  <target name="clean" depends="init-tool">
+	<delete dir="${installer.staging}" followsymlinks="false"/>
+  	<delete file="${runner.name}" />
+  	<delete file="${runner.name}.bat" />
+  	<delete dir="${dist.dir}" includeEmptyDirs="true" />
+  	<delete dir="${class.dir}" includeEmptyDirs="true" />
+  </target>
+
+  <target name="fat-jar" depends="jar">
+    <property name="extlibs.jar" value="${dist.dir}/extlibs.jar" />
+    <jar jarfile="${extlibs.jar}">
+      <zipgroupfileset refid="forge.libs.fileset" />
+    </jar>
+    <jar jarfile="${fatjar.name}" duplicate="fail" filesetmanifest="merge">
+      <zipfileset excludes="META-INF/ assembly-descriptor.xml log*.xml *.txt LICENSE AUTHORS" casesensitive="false" src="${extlibs.jar}" />
+      <zipfileset src="${jar.name}" />
+    </jar>
+    <delete file="${jar.name}" />
+    <delete file="${extlibs.jar}" />
+    <write-forge-binary cmdline="java -ea -Xmx8g -cp forge-fat.jar ${mainclass}" />
+  </target>
+
+  <target name="tarball" depends="fat-jar">
+      <tar compression="gzip" destfile="${dist.dir}/forge-tarball.tar.gz">
+          <tarfileset dir="." prefix="">
+              <include name="memogen_package/**"/>
+          </tarfileset>
+          <tarfileset dir="." prefix="">
+              <include name="preprocessor/**"/>
+          </tarfileset>
+          <tarfileset dir="." filemode="555" prefix="">
+              <include name="verilogparser/bin/**"/>
+          </tarfileset>
+          <tarfileset dir="." prefix="">
+              <include name="verilogparser/framework/**"/>
+          </tarfileset>
+          <tarfileset dir="." prefix="">
+              <include name="verilogparser/ip.PKG/**"/>
+          </tarfileset>
+          <tarfileset dir="${dist.dir}" prefix="">
+              <include name="**"/>
+          </tarfileset>
+    </tar>
+  </target>
+
+  <target name="clean-tool" >
+    <delete dir="${class.dir}" includeEmptyDirs="true" />
+    <delete file="${project.name}" />
+    <delete file="${project.name}.bat" />
+    <delete dir="${dist.dir}" includeEmptyDirs="true" />
+  </target>
+	
+  <macrodef name="write-forge-binary">
+    <attribute name="cmdline" />
+    <sequential>
+        <echo file="${runner.name}" append="false" message="@{cmdline} &quot;$@&quot;" />
+      <chmod file="${runner.name}" perm="+x" />
+      <echo file="${runner.name}.bat" append="false" message="@{cmdline} %*" />
+    </sequential>
+  </macrodef>
+ 
+  <target name="antlr-gen-verilogPrime-parser" depends="resolve-forge-classpath" description="Generates the lexer and parser from the .g grammar file.">
+    <echo>Generating the antlr  classes for verilogPrime...</echo>
+    <java jar="${lib.antlr}" fork="true" dir="${grammar.dir}">
+    <arg line="${verilogPrimeParser} -listener -visitor -encoding UTF-8 -package ${verilogPrimeFilesPackage} -o ../${verilogPrimeTargetDir1}" />
+        <classpath refid="commonlibs.classpath" />
+    </java>
+   </target>
+
+  <target name="antlr-gen-verilogPrime-lexer" depends="resolve-forge-classpath" description="Generates the lexer and parser from the .g grammar file.">
+    <echo>Generating the antlr  classes for verilogPrime...</echo>
+    <java jar="${lib.antlr}" fork="true" dir="${grammar.dir}">
+    <arg line="${verilogPrimeLexer} -listener -visitor -encoding UTF-8 -package ${verilogPrimeFilesPackage} -o ../${verilogPrimeTargetDir1}" />
+        <classpath refid="commonlibs.classpath" />
+    </java>
+   </target>
+</project>

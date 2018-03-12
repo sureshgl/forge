@@ -1,0 +1,5 @@
+sva.v
+../rtl/ppe_log.v
+../rtl/ppe_simple_loop.v
+../rtl/ppe_simple_dsbu.v
+../../prio_enc/rtl/priority_encode_dsbu.v

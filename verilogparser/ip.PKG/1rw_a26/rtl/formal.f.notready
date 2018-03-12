@@ -1,0 +1,4 @@
+ip_top_sva_2rw_rl_edram_del.v
+ip_top_sva_nror1w_edram_del.v
+ip_top_sva_2rw_rl_edram_del_top.v
+../../common/rtl/ip_top_sva_align_edram.v

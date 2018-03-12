@@ -1,0 +1,1 @@
+/auto/ins-asic-04/ganlinw/asic_master/ip/design/ip_gf_2_divide/rtl/ip_gf_2_divide -key_width 320 -key_byte_big_endian 1 -key_bit_big_e 1 -result_byte_big_endian 1 -result_bit_big_e 1 "$@"

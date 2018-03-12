@@ -1,0 +1,25 @@
+Directory Structure:
+ip
+  <algorithm>/rtl            -- design files
+  <algorithm>/rtl/rtl.f      -- listing of design files to be used by tools
+  <algorithm>/verif          -- verif files
+  <algorithm>/verif/verif.f  -- listing of verif files to be used by tools
+  infra                      -- infrastructure directory
+  infra/bin                  -- binaries
+  infra/config
+  infra/config/syn.<tool>.tcl  -- tool=rc,dc
+  infra/config/sim.<vendor>.<tech>.f  -- say ibm.cu-32hp
+  infra/config/memorun.default.cfg -- default run configuration
+  infra/config/sim.<too>.f     -- tool=ncverilog,vcs
+  infra/config/sim.<vendor>.<tech>.gates.f   -- gate config for simulation tools
+  infra/config/sim.common.f    -- common simulation config
+  infra/config/sim.<vendor>.<tech>.f -- behavioral config for simulation tools
+  infra/framework            -- support modules for the binaries
+
+Example Algorithm Directory Structure:
+  ip/1r1w_rl2/rtl            -- 1R1W_RL2 design files
+  ip/1r1w_rl2/rtl/rtl.f      -- 1R1W_RL2 design files listing for tool use
+  ip/1r1w_rl2/verif          -- 1R1W_RL2 verification files
+  ip/1r1w_rl2/verif/verif.f  -- 1R1W_RL2 verification files listing for tool use
+  ip/2ror1w_xr/rtl           -- 2Ror1W_XR design files
+  ...

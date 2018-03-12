@@ -1,0 +1,96 @@
+HtmlBlocks(RegisterList,MemoryList)::=<<
+Registers :
+\<br>
+<RegisterList:{item | <HtmlRegisterLinks(item)><\n>}>
+\<br>
+Memories:
+\<br>
+<MemoryList:{item | <HtmlMemoryLinks(item)><\n>}>
+>>
+
+HtmlRegisterLinks(reg_name)::=<<
+\<a href="<reg_name>.html" rel="index up"><reg_name>\</a>
+\<br>
+>>
+
+HtmlMemoryLinks(memory_name)::=<<
+\<a href="<memory_name>.html" rel="index up"><memory_name>\</a>
+\<br>
+>>
+
+HtmlRegister(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+HtmlMemory(StList)::=<<
+<StList:{item |<item><\n>}>
+>>
+
+HtmlRegisterStructure(reg_name,reg_start_offset,reg_end_offset,reg_size)::=<<
+\<br>
+\<tr>\<td>Register : <reg_name>\</td>\</tr>
+\<br>\<br>
+\<table border="1" style="width:300px">
+
+         \<tr>
+            \<td>StartOffset\</td>
+            \<td><reg_start_offset>\</td>
+         \</tr>
+         \<tr>
+            \<td>EndOffset\</td>
+            \<td><reg_end_offset>\</td>
+         \</tr>       
+         \<tr>
+            \<td>Size\</td>
+            \<td><reg_size>\</td>
+         \</tr>
+          \<tr>
+            \<td>Type\</td>
+            \<td>CFG\</td>
+         \</tr>
+         \</tr>
+      \</table>
+>>
+
+HtmlMemoryStructure(memory_name,memory_start_offset,memory_end_offset,memory_size,memory_words,memory_bits)::=<<
+\<br>
+\<tr>\<td>Memory : <memory_name>\</td>\</tr>
+\<br>\<br>
+\<table border="1" style="width:300px">
+
+         \<tr>
+            \<td>StartOffset\</td>
+            \<td><memory_start_offset>\</td>
+         \</tr>
+          \<tr>
+            \<td>EndOffset\</td>
+            \<td><memory_end_offset>\</td>
+         \</tr>        
+         \<tr>
+            \<td>Size\</td>
+            \<td><memory_words> x <memory_bits>\</td>
+         \</tr>
+         \</tr>
+      \</table>
+>>
+
+HtmlFieldDeclarations(HtmlFieldDeclarationList)::=<<
+\<br>
+\<tr>\<td>Fields\</td>\</tr>
+\<br>\<br>
+\<table border="1" style="width:300px">
+\<tr>
+            \<th>Name\</th>
+            \<th>offset\</th>
+            \<th>size\</th>
+         \</tr>
+<HtmlFieldDeclarationList:{item |<item><\n>}>
+  \</table>
+>>
+HtmlFieldDeclaration(field_name,field_size,field_offset)::=<<
+         \<tr>
+            \<td><field_name>\</td>
+            \<td><field_offset>\</td>
+            \<td><field_size>\</td>
+         \</tr>
+>>

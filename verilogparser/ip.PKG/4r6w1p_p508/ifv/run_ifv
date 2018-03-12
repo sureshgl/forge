@@ -1,0 +1,10 @@
+#!/bin/csh -f
+
+run show_all show_all
+
+setenv IFV_HIER des.algo_top
+
+run mem_range_check mem_range_check
+run fakemem_check fakemem_check
+run dout_check dout_check
+

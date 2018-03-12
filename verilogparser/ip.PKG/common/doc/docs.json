@@ -1,0 +1,79 @@
+{
+   "__comment" : "v->t->[src-file->A, dst-file->B]",
+   "arm" : {
+      "tsmc40g" : [
+         {
+            "src" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf",
+            "dst" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf"
+         },
+         {
+            "src" : "MemoGen_UserGuide_v1.pdf",
+            "dst" : "MemoGen_UserGuide_v1.pdf"
+         },
+         {
+            "src" : "libnotes.txt",
+            "dst" : "libnotes.txt"
+         }
+      ]
+   },
+ "marvell" : {
+      "tsmc28hpm" : [
+         {
+            "src" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf",
+            "dst" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf"
+         },
+         {
+            "src" : "MemoGen_UserGuide_Ren4x_v1.3.pdf",
+            "dst" : "MemoGen_UserGuide_Ren4x_v1.3.pdf"
+         }
+      ]
+   },
+   "scaled" : {
+      "40nm" : [
+         {
+            "src" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf",
+            "dst" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf"
+         },
+         {
+            "src" : "MemoGen_UserGuide_scaled_v1_1.pdf",
+            "dst" : "MemoGen_UserGuide_v1_1.pdf"
+         } 
+      ],
+      "28nm" : [
+         {
+            "src" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf",
+            "dst" : "Renaissance_mRnW_Functional_Datasheet_v1_2.pdf"
+         },
+         {
+            "src" : "MemoGen_UserGuide_scaled_v1_1.pdf",
+            "dst" : "MemoGen_UserGuide_v1_1.pdf"
+         } 
+      ]
+   },
+   "ibm" : {
+      "cu-32hp" : [
+         {
+            "src" : "AMP_UserGuide_v1.pdf",
+            "dst" : "AMP_UserGuide_v1.pdf"
+         },
+         {
+            "src" : "AMP_Multiport_mRnW_Core_v3.pdf",
+            "dst" : "AMP_Multiport_mRnW_Core_v3.pdf"
+         }
+      ],
+      "cu32hp" : [
+         {
+            "src" : "AMP_UserGuide_v1.pdf",
+            "dst" : "AMP_UserGuide_v1.pdf"
+         },
+         {
+            "src" : "AMP_Multiport_mRnW_Core_v3.pdf",
+            "dst" : "AMP_Multiport_mRnW_Core_v3.pdf"
+         }
+      ]
+   },
+   "all" : {
+      "all" : [
+      ]
+   }
+}

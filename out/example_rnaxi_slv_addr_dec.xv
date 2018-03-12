@@ -1,0 +1,230 @@
+module example_rnaxi_slv_addr_dec(arb_fifo_pkt_threshold_0_rdata,
+arb_fifo_pkt_threshold_0_wr_en,
+arb_fifo_pkt_threshold_0_rd_en,
+proc_pkt_threshold_0_rdata,
+proc_pkt_threshold_0_wr_en,
+proc_pkt_threshold_0_rd_en,
+proc_pkt_threshold_1_rdata,
+proc_pkt_threshold_1_wr_en,
+proc_pkt_threshold_1_rd_en,
+proc_pkt_threshold_2_rdata,
+proc_pkt_threshold_2_wr_en,
+proc_pkt_threshold_2_rd_en,
+dummyReg_0_rdata,
+dummyReg_0_wr_en,
+dummyReg_0_rd_en,
+dummy_reg_0_rdata,
+dummy_reg_0_wr_en,
+dummy_reg_0_rd_en,
+dummy_reg_1_rdata,
+dummy_reg_1_wr_en,
+dummy_reg_1_rd_en,
+dummy_reg_2_rdata,
+dummy_reg_2_wr_en,
+dummy_reg_2_rd_en,
+dummy_reg_3_rdata,
+dummy_reg_3_wr_en,
+dummy_reg_3_rd_en,
+dummy_reg_4_rdata,
+dummy_reg_4_wr_en,
+dummy_reg_4_rd_en,
+dummy_reg_5_rdata,
+dummy_reg_5_wr_en,
+dummy_reg_5_rd_en,
+example_mem_1_wr_en,
+example_mem_1_rd_en,
+example_mem_1_addr,
+example_mem_1_wr_data,
+example_mem_1_rd_data,
+example_mem_2_wr_en,
+example_mem_2_rd_en,
+example_mem_2_addr,
+example_mem_2_wr_data,
+example_mem_2_rd_data,
+example_mem_3_wr_en,
+example_mem_3_rd_en,
+example_mem_3_addr,
+example_mem_3_wr_data,
+example_mem_3_rd_data,
+req_size,
+reg_rd_data,
+clk,
+rst,
+wr_req_rcvd,
+req_addr,
+rd_req_rcvd,
+load_rd_data,
+reg_data,
+reg_wr_data);
+
+   parameter REQ_TYPE_WIDTH  = 2;
+   parameter REQ_ATTR_WIDTH  = 3;
+   parameter REQ_SIZE_WIDTH  = 6;
+   parameter REQ_DATA_WIDTH  = 32;
+   input [REQ_SIZE_WIDTH:0] req_size;
+   output reg [2047:0] reg_rd_data;
+   
+input clk;
+input rst;
+input [31:0] arb_fifo_pkt_threshold_0_rdata;
+input [63:0] proc_pkt_threshold_0_rdata;
+input [63:0] proc_pkt_threshold_1_rdata;
+input [63:0] proc_pkt_threshold_2_rdata;
+input [63:0] dummyReg_0_rdata;
+input [95:0] dummy_reg_0_rdata;
+input [95:0] dummy_reg_1_rdata;
+input [95:0] dummy_reg_2_rdata;
+input [95:0] dummy_reg_3_rdata;
+input [95:0] dummy_reg_4_rdata;
+input [95:0] dummy_reg_5_rdata;
+input [31:0] example_mem_1_rd_data;
+input [63:0] example_mem_2_rd_data;
+input [63:0] example_mem_3_rd_data;
+
+output reg [0:0] arb_fifo_pkt_threshold_0_wr_en;
+output reg [0:0] arb_fifo_pkt_threshold_0_rd_en;
+output reg [1:0] proc_pkt_threshold_0_wr_en;
+output reg [1:0] proc_pkt_threshold_0_rd_en;
+output reg [1:0] proc_pkt_threshold_1_wr_en;
+output reg [1:0] proc_pkt_threshold_1_rd_en;
+output reg [1:0] proc_pkt_threshold_2_wr_en;
+output reg [1:0] proc_pkt_threshold_2_rd_en;
+output reg [1:0] dummyReg_0_wr_en;
+output reg [1:0] dummyReg_0_rd_en;
+output reg [2:0] dummy_reg_0_wr_en;
+output reg [2:0] dummy_reg_0_rd_en;
+output reg [2:0] dummy_reg_1_wr_en;
+output reg [2:0] dummy_reg_1_rd_en;
+output reg [2:0] dummy_reg_2_wr_en;
+output reg [2:0] dummy_reg_2_rd_en;
+output reg [2:0] dummy_reg_3_wr_en;
+output reg [2:0] dummy_reg_3_rd_en;
+output reg [2:0] dummy_reg_4_wr_en;
+output reg [2:0] dummy_reg_4_rd_en;
+output reg [2:0] dummy_reg_5_wr_en;
+output reg [2:0] dummy_reg_5_rd_en;
+output reg [31:0] example_mem_1_wr_data;
+output reg [31:0] example_mem_1_addr;
+output reg [0:0] example_mem_1_wr_en;
+output reg  example_mem_1_rd_en;
+output reg [63:0] example_mem_2_wr_data;
+output reg [31:0] example_mem_2_addr;
+output reg [1:0] example_mem_2_wr_en;
+output reg  example_mem_2_rd_en;
+output reg [63:0] example_mem_3_wr_data;
+output reg [31:0] example_mem_3_addr;
+output reg [1:0] example_mem_3_wr_en;
+output reg  example_mem_3_rd_en;
+
+// fixed ports
+input wr_req_rcvd;
+input [31:0] req_addr;
+input rd_req_rcvd;
+input load_rd_data;
+output reg [2047:0] reg_data;
+input [2047:0] reg_wr_data;
+wire [63:0] mask;
+
+assign arb_fifo_pkt_threshold_0_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ?  mask[0:0] << (req_addr-32'h0)  : 1'h0;
+
+assign arb_fifo_pkt_threshold_0_rd_en[0:0] = rd_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ?  mask[0:0] << (req_addr-32'h0)  : 1'h0;
+
+assign proc_pkt_threshold_0_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'h8) && (req_addr <= 32'h9) ?  mask[1:0] << (req_addr-32'h8)  : 2'h0;
+
+assign proc_pkt_threshold_0_rd_en[1:0] = rd_req_rcvd && (req_addr >= 32'h8) && (req_addr <= 32'h9) ?  mask[1:0] << (req_addr-32'h8)  : 2'h0;
+
+assign proc_pkt_threshold_1_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'ha) && (req_addr <= 32'hb) ?  mask[1:0] << (req_addr-32'ha)  : 2'h0;
+
+assign proc_pkt_threshold_1_rd_en[1:0] = rd_req_rcvd && (req_addr >= 32'ha) && (req_addr <= 32'hb) ?  mask[1:0] << (req_addr-32'ha)  : 2'h0;
+
+assign proc_pkt_threshold_2_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'hc) && (req_addr <= 32'hd) ?  mask[1:0] << (req_addr-32'hc)  : 2'h0;
+
+assign proc_pkt_threshold_2_rd_en[1:0] = rd_req_rcvd && (req_addr >= 32'hc) && (req_addr <= 32'hd) ?  mask[1:0] << (req_addr-32'hc)  : 2'h0;
+
+assign dummyReg_0_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'h10) && (req_addr <= 32'h11) ?  mask[1:0] << (req_addr-32'h10)  : 2'h0;
+
+assign dummyReg_0_rd_en[1:0] = rd_req_rcvd && (req_addr >= 32'h10) && (req_addr <= 32'h11) ?  mask[1:0] << (req_addr-32'h10)  : 2'h0;
+
+assign dummy_reg_0_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h22) ?  mask[2:0] << (req_addr-32'h20)  : 3'h0;
+
+assign dummy_reg_0_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h22) ?  mask[2:0] << (req_addr-32'h20)  : 3'h0;
+
+assign dummy_reg_1_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h23) && (req_addr <= 32'h25) ?  mask[2:0] << (req_addr-32'h23)  : 3'h0;
+
+assign dummy_reg_1_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h23) && (req_addr <= 32'h25) ?  mask[2:0] << (req_addr-32'h23)  : 3'h0;
+
+assign dummy_reg_2_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h26) && (req_addr <= 32'h28) ?  mask[2:0] << (req_addr-32'h26)  : 3'h0;
+
+assign dummy_reg_2_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h26) && (req_addr <= 32'h28) ?  mask[2:0] << (req_addr-32'h26)  : 3'h0;
+
+assign dummy_reg_3_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h29) && (req_addr <= 32'h2b) ?  mask[2:0] << (req_addr-32'h29)  : 3'h0;
+
+assign dummy_reg_3_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h29) && (req_addr <= 32'h2b) ?  mask[2:0] << (req_addr-32'h29)  : 3'h0;
+
+assign dummy_reg_4_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h2c) && (req_addr <= 32'h2e) ?  mask[2:0] << (req_addr-32'h2c)  : 3'h0;
+
+assign dummy_reg_4_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h2c) && (req_addr <= 32'h2e) ?  mask[2:0] << (req_addr-32'h2c)  : 3'h0;
+
+assign dummy_reg_5_wr_en[2:0] = wr_req_rcvd && (req_addr >= 32'h2f) && (req_addr <= 32'h31) ?  mask[2:0] << (req_addr-32'h2f)  : 3'h0;
+
+assign dummy_reg_5_rd_en[2:0] = rd_req_rcvd && (req_addr >= 32'h2f) && (req_addr <= 32'h31) ?  mask[2:0] << (req_addr-32'h2f)  : 3'h0;
+
+assign example_mem_1_wr_en[0:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h5f) ?  mask[0:0] << (req_addr[$clog2(1):0])  : 1'h0;
+
+assign example_mem_1_rd_en = rd_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h5f) ;
+
+assign example_mem_2_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'h80) && (req_addr <= 32'h13f) ?  mask[1:0] << (req_addr[$clog2(2):0])  : 2'h0;
+
+assign example_mem_2_rd_en = rd_req_rcvd && (req_addr >= 32'h80) && (req_addr <= 32'h13f) ;
+
+assign example_mem_3_wr_en[1:0] = wr_req_rcvd && (req_addr >= 32'h200) && (req_addr <= 32'h2ff) ?  mask[1:0] << (req_addr[$clog2(2):0])  : 2'h0;
+
+assign example_mem_3_rd_en = rd_req_rcvd && (req_addr >= 32'h200) && (req_addr <= 32'h2ff) ;
+
+ assign reg_rd_data[2047:0] =  
+	load_rd_data && (req_addr >= 32'h0) && (req_addr <= 32'h0) ? 2048'(arb_fifo_pkt_threshold_0_rdata) >> ((req_addr-32'h0) * 32):
+	load_rd_data && (req_addr >= 32'h8) && (req_addr <= 32'h9) ? 2048'(proc_pkt_threshold_0_rdata) >> ((req_addr-32'h8) * 32):
+	load_rd_data && (req_addr >= 32'ha) && (req_addr <= 32'hb) ? 2048'(proc_pkt_threshold_1_rdata) >> ((req_addr-32'ha) * 32):
+	load_rd_data && (req_addr >= 32'hc) && (req_addr <= 32'hd) ? 2048'(proc_pkt_threshold_2_rdata) >> ((req_addr-32'hc) * 32):
+	load_rd_data && (req_addr >= 32'h10) && (req_addr <= 32'h11) ? 2048'(dummyReg_0_rdata) >> ((req_addr-32'h10) * 32):
+	load_rd_data && (req_addr >= 32'h20) && (req_addr <= 32'h22) ? 2048'(dummy_reg_0_rdata) >> ((req_addr-32'h20) * 32):
+	load_rd_data && (req_addr >= 32'h23) && (req_addr <= 32'h25) ? 2048'(dummy_reg_1_rdata) >> ((req_addr-32'h23) * 32):
+	load_rd_data && (req_addr >= 32'h26) && (req_addr <= 32'h28) ? 2048'(dummy_reg_2_rdata) >> ((req_addr-32'h26) * 32):
+	load_rd_data && (req_addr >= 32'h29) && (req_addr <= 32'h2b) ? 2048'(dummy_reg_3_rdata) >> ((req_addr-32'h29) * 32):
+	load_rd_data && (req_addr >= 32'h2c) && (req_addr <= 32'h2e) ? 2048'(dummy_reg_4_rdata) >> ((req_addr-32'h2c) * 32):
+	load_rd_data && (req_addr >= 32'h2f) && (req_addr <= 32'h31) ? 2048'(dummy_reg_5_rdata) >> ((req_addr-32'h2f) * 32):
+	load_rd_data && (req_addr >= 32'h40) && (req_addr <= 32'h5f) ? 2048'(example_mem_1_rd_data) >> ((req_addr[$clog2(0+1):0]) * 32):
+	load_rd_data && (req_addr >= 32'h80) && (req_addr <= 32'h13f) ? 2048'(example_mem_2_rd_data) >> ((req_addr[$clog2(1+1):0]) * 32):
+	load_rd_data && (req_addr >= 32'h200) && (req_addr <= 32'h2ff) ? 2048'(example_mem_3_rd_data) >> ((req_addr[$clog2(1+1):0]) * 32):
+	2048'h0;
+
+assign reg_data[2047:0] =  
+	wr_req_rcvd && (req_addr >= 32'h0) && (req_addr <= 32'h0) ? reg_wr_data << ((req_addr-32'h0) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h8) && (req_addr <= 32'h9) ? reg_wr_data << ((req_addr-32'h8) * 32) :
+	wr_req_rcvd && (req_addr >= 32'ha) && (req_addr <= 32'hb) ? reg_wr_data << ((req_addr-32'ha) * 32) :
+	wr_req_rcvd && (req_addr >= 32'hc) && (req_addr <= 32'hd) ? reg_wr_data << ((req_addr-32'hc) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h10) && (req_addr <= 32'h11) ? reg_wr_data << ((req_addr-32'h10) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h20) && (req_addr <= 32'h22) ? reg_wr_data << ((req_addr-32'h20) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h23) && (req_addr <= 32'h25) ? reg_wr_data << ((req_addr-32'h23) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h26) && (req_addr <= 32'h28) ? reg_wr_data << ((req_addr-32'h26) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h29) && (req_addr <= 32'h2b) ? reg_wr_data << ((req_addr-32'h29) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h2c) && (req_addr <= 32'h2e) ? reg_wr_data << ((req_addr-32'h2c) * 32) :
+	wr_req_rcvd && (req_addr >= 32'h2f) && (req_addr <= 32'h31) ? reg_wr_data << ((req_addr-32'h2f) * 32) :
+	2048'h0;
+
+assign example_mem_1_wr_data[32-1:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h5f) ? reg_wr_data << ((req_addr[$clog2(0+1):0]) * 32) : 32'h0;
+
+assign example_mem_1_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h40) && (req_addr <= 32'h5f) ? req_addr >> $clog2(1) : 32'h0; 
+
+assign example_mem_2_wr_data[64-1:0] = wr_req_rcvd && (req_addr >= 32'h80) && (req_addr <= 32'h13f) ? reg_wr_data << ((req_addr[$clog2(1+1):0]) * 32) : 64'h0;
+
+assign example_mem_2_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h80) && (req_addr <= 32'h13f) ? req_addr >> $clog2(2) : 32'h0; 
+
+assign example_mem_3_wr_data[64-1:0] = wr_req_rcvd && (req_addr >= 32'h200) && (req_addr <= 32'h2ff) ? reg_wr_data << ((req_addr[$clog2(1+1):0]) * 32) : 64'h0;
+
+assign example_mem_3_addr[31:0] = wr_req_rcvd && (req_addr >= 32'h200) && (req_addr <= 32'h2ff) ? req_addr >> $clog2(2) : 32'h0; 
+
+assign mask[63:0] = 64'hFFFF_FFFF_FFFF_FFFF >> (64-req_size[6:0]);
+
+
+endmodule // auto-generated

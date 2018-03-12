@@ -1,0 +1,74 @@
+memory(memoryForStg)::=<<
+
+module <memoryForStg.fsName>_<memoryForStg.memory.name>_mem(clk,
+rst,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_write,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_wr_adr,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_din,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_bw,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_flopout_en,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_read,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_adr,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_fout,  
+<memoryForStg.fsName>_<memoryForStg.memory.name>_ready,
+<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_dout);
+
+parameter NUMRPRT = <memoryForStg.memory.readPortValue>;
+parameter NUMWPRT = <memoryForStg.memory.writePortValue>;
+parameter NUMADDR = <memoryForStg.memory.words>;
+parameter BITDATA = <memoryForStg.memory.bits>;
+localparam BITADDR = NUMADDR>1 ? $clog2(NUMADDR) : 1;
+
+parameter RSTINIT = 0;
+ parameter RSTSTRT = 0;  
+ parameter RSTINCR = 0;      
+
+input  clk;
+input  rst;
+input [NUMWPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_write;
+input [BITADDR*NUMWPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_wr_adr;
+input [BITDATA*NUMWPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_din;
+input [NUMRPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_read;
+input [BITADDR*NUMRPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_rd_adr;
+input [NUMWPRT*BITDATA-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_bw;  
+input                       <memoryForStg.fsName>_<memoryForStg.memory.name>_flopout_en;
+
+output reg [BITDATA*NUMRPRT-1:0] <memoryForStg.fsName>_<memoryForStg.memory.name>_rd_dout;
+output [NUMADDR*BITDATA-1:0]   <memoryForStg.fsName>_<memoryForStg.memory.name>_rd_fout;
+output                       <memoryForStg.fsName>_<memoryForStg.memory.name>_ready;
+
+
+generate if (1) begin: ff_mem_bwfr
+
+ff_mem_bw_f# (.NUMWPRT(NUMWPRT),
+	.NUMRPRT(NUMRPRT),
+	.BITADDR(BITADDR),
+	.NUMADDR(NUMADDR),
+	.WIDTH(BITDATA),
+	
+	.RSTINIT(RSTINIT),                                                                          
+    .RSTINCR(RSTINCR),
+    .RSTSTRT(RSTSTRT),
+    .FLOPOUT(0))  //FIXME: num flops on rdout path
+u_<memoryForStg.fsName>_<memoryForStg.memory.name>_ffmem (.write(<memoryForStg.fsName>_<memoryForStg.memory.name>_write),
+	.wr_adr(<memoryForStg.fsName>_<memoryForStg.memory.name>_wr_adr),
+	.din(<memoryForStg.fsName>_<memoryForStg.memory.name>_din),
+	.read(<memoryForStg.fsName>_<memoryForStg.memory.name>_read),
+	.rd_adr(<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_adr),
+	.bw (<memoryForStg.fsName>_<memoryForStg.memory.name>_bw),
+    .flopout_en (<memoryForStg.fsName>_<memoryForStg.memory.name>_flopout_en),
+    .rd_fout (<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_fout),
+    .ready (<memoryForStg.fsName>_<memoryForStg.memory.name>_ready),
+	.rd_dout(<memoryForStg.fsName>_<memoryForStg.memory.name>_rd_dout),
+	.clk(clk),
+	.rst(rst));
+
+end else begin: memogen_mem
+                
+<memoryForStg.memory.name>_memogen u_<memoryForStg.memory.name>_memogen ();
+              
+end
+endgenerate
+
+endmodule
+>>

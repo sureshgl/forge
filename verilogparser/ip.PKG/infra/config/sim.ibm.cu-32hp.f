@@ -1,0 +1,25 @@
++define+IBM_RTL_BISTSHORTCUT
+-y /auto/libraries/ibm/ibm_cu32hp/1290215997/edramf_v001/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/1287611519/memory_support_9t_v002/verilog/rtl/
+-y /auto/libraries/ibm/ibm_cu32hp/1287611519/sram1d_v001/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/mica_compiler_libs/edramf_v001/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/mica_compiler_libs/edramf_v001/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/mica_compiler_libs/memory_support_9t_v002_sram/verilog/rtl/
+-y /auto/libraries/ibm/ibm_cu32hp/mica_compiler_libs/sram1d_v001/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/mica_compiler_libs/sram1d_v001/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/technologyfiles_v001/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/edramf_v001/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/sc_9t_uvt_v002/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/sc_9t_hvt_v002/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/sc_9t_mvt_v002/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/asic_support_9t_v002/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/sram2s/sram2s_v001/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/sram2s/sram2s_v001/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/sram2s/memory_support_9t_v002/verilog/rtl/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/memory_support_9t_v002/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/rel1.0/memory_support_9t_v002/verilog/rtl/
+-y /auto/libraries/ibm/ibm_cu32hp/edrama/1311201151/edrama_v002/verilog/wrappers/
+-y /auto/libraries/ibm/ibm_cu32hp/edrama/1311201151/edrama_v002/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel2.0/sc_9t_uvt_v004/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel2.0/sc_9t_hvt_v004/verilog/beh/
+-y /auto/libraries/ibm/ibm_cu32hp/rel2.0/sc_9t_mvt_v004/verilog/beh/

@@ -1,0 +1,171 @@
+#!/bin/csh -f
+
+if($#argv == 0) then
+    echo "Usage: $0 <top_module_name> [-noob] [-refr]"
+    echo "   this runs only from <cut-dir>/run_sample/<cut-name> dir"
+    echo "   -noob : use this if cut was generated with -noob"
+    echo "   -refr : use this if cut was generated for eDRAM"
+    exit (1);
+endif
+echo "cmdline: $0 $argv"
+set TOP=$argv[1]
+set NOOB=0
+setenv IFV_REFR 0
+if ($#argv == 2) then
+    if ($argv[2] == '-noob') then
+        set NOOB=1
+    else if ($argv[2] == '-refr') then
+        setenv IFV_REFR 1
+    endif
+else if ($#argv == 3) then
+    if (($argv[2] == '-noob') || ($argv[3] == '-noob')) then
+      set NOOB=1
+    endif
+    if (($argv[2] == '-refr') || ($argv[2] == '-refr')) then
+      setenv IFV_REFR 1
+    endif
+endif
+set SCRIPT=`readlink -f "$0"`
+set SCRIPTPATH=`dirname "$SCRIPT"`
+set BINPATH=`dirname "$0"| sed 's:verilogparser/.*$:verilogparser:'`
+set BINDIR=`readlink -f "$BINPATH"`
+set IPDIR="$BINDIR/ip_obfuscated"
+
+set TOPV="../../../rtl/${TOP}.v"
+set DESLIB=`\ls ${IPDIR}/common/rtl/memoir_design_library*.v`
+if ($NOOB == 1) then
+   set DESLIB=`\ls ${IPDIR}/memoir_design_library*.v`
+endif
+echo "design library used: $DESLIB"
+
+set TCLA="+tcl+${SCRIPTPATH}"
+set CMDP="iev +64bit -F filelist +define+FORMAL +licq +exit +top+${TOP}"
+
+\rm -fr INCA_libs filelist
+
+echo $SCRIPTPATH
+echo $TOPV >! filelist
+echo "$DESLIB" >> filelist
+
+alias run '\rm -f \!:2.log; echo $CMDP ${TCLA}/\!:1.tcl -l \!:2.log; $CMDP ${TCLA}/\!:1.tcl -l \!:2.log;'
+
+run show_all show_all
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+setenv IFV_HIER_RDY des.algo_top.a1_loop.algo
+# not using the run alias for recursive usage of tcl scripts requiring different log file names
+run mem_check a1_mem_check
+run mem_range_check  a1_mem_range_check
+run xwrite_req_check a1_xwrite_req_check
+run xmem_req_check a1_xmem_req_check
+run xor_int_check a1_xor_int_check
+run xor_data_check a1_xor_data_check
+run xor_more_check a1_xor_more_check
+run fakemem_check a1_fakemem_check
+run dout_check a1_dout_check
+
+setenv IFV_HIER des.algo_top.a2_loop\[\*\].algo
+setenv IFV_HIER_RDY des.algo_top.a2_loop\[0\].algo
+run mem_check a2_mem_check
+run mem_range_check a2_mem_range_check
+run xwrite_req_check a2_xwrite_req_check
+run xmem_req_check a2_xmem_req_check
+run xor_int_check a2_xor_int_check
+run xor_data_check a2_xor_data_check
+run xor_more_check a2_xor_more_check
+run fakemem_check a2_fakemem_check
+run dout_check a2_dout_check
+
+setenv IFV_HIER des.algo_top.a3_loop\[\*\].algo
+setenv IFV_HIER_RDY des.algo_top.a3_loop\[0\].algo
+run mem_check a3_mem_check
+run mem_range_check a3_mem_range_check
+run xwrite_req_check a3_xwrite_req_check
+run xmem_req_check a3_xmem_req_check
+run xor_int_check a3_xor_int_check
+run xor_data_check a3_xor_data_check
+run xor_more_check a3_xor_more_check
+run fakemem_check a3_fakemem_check
+run dout_check a3_dout_check
+
+#if ($IFV_REFR == 1) then
+#  setenv IFV_HIER des.algo_top.t\*_loop\[\*\].refr_loop.infra
+#  run prefr_check prefr_check
+#  run refr_bitcell refr_bitcell
+#endif
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_RDY des.algo_top.a2_loop\[0\].algo
+
+run align_check t1_t2_align_check
+run mem_chk_check t1_t2_mem_chk_check
+run align_dout_check t1_t2_align_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_RDY des.algo_top.a3_loop\[0\].algo
+
+run align_check t3_t4_align_check
+run mem_chk_check t3_t4_mem_chk_check
+run align_dout_check t3_t4_align_dout_check
+
+setenv IFV_HIER des.algo_top.a2_loop\[\*\].algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].t\*_loop\[\*\].align_loop.infra
+if ($IFV_REFR == 1) then
+  setenv IFV_HIER_3 des.algo_top.t\*_loop\[\*\].t\*_loop\[\*\]*.refr_loop.infra
+endif
+setenv IFV_HIER_RDY des.algo_top.a2_loop\[0\].algo
+
+
+//anchor point
+run a2_pdout_serr_check a2_pdout_serr_check
+run a2_pdout_check a2_pdout_check
+run a2_port_check a2_port_check
+
+setenv IFV_HIER des.algo_top.a3_loop\[\*\].algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].align_loop.infra
+if ($IFV_REFR == 1) then
+  setenv IFV_HIER_3 des.algo_top.t\*_loop\[\*\].refr_loop.infra
+endif
+setenv IFV_HIER_RDY des.algo_top.a3_loop\[0\].algo
+
+run a2_pdout_serr_check a3_pdout_serr_check
+run a2_pdout_check a3_pdout_check
+run a2_port_check a3_port_check
+
+setenv IFV_HIER des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.a\*_loop\[\*\].algo
+setenv IFV_HIER_RDY des.algo_top.a2_loop\[0\].algo
+
+run pdout_serr_check pdout_serr_check
+run pdout_check pdout_check
+run port_check port_check
+
+setenv IFV_HIER_1 des.algo_top.a2_loop\[\*\].algo
+setenv IFV_HIER_2 des.algo_top.a3_loop\[\*\].algo
+setenv IFV_HIER_RDY des.algo_top
+setenv IFV_HIER des.algo_top
+
+run intf_dout_check intf_dout_check_10ror5w
+
+setenv IFV_HIER_1 des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.a1_loop.algo
+setenv IFV_HIER_RDY des.algo_top.a1_loop.algo
+
+run intf_dout_check intf_dout_check_4ror1w
+
+setenv IFV_HIER_1 des.algo_top.a2_loop\[\*\].algo
+setenv IFV_HIER_2 des.algo_top.a3_loop\[\*\].algo
+setenv IFV_HIER_RDY des.algo_top
+setenv IFV_HIER des
+
+run intf_dout_check top_wrap_dout_check_10ror5w
+
+setenv IFV_HIER_1 des.algo_top.a1_loop.algo
+setenv IFV_HIER_2 des.algo_top.a1_loop.algo
+setenv IFV_HIER_RDY des.algo_top.a1_loop.algo
+
+run intf_dout_check top_wrap_dout_check_4ror1w
+
+
+
+

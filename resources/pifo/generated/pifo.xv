@@ -1,0 +1,367 @@
+module pifo (
+  clk, rst, ready,
+  ar_push, ar_dat, ar_bp,
+  p_vld, p_aid, p_prt, p_hndl, p_stg, p_bp,
+  r_vld, r_aid, r_prt, r_hndl, r_shu, r_bp,
+  x_vld, x_aid, x_hndl, x_stg, x_bp,
+  eng_c_pkt_threshold
+,u_req_valid_pifo,
+u_req_intr_pifo,
+u_req_type_pifo,
+u_req_attr_pifo,
+u_req_size_pifo,
+u_req_data_pifo,
+d_req_stall_pifo,
+u_req_stall_pifo,
+d_req_valid_pifo,
+d_req_intr_pifo,
+d_req_type_pifo,
+d_req_attr_pifo,
+d_req_size_pifo,
+d_req_data_pifo,
+pifo_mem_1_rd_data,
+pifo_mem_2_rd_data,
+pifo_mem_1_wr_data,
+pifo_mem_1_addr,
+pifo_mem_1_wr_en,
+pifo_mem_1_rd_en,
+pifo_mem_2_wr_data,
+pifo_mem_2_addr,
+pifo_mem_2_wr_en,
+pifo_mem_2_rd_en,
+pifo_pifo_mem_1_wr_en,
+pifo_pifo_mem_1_wr_data,
+pifo_pifo_mem_1_addr,
+pifo_pifo_mem_1_rd_en,
+pifo_pifo_mem_1_rd_data,
+pifo_pifo_mem_2_wr_en,
+pifo_pifo_mem_2_wr_data,
+pifo_pifo_mem_2_addr,
+pifo_pifo_mem_2_rd_en,
+pifo_pifo_mem_2_rd_data,
+pifo_func_write,
+pifo_func_wr_adr,
+pifo_func_din,
+pifo_func_read,
+pifo_func_rd_adr,
+pifo_func_rd_dout,
+arb_fifo_pkt_threshold_0_thresh_wr_trigger,
+arb_fifo_pkt_threshold_0_thresh_rd_trigger,
+proc_pkt_threshold_0_thresh,
+proc_pkt_threshold_1_thresh,
+proc_pkt_threshold_2_thresh);
+
+parameter  NUMWKQS = 2048;
+localparam BITWKQS = (NUMWKQS>1) ? $clog2(NUMWKQS) : 1;
+parameter  BITPLST = 40;
+parameter  NUMPPCR = 8;
+parameter  BITPADR = 13;
+parameter  BITEBCT = 9;
+parameter  BITPPCL = 2;
+parameter  OFSAWKQ = 0;
+parameter  OFSAPLS = OFSAWKQ+BITWKQS;
+parameter  OFSAPCL = OFSAPLS+BITPLST;
+parameter  OFSAEBC = OFSAPCL+BITPPCL;
+parameter  OFSAPAD = OFSAEBC+BITEBCT;
+parameter  BITARDT = OFSAPAD+BITPADR;
+parameter  NUMPRGM = 4;
+parameter  BITPLBL = 4;
+parameter  NUMSTGS = 6;
+parameter  BITSTGS = (NUMSTGS > 1) ? $clog2(NUMSTGS) : 1;
+parameter  NUMFIFO = 512;
+parameter  NUMPORT = 4;
+parameter  NUMCONS = NUMPPCR;
+localparam BITFIFO = NUMFIFO>1 ? $clog2(NUMFIFO) : 1;
+localparam BITPORT = NUMPORT>1 ? $clog2(NUMPORT) : 1;
+localparam BITCONS = NUMCONS>1 ? $clog2(NUMCONS) : 1;
+localparam ROB_DEPTH = NUMFIFO;
+
+//parameters from fex
+
+parameter REQ_TYPE_RES = 2'h3;
+parameter REQ_TYPE_READ = 2'h1;
+parameter REQ_TYPE_WRITE = 2'h0;
+parameter REQ_TYPE_FLUSH = 2'h2;
+parameter REQ_TYPE_WIDTH = 2;
+parameter REQ_ATTR_WIDTH = 3;
+parameter REQ_SIZE_WIDTH = 6;
+parameter REQ_DATA_WIDTH = 32;
+parameter REQ_MAX_BEATS = 64;
+parameter REQ_MAX_BITS = REQ_MAX_BEATS * REQ_DATA_WIDTH;
+parameter REQ_LAST_BEAT_FIELD = 1;
+parameter SLV_START_ADDR = 32'h0000_0000;
+parameter SLV_END_ADDR = 32'hFFFF_FFFF;
+parameter SLV_INTR_BIT = 31;
+parameter NUMRPRT = 1;
+parameter NUMWPRT = 1;
+parameter NUMADDR = 32;
+parameter BITDATA = 16;
+parameter BITADDR = $clog2(NUMADDR);
+parameter ECCWIDTH = 0;
+parameter MEMDWIDTH = BITDATA + ECCWIDTH;
+parameter HBUS_MEM_INTF_ADDR_WIDTH = 32;
+
+input                clk;
+input                rst;
+output               ready;
+input                ar_push;
+input  [BITARDT-1:0] ar_dat;
+output               ar_bp;
+output [NUMCONS-1:0] p_vld;
+output [BITFIFO-1:0] p_aid  [0:NUMCONS-1];
+output [BITPORT-1:0] p_prt  [0:NUMCONS-1];
+output [BITARDT-1:0] p_hndl [0:NUMCONS-1];
+output [BITSTGS-1:0] p_stg  [0:NUMCONS-1];
+input  [NUMCONS-1:0] p_bp;
+input  [NUMCONS-1:0] r_vld;
+input  [BITFIFO-1:0] r_aid  [0:NUMCONS-1];
+input  [BITPORT-1:0] r_prt  [0:NUMCONS-1];
+input  [BITARDT-1:0] r_hndl [0:NUMCONS-1];
+input  [NUMCONS-1:0] r_shu;
+output [NUMCONS-1:0] r_bp;
+output [NUMPORT-1:0] x_vld;
+output [BITFIFO-1:0] x_aid  [0:NUMPORT-1];
+output [BITARDT-1:0] x_hndl [0:NUMPORT-1];
+output [BITSTGS-1:0] x_stg  [0:NUMPORT-1];
+input  [NUMPORT-1:0] x_bp;
+output [BITFIFO:0] eng_c_pkt_threshold [0:NUMCONS-1];
+
+//ports from fex
+
+input u_req_valid_pifo;
+input u_req_intr_pifo;
+input [REQ_TYPE_WIDTH-1:0] u_req_type_pifo;
+input [REQ_ATTR_WIDTH-1:0] u_req_attr_pifo;
+input [REQ_SIZE_WIDTH-1:0] u_req_size_pifo;
+input [REQ_DATA_WIDTH-1:0] u_req_data_pifo;
+input  d_req_stall_pifo;
+output reg u_req_stall_pifo;
+output reg d_req_valid_pifo;
+output reg d_req_intr_pifo;
+output reg [REQ_TYPE_WIDTH-1:0] d_req_type_pifo;
+output reg [REQ_ATTR_WIDTH-1:0] d_req_attr_pifo;
+output reg [REQ_SIZE_WIDTH-1:0] d_req_size_pifo;
+output reg [REQ_DATA_WIDTH-1:0] d_req_data_pifo;
+input [31:0] pifo_mem_1_rd_data;
+input [63:0] pifo_mem_2_rd_data;
+output reg [31:0] pifo_mem_1_wr_data;
+output reg [31:0] pifo_mem_1_addr;
+output reg [0:0] pifo_mem_1_wr_en;
+output reg  pifo_mem_1_rd_en;
+output reg [63:0] pifo_mem_2_wr_data;
+output reg [31:0] pifo_mem_2_addr;
+output reg [1:0] pifo_mem_2_wr_en;
+output reg  pifo_mem_2_rd_en;
+input [0:0] pifo_pifo_mem_1_wr_en;
+input [31:0] pifo_pifo_mem_1_wr_data;
+input [31:0] pifo_pifo_mem_1_addr;
+input  pifo_pifo_mem_1_rd_en;
+output reg [31:0] pifo_pifo_mem_1_rd_data;
+input [0:0] pifo_pifo_mem_2_wr_en;
+input [31:0] pifo_pifo_mem_2_wr_data;
+input [31:0] pifo_pifo_mem_2_addr;
+input  pifo_pifo_mem_2_rd_en;
+output reg [31:0] pifo_pifo_mem_2_rd_data;
+input [NUMWPRT-1:0] pifo_func_write;
+input [BITADDR*NUMWPRT-1:0] pifo_func_wr_adr;
+input [MEMDWIDTH*NUMWPRT-1:0] pifo_func_din;
+input [NUMRPRT-1:0] pifo_func_read;
+input [BITADDR*NUMRPRT-1:0] pifo_func_rd_adr;
+output reg [MEMDWIDTH*NUMRPRT-1:0] pifo_func_rd_dout;
+output reg  arb_fifo_pkt_threshold_0_thresh_wr_trigger;
+output reg  arb_fifo_pkt_threshold_0_thresh_rd_trigger;
+output reg [15:0] proc_pkt_threshold_0_thresh;
+output reg [15:0] proc_pkt_threshold_1_thresh;
+output reg [15:0] proc_pkt_threshold_2_thresh;
+
+wire rq_ready, pq_ready, cm_ready, rob_ready, oq_ready;
+wire               push;
+wire [BITARDT-1:0] udat;
+wire [BITPORT-1:0] uprt;
+wire [BITCONS-1:0] ucon;
+wire [BITFIFO-1:0] uid;
+wire               ubp;
+wire               arb;
+wire [NUMCONS-1:0] amsk;
+wire               avld;
+wire [BITFIFO-1:0] aid;
+wire [BITCONS-1:0] acon;
+wire [BITPORT-1:0] aprt;
+wire [BITARDT-1:0] ahndl;
+wire [BITSTGS-1:0] astg;
+wire               stage;
+wire [BITPORT-1:0] sprt;
+wire [BITCONS-1:0] scon;
+wire [BITFIFO-1:0] sid;
+wire [BITARDT-1:0] shndl;
+wire               shu;
+wire               pop;
+wire [NUMPORT-1:0] omsk;
+wire [BITPORT-1:0] oprt;
+wire               ovld;
+wire [BITFIFO-1:0] oid;
+wire [BITARDT-1:0] ohndl;
+wire [BITSTGS-1:0] ostg;
+wire [15:0] arb_fifo_pkt_threshold_0_thresh;
+wire [15:0] eng_c_pkt_threshold_0_thresh;
+wire [15:0] eng_c_pkt_threshold_1_thresh;
+wire [15:0] eng_c_pkt_threshold_2_thresh;
+wire [BITFIFO-1:0] fifo_arb_thr = arb_fifo_pkt_threshold_0_thresh - 1;
+
+
+
+
+assign ready = rq_ready && pq_ready && cm_ready && rob_ready && oq_ready;
+// request packet for processing
+arrque #(
+  .BITARDT(BITARDT))
+rq (
+  .clk(clk), .rst(rst), .ready(rq_ready),
+  .ar_push(ar_push), .ar_dat(ar_dat), .ar_bp(ar_bp),
+  .push(push), .udat(udat), .ubp(ubp)
+);
+//FIXME: use generate loop
+assign eng_c_pkt_threshold[0] = eng_c_pkt_threshold_0_thresh;
+assign eng_c_pkt_threshold[1] = eng_c_pkt_threshold_1_thresh;
+assign eng_c_pkt_threshold[2] = eng_c_pkt_threshold_2_thresh;
+
+// PIFO queue arbiter
+fifo_arb #(
+  .NUMFIFO(NUMFIFO), .NUMPORT(NUMPORT), .NUMCONS(NUMCONS))
+pifo (
+  .clk(clk), .rst(rst),
+  .push(push), .uprt(uprt), .ucon(ucon), .uid(uid), 
+  .bp(ubp), .bp_thr(fifo_arb_thr),
+  .arb(arb), .amsk(amsk), .avld(avld), .acon(acon), .aid(aid), .aprt(aprt),
+  .stage(stage), .sprt(sprt), .scon(scon), .sid (sid),
+  .pop(pop),  .omsk(omsk), .oprt(oprt), .ovld(ovld), .oid(oid)
+);
+
+// packet processing queue
+arpque #(
+  .NUMCONS(NUMCONS), .BITFIFO(BITFIFO), .BITCONS(BITCONS), .BITARDT(BITARDT),
+  .BITPORT(BITPORT), .BITSTGS(BITSTGS))
+pq (
+  .clk(clk), .rst(rst), .ready(pq_ready),
+  .arb(arb), .amsk(amsk), .avld(avld), .aid(aid), .acon(acon), .aprt(aprt), 
+  .ahndl(ahndl), .astg(astg), 
+  .p_vld(p_vld), .p_aid(p_aid), .p_prt(p_prt), .p_hndl(p_hndl), 
+  .p_stg(p_stg), .p_bp (p_bp)
+);
+
+// packet processing context mem
+arcm #(
+  .BITWKQS(BITWKQS), .BITPADR(BITPADR), .BITPLST(BITPLST), .BITEBCT(BITEBCT),
+  .BITPPCL(BITPPCL), .BITPORT(BITPORT), .BITCONS(BITCONS), .OFSAWKQ(OFSAWKQ),
+  .OFSAPLS(OFSAPLS), .OFSAPCL(OFSAPCL), .OFSAEBC(OFSAEBC), .OFSAPAD(OFSAPAD),
+  .BITARDT(BITARDT), .NUMPRGM(NUMPRGM), .BITPLBL(BITPLBL), .NUMSTGS(NUMSTGS),
+  .BITSTGS(BITSTGS), .NUMFIFO(NUMFIFO), .BITFIFO(BITFIFO), .NUMCONS(NUMCONS))
+cm (
+  .clk(clk), .rst(rst), .ready(cm_ready),
+  .push(push), .udat(udat), .uprt(uprt), .ucon(ucon), .uid(uid), 
+  .avld(avld), .aid(aid), .ahndl(ahndl), .astg(astg), 
+  .stage(stage), .sid(sid), .scon(scon), .shndl(shndl), .shu(shu),
+  .ovld(ovld), .oid(oid), .ohndl(ohndl), .ostg(ostg)
+);
+
+// stage reorder buffer
+arreord_buf #(.NUMCONS(NUMCONS), .BITARDT(BITARDT), .BITPORT(BITPORT), .BITCONS(BITCONS), .BITFIFO(BITFIFO), .ROB_DEPTH(ROB_DEPTH))
+rob (
+  .clk(clk), .rst(rst), .ready(rob_ready),
+  .avld(avld), .acon(acon), .aid(aid), .aprt(aprt),
+  .r_vld(r_vld), .r_aid(r_aid), .r_prt(r_prt), .r_hndl(r_hndl), .r_shu(r_shu), .r_bp(r_bp),
+  .stage(stage), .sprt(sprt), .sid(sid), .shndl(shndl), .shu(shu)
+);
+
+// schedule to port and packet commit
+aroque #(
+  .NUMPORT(NUMPORT), .NUMCONS(NUMCONS), .BITFIFO(BITFIFO), .BITCONS(BITCONS),
+  .BITARDT(BITARDT), .BITPORT(BITPORT), .BITSTGS(BITSTGS))
+oq (
+  .clk(clk), .rst(rst), .ready(oq_ready),
+  .pop(pop), .omsk(omsk), .ovld(ovld), .oid(oid), .oprt(oprt), .ohndl(ohndl), .ostg(ostg), 
+  .x_vld(x_vld), .x_aid(x_aid), .x_hndl(x_hndl), .x_stg(x_stg), .x_bp (x_bp)
+);
+
+// synopsys  translate_off
+// synthesis translate_off
+initial begin
+  if (BITPLST < ((BITCONS+BITPLBL)*NUMPRGM))
+    $display("[E:%m:%0t] BITPLST size bad", $time);
+end
+// synthesis translate_on
+// synopsys  translate_on
+
+
+
+rnaxi_slv_top_pifo# (.REQ_TYPE_RES(REQ_TYPE_RES),
+	.REQ_TYPE_READ(REQ_TYPE_READ),
+	.REQ_TYPE_WRITE(REQ_TYPE_WRITE),
+	.REQ_TYPE_FLUSH(REQ_TYPE_FLUSH),
+	.REQ_TYPE_WIDTH(REQ_TYPE_WIDTH),
+	.REQ_ATTR_WIDTH(REQ_ATTR_WIDTH),
+	.REQ_SIZE_WIDTH(REQ_SIZE_WIDTH),
+	.REQ_DATA_WIDTH(REQ_DATA_WIDTH),
+	.REQ_MAX_BEATS(REQ_MAX_BEATS),
+	.REQ_MAX_BITS(REQ_MAX_BITS),
+	.REQ_LAST_BEAT_FIELD(REQ_LAST_BEAT_FIELD),
+	.SLV_START_ADDR(SLV_START_ADDR),
+	.SLV_END_ADDR(SLV_END_ADDR),
+	.SLV_INTR_BIT(SLV_INTR_BIT),
+	.NUMRPRT(NUMRPRT),
+	.NUMWPRT(NUMWPRT),
+	.NUMADDR(NUMADDR),
+	.BITDATA(BITDATA),
+	.BITADDR(BITADDR),
+	.ECCWIDTH(ECCWIDTH),
+	.MEMDWIDTH(MEMDWIDTH),
+	.HBUS_MEM_INTF_ADDR_WIDTH(HBUS_MEM_INTF_ADDR_WIDTH)) 
+rnaxi_slv_top_inst_pifo (.clk(clk),
+	.rst(rst),
+	.u_req_valid_pifo(u_req_valid_pifo),
+	.u_req_intr_pifo(u_req_intr_pifo),
+	.u_req_type_pifo(u_req_type_pifo),
+	.u_req_attr_pifo(u_req_attr_pifo),
+	.u_req_size_pifo(u_req_size_pifo),
+	.u_req_data_pifo(u_req_data_pifo),
+	.d_req_stall_pifo(d_req_stall_pifo),
+	.u_req_stall_pifo(u_req_stall_pifo),
+	.d_req_valid_pifo(d_req_valid_pifo),
+	.d_req_intr_pifo(d_req_intr_pifo),
+	.d_req_type_pifo(d_req_type_pifo),
+	.d_req_attr_pifo(d_req_attr_pifo),
+	.d_req_size_pifo(d_req_size_pifo),
+	.d_req_data_pifo(d_req_data_pifo),
+	.pifo_mem_1_rd_data(pifo_mem_1_rd_data),
+	.pifo_mem_2_rd_data(pifo_mem_2_rd_data),
+	.pifo_mem_1_wr_data(pifo_mem_1_wr_data),
+	.pifo_mem_1_addr(pifo_mem_1_addr),
+	.pifo_mem_1_wr_en(pifo_mem_1_wr_en),
+	.pifo_mem_1_rd_en(pifo_mem_1_rd_en),
+	.pifo_mem_2_wr_data(pifo_mem_2_wr_data),
+	.pifo_mem_2_addr(pifo_mem_2_addr),
+	.pifo_mem_2_wr_en(pifo_mem_2_wr_en),
+	.pifo_mem_2_rd_en(pifo_mem_2_rd_en),
+	.pifo_pifo_mem_1_wr_en(pifo_pifo_mem_1_wr_en),
+	.pifo_pifo_mem_1_wr_data(pifo_pifo_mem_1_wr_data),
+	.pifo_pifo_mem_1_addr(pifo_pifo_mem_1_addr),
+	.pifo_pifo_mem_1_rd_en(pifo_pifo_mem_1_rd_en),
+	.pifo_pifo_mem_1_rd_data(pifo_pifo_mem_1_rd_data),
+	.pifo_pifo_mem_2_wr_en(pifo_pifo_mem_2_wr_en),
+	.pifo_pifo_mem_2_wr_data(pifo_pifo_mem_2_wr_data),
+	.pifo_pifo_mem_2_addr(pifo_pifo_mem_2_addr),
+	.pifo_pifo_mem_2_rd_en(pifo_pifo_mem_2_rd_en),
+	.pifo_pifo_mem_2_rd_data(pifo_pifo_mem_2_rd_data),
+	.pifo_func_write(pifo_func_write),
+	.pifo_func_wr_adr(pifo_func_wr_adr),
+	.pifo_func_din(pifo_func_din),
+	.pifo_func_read(pifo_func_read),
+	.pifo_func_rd_adr(pifo_func_rd_adr),
+	.pifo_func_rd_dout(pifo_func_rd_dout),
+	.arb_fifo_pkt_threshold_0_thresh(arb_fifo_pkt_threshold_0_thresh),
+	.arb_fifo_pkt_threshold_0_thresh_wr_trigger(arb_fifo_pkt_threshold_0_thresh_wr_trigger),
+	.arb_fifo_pkt_threshold_0_thresh_rd_trigger(arb_fifo_pkt_threshold_0_thresh_rd_trigger),
+	.proc_pkt_threshold_0_thresh(proc_pkt_threshold_0_thresh),
+	.proc_pkt_threshold_1_thresh(proc_pkt_threshold_1_thresh),
+	.proc_pkt_threshold_2_thresh(proc_pkt_threshold_2_thresh));
+endmodule

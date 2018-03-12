@@ -1,0 +1,90 @@
+#!/usr/local/bin/perl
+
+#----------------------------------------------------------------------------
+# Copyright (c) 2014-2020 by Cisco Systems Inc.
+# All rights reserved.
+#----------------------------------------------------------------------------
+
+
+############################################################################################
+## This script creates sglib list with memories specific to a subchip for spyglass checks ##
+## Script should be executed from the chiplet/spyglass dir                                ##
+## Usage: create_spy_mem_list_pl <subchip_name> <sglib_file_location>                     ##
+## Example: create_spy_mem_list_pl slf_systest /auto/f4_pd/users/starlifter_p2/sglib      ##
+############################################################################################
+
+$subchip = shift;
+$sglib_dir = shift;
+
+$vf_file = "${subchip}/${subchip}_rtl.vf" ;
+
+open (inF,"$vf_file") || die "ERROR : rtl vf file doesn't exist as ${subchip}/${subchip}_rtl.vf";
+
+while (<inF>) {
+   s/\(//;
+   s/\)//;
+   s/\/\/.*//;
+   s/^\s+//;
+   s/\s+$//;
+   &process_line($_);
+}
+
+sub process_line {
+   my $in_line = shift;
+   chomp;
+   if (($in_line =~ /^\s*\$.PROJECT_ROOT./) || ($in_line =~ /^\s*\$PROJECT_ROOT/)) {
+      $temp_line = `echo  $in_line`;
+      open(f1,"$temp_line");
+      while ($line = <f1>) {
+         if ($line =~ /^\s*mem28/) {
+            chomp($line);
+            $line =~ s/^\s*//;
+            ($mem_name,$dum)=split(/\s+/,$line);
+            $mem_arr{$mem_name} = 1;
+         }
+      }
+      close f1;
+   }
+   elsif ($in_line =~ /^\s*-v /) {
+      $in_line =~ s/\s*-v//;
+      $temp_line = `echo  $in_line`;
+      open(f1,"$temp_line");
+      while ($line = <f1>) {
+         if ($line =~ /^\s*mem28/) {
+            chomp($line);
+            $line =~ s/^\s*//;
+            ($mem_name,$dum)=split(/\s+/,$line);
+            $mem_arr{$mem_name} = 1;
+         }
+      }
+      close f1;
+   }
+   elsif ($in_line =~ /^\s*-f /) {
+      #File name specified
+      my $opt, $vf;
+      ($opt, $vf) = split (/ +/, $in_line);
+      $vf = `echo $vf`; #This will expand PROJECT_ROOT var in the file name
+      my $FinF;
+      open ($FinF,"$vf") || die "Can't open $vf specified with -f option. Exiting....\n";
+      while (my $line = <$FinF>) {
+         $line =~ s/\(//;
+         $line =~ s/\)//;
+         $line =~ s/\/\/.*//;
+         $line =~ s/^\s+//;
+         $line =~ s/\s+$//;
+         &process_line($line);
+      }
+   }
+   elsif (($in_line !~ /^$/) && ($in_line !~ /^\s*\/\//) && ($in_line !~ /^\s*\+/) && ($in_line !~ /^\s*#/)) {
+      chomp;
+      #Skip comments
+   }
+}
+close inF;
+
+#### Creating ssglib mem_list ####
+open (f1,">${subchip}/sglib.list") || die "ERROR: Unable to open ${subchip}/${subchip}_mem_sglib.list for writing\n";
+foreach $mem_name (sort keys %mem_arr) {
+	print f1 $sglib_dir,"/",$mem_name,"_ss.sglib\n";
+}
+close f1;

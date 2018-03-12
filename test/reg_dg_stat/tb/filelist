@@ -1,0 +1,3 @@
+../rtl/reg_dg_stat.v
+../rtl/conf_reg.v
+./RegDgStatTb.sv 

@@ -1,0 +1,15 @@
+algo_1r4wt_a662_top_wrap.v
+algo_1r4wt_a662_sva_wrap.v
+algo_mrnwt_base_top.v
+../../common/rtl/algo_mrnwt_base.v
+../../common/rtl/core_mrnwt_base.v
+../../common/rtl/algo_nr1w_dup.v
+../../common/rtl/core_nr1w_dup.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v
+../../common/rtl/np2_addr.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/algo_mrnw_ref.v

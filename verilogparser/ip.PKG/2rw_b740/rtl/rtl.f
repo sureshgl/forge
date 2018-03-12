@@ -1,0 +1,2 @@
+algo_2rw_b740_top_wrap.v
+algo_2rw_b740_sva_wrap.v

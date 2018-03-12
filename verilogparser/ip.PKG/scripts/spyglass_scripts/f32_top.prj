@@ -1,0 +1,338 @@
+################################################################################
+## Copyright (c) 2012-2014 by Cisco Systems, Inc. All rights reserved.
+################################################################################
+############################################################
+# Spyglass Project File (this is a Tcl based file)
+############################################################
+# IMPORTANT: This is a scripted Spyglass flow control file  
+#            Do not over-write this from the Spyglass GUI
+#            Any required changes should be merged into this file by hand
+#######################################################################################################
+# Revision History
+#
+# Rev2.0 - 06/05/2013 - Jaga
+#       Comments: Cleaned up file from stale commented lines
+#                 Added procedure for common runtime variables across CDC, to make this file readable
+#                 Added support for reading DFT SGDC file, to perform connectivity checks
+#
+#######################################################################################################
+
+  set TOP $env(TOP)
+# source common project setup
+# this file contains libraries settings, reports to generate, common waivers, etc
+  if {[info exists ::env(GLOBAL_SETUP)] == 1} {
+  	source $env(GLOBAL_SETUP)
+  }
+
+  if {[info exists ::env(GLOBAL_DFT_BIST_CONN)] == 1} {
+  	source $env(GLOBAL_DFT_BIST_CONN)
+  }
+
+# Data Import Section
+  if {[info exists ::env(SOURCE)] == 1} {
+     if { $env(RTL)==1 } {
+  	#set_option define USE_VENDOR__SYNC_FLOP
+  	#set_option incdir $env(PROJECT_ROOT)/ivoq/rtl/fir/include
+          set_option enableSV yes
+  	read_file -type sourcelist $env(SOURCE)
+     } 
+     if { $env(GATE)==1 } {
+          if { $env(BEHAV_LIB_FOR_GATE)==1 } {
+             puts "INFO:: Reading the behavioral library $env(BEHAV_LIB_LIST_FOR_GATE)"
+  	   read_file -type sourcelist $env(BEHAV_LIB_LIST_FOR_GATE)
+          } 
+          puts "INFO:: Reading the netlist $env(SOURCE)"
+          read_file -type verilog $env(SOURCE)
+     } 
+  }
+
+# module level waivers  
+  if {[info exists ::env(BLOCK_LINTALL_WAIVER)] == 1} {
+          puts "INFO: Reading LINTALL Waiver file...."
+  	read_file -type waiver     $env(BLOCK_LINTALL_WAIVER)
+  }
+  if {[info exists ::env(BLOCK_CDC_WAIVER)] == 1} {
+  	read_file -type waiver     $env(BLOCK_CDC_WAIVER)
+  }
+
+# (NOTE: common project wide waivers are set from the common_project_setup.tcl file)
+  if {[info exists ::env(CHIP_LINTALL_WAIVER)] == 1} {
+  	read_file -type waiver     $env(CHIP_LINTALL_WAIVER)
+  }
+  if {[info exists ::env(CHIP_CDC_WAIVER)] == 1} {
+  	read_file -type waiver     $env(CHIP_CDC_WAIVER)
+  }
+
+# FULLCHIP waiver are applicable for designs with top/chiplet/subchip stucture
+  if {[info exists ::env(FULLCHIP_LINTALL_WAIVER)] == 1} {
+  	read_file -type waiver     $env(FULLCHIP_LINTALL_WAIVER)
+  }
+  if {[info exists ::env(FULLCHIP_CDC_WAIVER)] == 1} {
+  	read_file -type waiver     $env(FULLCHIP_CDC_WAIVER)
+  }
+
+# specify Guideware methodology
+  if {[info exists ::env(CURRENT_METHODOLOGY)] == 1} {
+  	set_option active_methodology $env(CURRENT_METHODOLOGY)
+  }
+
+# specify the module top scope
+  set_parameter chkTopModule yes
+
+#set_parameter use_inferred_clocks yes
+  if {[info exists ::env(TOP)] == 1} {
+  	set_option top $env(TOP)
+  }
+
+# Read SGDC file here
+# SGDC file is not read for lint goals to prevent clock-reset rule from being executed, to reduce runtime
+  if {"$env(GOAL)" != "lintall"} {
+     # spyglass design constraints file
+     if {[info exists ::env(SGDC)] == 1} {
+     	read_file -type sgdc       $env(SGDC)
+     }
+     
+     if { "$env(SGDCLIST_EXISTS)" == 1 } {
+       set sgdcin [open "$env(SGDCLIST)" r]
+       while {[gets $sgdcin sgdcfile] != -1} {
+         if { ![regexp -nocase {^[ ]*\#} $sgdcfile] && ![regexp -nocase {^[ ]*$} $sgdcfile]} {
+           puts "INFO: Reading $sgdcfile ....."
+           read_file -type sgdc $sgdcfile
+         }
+       }
+     } elseif { "$env(SGDCFILE)" ==1 || "$env(SDCFILE)" ==1 } {
+        puts "INFO: Reading $env(SGDC) file....."
+        read_file -type sgdc $env(SGDC)
+     }
+     if {[info exists ::env(CHIP_COMMON_SGDC_EXISTS)] == 1} {
+     	read_file -type sgdc       $env(CHIP_COMMON_SGDC_FILE)
+     }
+  }
+
+
+# read liberty (.sglib) file(s)
+  set libin [open "$env(SGLIBLIST)" r]
+  while {[gets $libin libfile] != -1} {
+   if { ![regexp -nocase {^[ ]*\#} $libfile] } {
+      puts "INFO: Reading $libfile......"  
+      read_file -type sglib $libfile
+   }
+  }
+
+# Goal Setup Section
+  if {[info exists ::env(CURRENT_METHODOLOGY)] == 1} {
+   	current_methodology $env(CURRENT_METHODOLOGY)
+  }
+
+#Add while setting up power 
+  set_option allow_module_override yes; # Allow duplicated modules in vf file, only last module is retained
+  set_option designread_enable_synthesis yes; #Perform synthesis during design_read goal
+  set_option mthresh 124030; #Size of beh memory arrays (2-dimensional arrays in RTL)
+  set_option perflog yes; # Enable debug info to be printed in log file
+  set_option sgsyn_loop_limit 10241; # Max loop limit allowed in design
+  # set_option I /auto/DFT_Infra1/projects/SYNTEST/VIPER/atrenta_downloads/PESTR27_30Oct2011; #To use specific downloads from Spyglass for debug
+
+  #Added by Jaga for PE run - 100411
+  # set_option sgsyn_opt_file scripts/cisco_pe.tcl
+  # set_option pt no
+
+
+set_option overloadrules checkSGDC_existence+severity=ERROR
+set_option overloadrules SGDC_require_path02+severity=ERROR
+#set_option I /auto/F3-DFT/users/subbandy/soc_chks/Soc_07_fix
+set_option overloadrules Soc_07+severity=ERROR
+set_option overloadrules Soc_08+msgLabel=Soc_08_WARNING_M1+severity=Error
+set_option overloadrules Soc_08+msgLabel=Soc_08_WARNING_M2+severity=Error
+
+
+
+#---------------------------------------------------------------------------------------------------------------#
+# CDC Goal Related Settings
+#---------------------------------------------------------------------------------------------------------------#
+
+   proc commonCDC_setup {} {
+      #set_parameter sync_reset yes # Risky option as it allows one gate between crossings.
+      set_parameter synchronize_data_cells "*sync*dff*"; # Valid sync cells for vector crossing
+      set_parameter synchronize_cells "*sync*dff*";      # Valid sync cells for scalar crossing
+      set_parameter enable_debug_data yes;               # Enable debug info to be captured for display in GUI
+      set_parameter strict_sync_check  yes;              # Allows combo logic in CDC if it sentisizes to buffer/invertor
+      set_option enable_const_prop_thru_seq yes;         # Allow case value to propagate thru seq cells
+      set_parameter enable_mux_dest_domain none;         # Allow all mux based sync for CDC
+      set_parameter enable_clock_gate_sync no;           # Disable clock-gate to be used as CDC qualifier
+      set_option prefer_tech_lib no;                     # Use beh verilog file if beh and .lib files are present
+      set_goal_option addrules Ar_syncrst_validation;    # Enable syncrst rules
+      #sync_reset_style -combo no -first_if yes;         # Check if first if is used for reset
+      #set_parameter enable_and_sync no;                 # Commented out to reduce noise, but designer needs to review unique qualifiers
+      set_parameter hier_wild_card no;                   # Disable wild card from being used for hierarchies     
+      set_parameter fa_ieffort 10;                       # Allows 10 times more cycles to verify if init state is clean
+      set_parameter distributed_fifo yes;                # Allows multiple instances of mem to consitute a fifo
+      set_parameter enable_delayed_qualifier no;         # Don't allow qualifier that is delayed 
+      set_parameter enable_handshake no;                 # Don't allow handshake based sync scheme
+      set_parameter fa_atime 40; 
+      set_parameter fa_msgmode all;                      # to enable pass/fail/partially proved messages in Grey encoding Ac_conv02 checks
+   }
+
+#CDC structurall checks
+   current_goal cdc_block/cdc_struct -top $env(TOP)
+   commonCDC_setup
+
+   current_goal cdc_block/cdc_structall -top $env(TOP)
+   commonCDC_setup
+   set_goal_option ignorerules Ac_unsync01
+   set_goal_option ignorerules Ac_unsync02
+   set_goal_option ignorerules Ac_sync02
+   set_goal_option ignorerules Ac_sync01
+
+   current_goal cdc_block/cdc_abstract -top $env(TOP)
+   commonCDC_setup
+
+   current_goal cdc_soc/cdc_verif_struct -top $env(TOP)
+   commonCDC_setup
+
+   current_goal cdc_soc/cdc_validate -top $env(TOP)
+   set_parameter enable_debug_data yes
+   set_option enable_const_prop_thru_seq yes
+   set_option prefer_tech_lib no
+   set_goal_option addrules Ar_syncrst_validation
+   set_parameter hier_wild_card no
+   set_parameter fa_ieffort 10
+   set_parameter distributed_fifo yes
+   set_parameter enable_delayed_qualifier no
+
+
+#CDC formal checks
+
+   current_goal cdc_block/cdc_formal -top $env(TOP)
+   commonCDC_setup
+   set_parameter fa_atime 200
+   set_parameter fa_vcdfulltrace allnets
+
+   current_goal cdc_block/cdc_formal -top $env(TOP) -scenario low_effort
+   commonCDC_setup
+   set_parameter fa_atime 200
+   set_parameter fa_vcdfulltrace allnets
+
+
+   current_goal cdc_block/cdc_formal -top $env(TOP) -scenario high_effort
+   commonCDC_setup
+   # Please set the path for fa_propfile to the adv_cdc.prp file from previous formal low effort run as follows
+   #set_parameter fa_propfile $env(WORKDIR)/verif_formal/cdc_verif/low_effort/spyglass_reports/clock-reset/adv_cdc.prp
+   set_parameter fa_atime 600
+   set_parameter fa_disable_sync_fifo  yes
+   set_parameter fa_abstract all
+   set_parameter fa_vcdfulltrace allnets
+   set_parameter fa_ieffort 30
+
+
+
+#---------------------------------------------------------------------------------------------------------------#
+# Lint/Advanced Lint Related Settings
+#---------------------------------------------------------------------------------------------------------------#
+   current_goal  adv_lint/adv_lint_audit
+   set_goal_option enable_const_prop_thru_seq yes
+   
+   current_goal  adv_lint/adv_lint_verify
+   set_goal_option enable_const_prop_thru_seq yes
+
+   current_goal lint/lintall
+   set_goal_option addrules UndrivenOutPort-ML ; # can be removed, included in methodology
+   set_goal_option addrules RegOutputs ; # can be removed, included in methodology
+   set_goal_option addrules W391 ; # can be removed, included in methodology
+   set_goal_option addrules AvoidAsync; #Flags if async resets are used
+   set_goal_option addrules UnUsedFlopOutput-ML
+   set_goal_option addrules FlopDataUndriven
+   set_parameter new_flow_width no; # Flags width mismatch even with constants as part of the RHS assignments
+   set_parameter depth_ml 1; # Specifies hier level for RegInputOutput-ML, RegInput-ML. 1 will flag only top level ports
+   set_goal_option addrules W175
+   set_goal_option addrules W146
+   set_parameter check_param_association yes
+
+
+
+#---------------------------------------------------------------------------------------------------------------#
+# Physical Related Settings
+#---------------------------------------------------------------------------------------------------------------#
+#
+
+
+#---------------------------------------------------------------------------------------------------------------#
+# DFT -bist conn related
+#---------------------------------------------------------------------------------------------------------------#
+current_goal dft_readiness/dft_block_check
+    set_goal_option addrules Soc_06
+    set_goal_option addrules Soc_07
+    set_goal_option addrules Soc_07_Info
+    set_goal_option addrules Soc_08
+    set_goal_option addrules Soc_09
+
+#---------------------------------------------------------------------------------------------------------------#
+# Power Related Settings
+#---------------------------------------------------------------------------------------------------------------#
+   proc commonPower_setup {} {
+
+    # The following switch changes the default from sgdc to sim
+    # This is necessary so that the FSDB/VCD clock data is taken as higher
+    #   priority than anything in the SGDC
+    set_parameter pe_activity_priority             sim
+    # Expand the number of unannotated nets reported pe_debug_info.rpt
+    # This is to ease debug of un-annotated nets
+    # set_parameter pe_num_unset_nets $PE_NUM_UNSET_NETS
+    set_parameter pe_num_unset_nets 1800000 
+    # Set the clock gating threshold to match that used by power synthesis
+    #   this variable is set above
+    #set_parameter sgsyn_clock_gating_threshold $SYN_ICG_THRESHOLD
+    set_parameter sgsyn_clock_gating_threshold 8 
+    # Set the targeted synthesis to select scan flops
+    set_goal_option use_scan_flops yes
+    # To use the simulation file
+    set_goal_option operating_mode sim
+    #Parameter to load multiple FSDB sessions
+    set_parameter pe_num_fsdb_load_session 4
+   }
+
+
+###################  Recommended GOALX1  #############################
+# -- Based on the v5.1.0-v2 TOOLKIT
+####################################################################
+   current_goal    power/power_audit
+   commonPower_setup
+
+
+   current_goal    power/power_est_average
+   commonPower_setup
+   #set_parameter pe_report_leaf 1; #To be used for power_est_average, at leaf cell level
+
+
+   current_goal    power/power_est_peak
+   commonPower_setup
+   #set_parameter pe_report_leaf 1; #To be used for power_est_average, at leaf cell level
+
+###################  Recommended GOAL1  #############################
+## Grading vectors and finding activity hotspots                  ##
+####################################################################
+   current_goal    power/activity_check
+   commonPower_setup
+   set_parameter pe_num_clock_cycles_avg_act 100; # Specifies the intervals (in terms of number of cycles of the fastest clock) at which activity values should be averaged.
+
+
+###################  Recommended GOAL2  ############################
+	## Generates various profiling information of design              ##
+####################################################################
+   current_goal    power/power_profiling 
+   commonPower_setup
+
+
+###################  GOAL x ########################################
+## Power pre_reduction_adv                                                ##
+####################################################################
+   current_goal    power/power_pre_reduction_adv              
+   commonPower_setup
+
+
+
+###################  GOAL 5 ########################################
+## Power pre_reduction_adv                                                ##
+####################################################################
+   current_goal    power/power_reduction_adv              
+   commonPower_setup
+

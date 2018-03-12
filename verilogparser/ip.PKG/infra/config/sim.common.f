@@ -1,0 +1,1 @@
+-l sim.log +notimingchecks +nospecify -sysv_ext .sv -sysv_ext .v +libext+.v +librescan 

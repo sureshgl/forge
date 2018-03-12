@@ -1,0 +1,106 @@
+#!/bin/csh -f
+
+
+run show_all show_all
+
+setenv IFV_HIER    des.algo_top.a1_loop.algo
+setenv IFV_HIER_A5 des.algo_top.a5_loop.algo
+setenv IFV_HIER_A6 des.algo_top.a6_loop.algo
+setenv IFV_HIER_A7 des.algo_top.a7_loop.algo
+setenv IFV_HIER_ALIGN des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_STACK des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+# Push-pop
+run forward_check forward_check
+run hdout_check   hdout_check
+run hd_ru_check   hd_ru_check
+run cnt_check     cnt_check
+run head_check    head_check
+run dout_check    dout_check
+run link_check    link_check
+run data_check    data_check
+
+#2RU Count
+run ru_cnt_mem_check       ru_cnt_mem_check
+run ru_cnt_mem_range_check ru_cnt_mem_range_check
+run ru_cnt_np2_check       ru_cnt_np2_check
+run ru_cnt_forward_check   ru_cnt_forward_check
+run ru_cnt_rmem_check      ru_cnt_rmem_check
+run ru_cnt_vdout_int_check ru_cnt_vdout_int_check
+run ru_cnt_fakemem_check   ru_cnt_fakemem_check
+run ru_cnt_dout_check      ru_cnt_dout_check
+
+#2RU Head
+run ru_head_mem_check       ru_head_mem_check
+run ru_head_mem_range_check ru_head_mem_range_check
+run ru_head_np2_check       ru_head_np2_check
+run ru_head_forward_check   ru_head_forward_check
+run ru_head_rmem_check      ru_head_rmem_check
+run ru_head_vdout_int_check ru_head_vdout_int_check
+run ru_head_fakemem_check   ru_head_fakemem_check
+run ru_head_dout_check      ru_head_dout_check
+
+#Align checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+run ru_align_check      ru_align_check
+run ru_mem_chk_check    ru_mem_chk_check
+run ru_align_dout_check ru_align_dout_check
+
+#Stack checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+run ru_stack_check      ru_stack_check
+run ru_stack_dout_check ru_stack_dout_check
+
+#Connectivity checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+run ru_t1_mem_check  ru_t1_mem_check 
+run ru_t1_port_check ru_t1_port_check
+
+setenv IFV_HIER_5 des.algo_top.a5_loop.algo
+setenv IFV_HIER_6 des.algo_top.a6_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+run ru_pdout_check     ru_pdout_check
+run ru_pdout_err_check ru_pdout_err_check
+run ru_port_check      ru_port_check
+
+#Need to add nru_1r1w constraints
+#nru_1r1w tail
+setenv IFV_HIER des.algo_top.a7_loop.algo
+
+run nru_1r1w_mem_check tail_mem_check
+run nru_1r1w_mem_range_check tail_mem_range_check
+run nru_1r1w_forward_check tail_forward_check
+run nru_1r1w_fakemem_check tail_fakemem_check
+run nru_1r1w_dout_check tail_dout_check
+
+#Align_checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run nru_1r1w_align_check nru_1r1w_align_check
+run nru_1r1w_mem_chk_check nru_1r1w_mem_chk_check
+run nru_1r1w_align_dout_check nru_1r1w_align_dout_check
+
+#Stack_checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run nru_1r1w_stack_check nru_1r1w_stack_check
+run nru_1r1w_stack_dout_check nru_1r1w_stack_dout_check
+
+#Connnectivity checks
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].stack_loop.infra
+
+run nru_1r1w_t1_mem_check  nru_1r1w_t1_mem_check 
+run nru_1r1w_t1_port_check nru_1r1w_t1_port_check
+
+setenv IFV_HIER    des.algo_top.a1_loop.algo
+setenv IFV_HIER_7 des.algo_top.a7_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].align_loop.infra
+
+run nru_1r1w_pdout_check nru_1r1w_pdout_check
+run nru_1r1w_pdout_err_check nru_1r1w_pdout_err_check
+run nru_1r1w_port_check nru_1r1w_port_check
+
+

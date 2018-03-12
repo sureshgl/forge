@@ -1,0 +1,2 @@
+waive -rule "SGDC_require_path02" -msg  "*.CORE_BIST_RPR_MODE'[TopPort + Net + HierTerminal] not found on/within module *"
+waive -rule "checkSGDC_06" -msg  "Scoped module 'mem28_sr*' is never instantiated in current design *"

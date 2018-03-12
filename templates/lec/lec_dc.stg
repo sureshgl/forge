@@ -1,0 +1,10 @@
+LecDCScript(goldenTop,revisedTop,readGolden,readRevised)::=<<
+#!/bin/tcsh
+setenv GOLDEN_TOP "<goldenTop>"
+setenv REVISED_TOP "<revisedTop>"
+
+setenv READ_GOLDEN "<readGolden>"
+setenv READ_REVISED "<readRevised>"
+lec -dofile lec.dofile  -log lec_dc_log -nogui -xl |& tee lec_dc.log
+
+>>

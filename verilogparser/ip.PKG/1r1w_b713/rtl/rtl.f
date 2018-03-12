@@ -1,0 +1,10 @@
+algo_1r1w_b713_top_wrap.v
+algo_1r1w_b713_sva_wrap.v
+algo_nr1w_b713_dup_top.v
+../../common/rtl/algo_nr1wa_dup2.v
+../../common/rtl/core_nr1wa_dup2.v
+../../common/rtl/np2_addr_ramwrap.v
+../../common/rtl/infra_align_1r1wa_ramwrap.v
+../../common/rtl/align_1r1wa_ramwrap.v
+../../common/rtl/infra_stack_1r1wa_ramwrap.v
+../../common/rtl/stack_1r1wa_ramwrap.v

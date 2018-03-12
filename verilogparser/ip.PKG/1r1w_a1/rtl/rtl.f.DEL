@@ -1,0 +1,8 @@
+algo_1r1w_a1_top_wrap.v
+algo_1r1w_a1_top.v
+../../common/rtl/mux_1r1w_rl2.v
+algo_1r1w_rl2_a1.v
+core_1r1w_rl2_a1.v
+../../common/rtl/np2_addr.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v

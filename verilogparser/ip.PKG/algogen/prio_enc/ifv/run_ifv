@@ -1,0 +1,2 @@
+#bsub -I -q memoir "iev +64bit -F formal.filelist +define+FORMAL +licq +top+sva +tcl+formal.tcl -l lformal.log -q +exit" 
+bsub -I -q interactive "iev +64bit -F formal.filelist +define+FORMAL +licq +top+sva +tcl+formal.tcl -l lformal.log -q +gui +define+FAST_PE" 

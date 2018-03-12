@@ -1,0 +1,30 @@
+Running make in this dir, runs some sanity checks on verilog and json
+files and prepares RTL for release to customers.
+
+Running make in this dir does the following things:
+ 1. Maps RTL parameters and reports any issues
+ 2. Checks for duplicate module definitions
+ 3. Process all docs.json and scripts.json files
+ 4. For required vendor and tech, copies over 
+    in to <tot>/ip_obfuscated dir:
+     a. obfuscated verilog
+     b. testbench files
+     c. docs
+     d. scripts
+    in to <tot>/ip_encrypted dir:
+     a. encrypted verilog
+     b. testbench files
+     c. docs
+     d. scripts
+
+If everything look good, 'all good' is reported at the end and script
+exits cleanly.
+
+Examples:
+For all vendor and all tech:
+  make all_all
+
+For arm tsmc40g, run
+  make arm_tsmc40g
+
+After running make, check the output directories and their contents.

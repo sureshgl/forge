@@ -1,0 +1,20 @@
+#!/usr/local/bin/perl
+$mem_list = shift;
+$sglib_dir = shift;
+system("mv $mem_list ${mem_list}.tmp");
+
+open(f1,"${mem_list}.tmp");
+open(f2,">$mem_list");
+
+while ($_ = <f1>) {
+   if (($_ !~ /^$/) && ($_ =~ /\D+/)) { 
+      s/^/${sglib_dir}\//;
+      s/_ss.db/_ss.sglib/;
+      print f2 $_;
+   }
+
+}
+
+close f1;
+close f2;
+

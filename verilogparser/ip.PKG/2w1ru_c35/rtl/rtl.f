@@ -1,0 +1,13 @@
+algo_2w1ru_c35_top_wrap.v
+algo_2w1ru_c35_sva_wrap.v
+algo_2w1ru_top.v
+algo_nw1ru_1r1w.v
+core_nw1ru_1r1w.v
+../../common/rtl/ecc_calc.v
+../../common/rtl/ecc_check.v
+../../common/rtl/np2_addr.v
+../../common/rtl/infra_align_ecc_1r1w.v
+../../common/rtl/align_ecc_1r1w.v
+../../common/rtl/infra_stack_1r1w.v
+../../common/rtl/stack_1r1w.v
+../../common/rtl/algo_mrnrwpw_ref.v

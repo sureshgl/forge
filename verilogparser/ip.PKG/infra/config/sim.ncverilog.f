@@ -1,0 +1,1 @@
+-nocopyright +sv +define+NCV_SIMULATOR -licqueue -q -64bit -nonotifier -notimingchecks -nospecify

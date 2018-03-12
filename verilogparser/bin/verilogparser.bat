@@ -1,0 +1,1 @@
+java -ea -Xmx8g -cp dist\*.jar com.memoir.vp.runner.ParamReplacer %*

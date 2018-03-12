@@ -1,0 +1,13 @@
+#!/bin/csh -f
+# Copyright (c) 2010-2015 by Cisco Systems Inc.    All Rights Reserved.
+
+setenv block_name $1
+setenv runversion "0"
+setenv LOWPWRFLOW ""
+setenv ANALYZE_OPTION sverilog
+setenv DEFAULT_DEFINES "USE_VENDOR__SYNC_FLOP TS_AVAGO_MEM"
+
+setenv SYNDIR $PROJECT_ROOT/syn
+
+dc_shell-t --v v2010.12-SP5 -f $PROJECT_ROOT/spyglass/scripts/gen_sdc.tcl |tee $PROJECT_ROOT/spyglass/$block_name/$block_name.log
+

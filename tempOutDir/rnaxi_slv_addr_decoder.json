@@ -1,0 +1,113 @@
+{
+  "registers" : [ {
+    "instances" : [ {
+      "name" : "blah_reg_0",
+      "fields" : [ {
+        "name" : "fl1",
+        "size" : "200",
+        "fieldOffset" : 200,
+        "rstValue" : "0",
+        "readTrigger" : false,
+        "writeTrigger" : false,
+        "readClear" : false,
+        "writeAttribute" : false,
+        "readAttribute" : false,
+        "accSize" : 0,
+        "regDataRange" : "[199:0]"
+      } ],
+      "rnaxiWords" : "7",
+      "totalSize" : 200,
+      "startOffset" : "0",
+      "endOffset" : "6",
+      "registerWordWidth" : 224,
+      "numberofBeats" : "6",
+      "leftWordsWidth" : 24,
+      "rnaxiWordsRange" : "(7-1)"
+    }, {
+      "name" : "blah_reg_1",
+      "fields" : [ {
+        "name" : "fl1",
+        "size" : "200",
+        "fieldOffset" : 200,
+        "rstValue" : "0",
+        "readTrigger" : false,
+        "writeTrigger" : false,
+        "readClear" : false,
+        "writeAttribute" : false,
+        "readAttribute" : false,
+        "accSize" : 0,
+        "regDataRange" : "[199:0]"
+      } ],
+      "rnaxiWords" : "7",
+      "totalSize" : 200,
+      "startOffset" : "7",
+      "endOffset" : "d",
+      "registerWordWidth" : 224,
+      "numberofBeats" : "6",
+      "leftWordsWidth" : 24,
+      "rnaxiWordsRange" : "(7-1)"
+    } ]
+  }, {
+    "instances" : [ {
+      "name" : "blah_reg1_0",
+      "fields" : [ {
+        "name" : "fl1",
+        "size" : "200",
+        "fieldOffset" : 200,
+        "rstValue" : "0",
+        "readTrigger" : false,
+        "writeTrigger" : false,
+        "readClear" : false,
+        "writeAttribute" : false,
+        "readAttribute" : false,
+        "accSize" : 0,
+        "regDataRange" : "[199:0]"
+      } ],
+      "rnaxiWords" : "7",
+      "totalSize" : 200,
+      "startOffset" : "0",
+      "endOffset" : "6",
+      "registerWordWidth" : 224,
+      "numberofBeats" : "6",
+      "leftWordsWidth" : 24,
+      "rnaxiWordsRange" : "(7-1)"
+    } ]
+  } ],
+  "memories" : [ {
+    "instances" : [ {
+      "name" : "blah_mem_0",
+      "rnaxiWordsWidth" : "64",
+      "rnaxiWords" : "2",
+      "bits" : "34",
+      "words" : "17",
+      "startOffset" : "0",
+      "endOffset" : "21",
+      "readPortValue" : "2",
+      "writePortValue" : "1",
+      "eccWidth" : "0",
+      "isWriteMultiport" : false,
+      "isReadMultiport" : true,
+      "instanceNumber" : 0,
+      "isInterfaceOnly" : true
+    } ]
+  }, {
+    "instances" : [ {
+      "name" : "blah_mem2_0",
+      "rnaxiWordsWidth" : "64",
+      "rnaxiWords" : "2",
+      "bits" : "34",
+      "words" : "17",
+      "startOffset" : "0",
+      "endOffset" : "21",
+      "readPortValue" : "2",
+      "writePortValue" : "1",
+      "eccWidth" : "0",
+      "isWriteMultiport" : false,
+      "isReadMultiport" : true,
+      "instanceNumber" : 0,
+      "isInterfaceOnly" : false
+    } ]
+  } ],
+  "fsName" : null,
+  "hasRegisters" : true
+}

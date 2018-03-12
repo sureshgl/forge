@@ -1,0 +1,84 @@
+rnaxi_mem_wrap(rnaxiMemWrapForStg)::=<<
+module <rnaxiMemWrapForStg.fsName>_rnaxi_mem_phy_wrap (
+clk,
+rst,
+mem_ack_rcvd,
+<first(rnaxiMemWrapForStg.memories) :{ memory | <first(memory.instances) :{mem_inst | <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_ack,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_en}>
+<rest(memory.instances) :{ mem_inst |
+,<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_ack,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_en}>}>
+<rest(rnaxiMemWrapForStg.memories) :{ memory | <memory.instances :{ mem_inst | 
+,<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_addr,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_data,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_ack,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_en,
+<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_en}>}>
+);
+
+input  clk;
+input  rst;
+<rnaxiMemWrapForStg.memories:{memory |<memory.instances:{ mem_inst |input [<mem_inst.rnaxiWords>-1:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_en;  
+input [<mem_inst.rnaxiWordsWidth>-1:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_data;
+input [31:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_addr;
+input        <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_en;
+input [<mem_inst.rnaxiWordsWidth>-1:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_data;
+input        <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_ack;
+output reg [<mem_inst.rnaxiWordsWidth>-1:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_data;
+output reg [31:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_addr;
+output reg [<mem_inst.rnaxiWordsWidth>-1:0] <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_data;
+output reg [<mem_inst.rnaxiWords>-1:0]  <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_en; 
+output reg        <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_en;
+wire  <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_ack_out;}>}>
+
+output reg  mem_ack_rcvd;
+
+<rnaxiMemWrapForStg.memories:{memory |<memory.instances:{ mem_inst |
+rnaxi_mem_phy# (.MEM_ROW_SIZE_IN_WORDS(<mem_inst.rnaxiWords>),
+	.MEM_ROW_DATA_WIDTH(<mem_inst.rnaxiWordsWidth>),
+	.MEM_ADDR_WIDTH(32)) 
+u_<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rnaxi_mem_phy (.clk(clk),
+	.rst(rst),
+	.mem_wr_en(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_en),
+	.mem_rd_en(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_en),
+	.mem_wr_data(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_wr_data),
+	.mem_phy_rd_data(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_data),
+	.mem_addr(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_addr),
+	.ack_in(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_ack),
+	.mem_phy_wr_data(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_data),
+	.mem_rd_data(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_rd_data),
+	.mem_phy_wr_en(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_wr_en),
+	.mem_phy_addr(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_addr),
+	.mem_phy_rd_en(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_hbus_phy_rd_en),
+	.ack_out(<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_ack_out));
+}>}>
+
+assign mem_ack_rcvd =  
+<first(rnaxiMemWrapForStg.memories):{memory | <first(memory.instances):{ mem_inst |<rnaxiMemWrapForStg.fsName>_<mem_inst.name>_ack_out }> <rest(memory.instances):{ mem_inst | || <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_ack_out }>}> <rest(rnaxiMemWrapForStg.memories):{memory |<memory.instances:{ mem_inst | || <rnaxiMemWrapForStg.fsName>_<mem_inst.name>_ack_out}>}>;
+
+endmodule
+>>

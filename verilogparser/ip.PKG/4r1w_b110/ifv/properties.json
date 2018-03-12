@@ -1,0 +1,31 @@
+{
+   "primary_design_constraints" : [
+      "des.algo_top.a1_loop.algo.assume_select_addr_range",
+      "des.algo_top.a1_loop.algo.assume_select_addr_stable",
+      "des.algo_top.a1_loop.algo.assume_select_bit_range",
+      "des.algo_top.a1_loop.algo.assume_select_bit_stable",
+      "des.algo_top.assume_select_addr_range",
+      "des.algo_top.assume_select_addr_stable",
+      "des.algo_top.assume_select_bit_range",
+      "des.algo_top.assume_select_bit_stable",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.assume_select_addr_range",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.assume_select_addr_stable",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.ip_top_sva.assume_mem_derr_check",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.ip_top_sva.assume_mem_nerr_check",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.ip_top_sva.assume_mem_serr_check",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.stack_loop.infra.assume_select_addr_range",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.stack_loop.infra.assume_select_addr_stable",
+      "des.algo_top.t1r_loop.*.t1b_loop.*.stack_loop.infra.ip_top_sva.assert_mem_check"
+   ],
+   "conditional_properties" : {
+      "ECC_NONE" : [
+         {
+            "expected" : "Pass_Trigger_Fail",
+            "regexp" : [
+               "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.ip_top_sva.assert_dout_derr_check",
+               "des.algo_top.t1r_loop.*.t1b_loop.*.align_loop.infra.ip_top_sva.assert_dout_serr_check"
+            ]
+         }
+      ]
+   }
+}

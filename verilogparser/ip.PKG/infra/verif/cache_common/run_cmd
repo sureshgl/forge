@@ -1,0 +1,7 @@
+//WITH VCS 
+vcs -sverilog -F sim.vcs.f -l sim.log -debug_pp -R +define+VCS_SIMULATOR +access+r +waves +log_level=4 +vcs+lic+wait
+vcs -sverilog -F sim.vcs.f -l sim.log -debug_pp -R +define+VCS_SIMULATOR +log_level=2 +vcs+lic+wait
+//WITH NCV
+ncverilog +sv -F sim.ncv.f -l sim.log +define+NCV_SIMULATOR +access+r +waves +dumpmem +log_level=4
+bsub -I -q interactive ncverilog +sv -F sim.ncv.f -l sim.log +define+NCV_SIMULATOR +log_level=2
+

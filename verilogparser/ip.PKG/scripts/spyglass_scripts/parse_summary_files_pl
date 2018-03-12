@@ -1,0 +1,664 @@
+#!/usr/bin/perl
+################################################################################
+### Copyright (c) 2012-2014 by Cisco Systems, Inc. All rights reserved.
+#################################################################################
+#
+#=======================================================================================#
+# This file parses Run_Summary files to give a global view of all spyglass results for  #
+# each of the rules and goals                                                           #
+# Usage:                                                                                #
+#     andiamo_vegas/f32/f32_top/spyglass/scripts/parse_summary_files_pl -help for usage message  #
+#=======================================================================================#
+
+
+use Getopt::Long;
+
+my $check_cmdline_opt = GetOptions ("PROJECT_ROOT=s", "chiplet=s", "lint_or_cdc=s", "help");
+our $lint_or_cdc = "both";
+
+if ($opt_help) {
+  &print_help_msg();
+}
+else {
+  if (!$opt_PROJECT_ROOT) {
+     print "ERROR: PROJECT_ROOT option missing. Exiting....\n";
+     &print_help_msg();
+     exit 0;
+  }
+
+  if (!$opt_chiplet) {
+     print "ERROR: chiplet option missing. Allowed values are \"all\",\"f32_top\".Exiting....\n";
+     &print_help_msg();
+     exit 0;
+  }
+
+  if ($opt_lint_or_cdc) {
+     $lint_or_cdc = $opt_lint_or_cdc;
+  }
+}  
+#============================================================#
+# Extract rule details and categories from central log files #
+#============================================================#
+if ($opt_chiplet =~ /all/) {
+	print "all_chiplet: all\n";
+  @all_chiplets = ("f32_top","f32");
+} else {
+	print "all_chiplet: $opt_chiplet\n";
+  @all_chiplets = ($opt_chiplet);
+}
+
+open (f1,"/auto/be_infra/tools/atrenta/spyglass/dft_rule_details.log");
+while ($_ = <f1>) {
+   chomp;
+   s/\,\s*/,/;
+   if ($_ =~ /\,Yes\,/)   { @fi = split(/Yes\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   elsif ($_ =~ /\,No\,/) { @fi = split(/No\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   else {@l = split(/,/,$_);$rule_verb=$l[$#l];}
+
+   $rule_category{$l[0]} = $l[1];
+   $rule_detail{$l[0]} = $rule_verb;
+   chomp $rule_detail{$l[0]};
+   $rule_detail{$l[0]} =~ s/\,//g;
+   $rule_detail{$l[0]} =~ s/^\s*//g;
+
+}
+
+close f1;
+
+open (f1,"/auto/be_infra/tools/atrenta/spyglass/lint_rule_details.log");
+while ($_ = <f1>) {
+   chomp;
+   s/\,\s*/,/;
+   if ($_ =~ /\,Yes\,/)   { @fi = split(/Yes\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   elsif ($_ =~ /\,No\,/) { @fi = split(/No\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   else {@l = split(/,/,$_);$rule_verb=$l[$#l];}
+
+   $rule_category{$l[0]} = $l[1];
+   $rule_detail{$l[0]} = $rule_verb;
+   chomp $rule_detail{$l[0]};
+   $rule_detail{$l[0]} =~ s/\,//g;
+   $rule_detail{$l[0]} =~ s/^\s*//g;
+
+}
+close f1;
+
+open (f1,"/auto/be_infra/tools/atrenta/spyglass/cdc_rule_details.log");
+while ($_ = <f1>) {
+   chomp;
+   s/\,\s*/,/;
+   if ($_ =~ /\,Yes\,/)   { @fi = split(/Yes\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   elsif ($_ =~ /\,No\,/) { @fi = split(/No\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   else {@l = split(/,/,$_);$rule_verb=$l[$#l];}
+
+   $rule_category{$l[0]} = $l[1];
+   $rule_detail{$l[0]} = $rule_verb;
+   chomp $rule_detail{$l[0]};
+   $rule_detail{$l[0]} =~ s/\,//g;
+   $rule_detail{$l[0]} =~ s/^\s*//g;
+
+}
+
+close f1;
+
+open (f1,"/auto/be_infra/tools/atrenta/spyglass/basic_design_read_rule_details.log");
+while ($_ = <f1>) {
+   chomp;
+   s/\,\s*/,/;
+   if ($_ =~ /\,Yes\,/)   { @fi = split(/Yes\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   elsif ($_ =~ /\,No\,/) { @fi = split(/No\,/,$_); @l=split(/\,/,$fi[0]);$rule_verb=$fi[$#fi];}
+   else {@l = split(/,/,$_);$rule_verb=$l[$#l];}
+
+   $rule_category{$l[0]} = $l[1];
+   $rule_detail{$l[0]} = $rule_verb;
+   chomp $rule_detail{$l[0]};
+   $rule_detail{$l[0]} =~ s/\,//g;
+   $rule_detail{$l[0]} =~ s/^\s*//g;
+
+}
+
+close f1;
+
+
+
+
+$sourceDir = shift;
+$curr_dir = `pwd`;
+chomp($curr_dir);
+
+
+
+#########################################################
+### Define all must fix lint rules in this array     ####
+#########################################################
+
+### error_rules with a value "1" will be highlighted in red in the spreadsheet ###
+%error_rules=        ("W415", "1",
+                      "UndrivenInTerm-ML", "1",
+                      "HangingNetPreReq-ML", "1",
+                      "W287a", "1",
+                      "STARC05-2.1.3.1", "1",
+                      "W123", "1",
+                      "CombLoop", "1",
+                      "BufClk", "1",
+                      "FlopClockConstant", "1",
+                      "RegOutputs", "1",
+                      "RegInput-ML", "1",
+                      "W391", "1",
+                      "InferLatch", "1",
+                      "STARC-2.10.6.1", "0",
+                      "STARC05-2.2.3.3", "0");
+
+%mfix_lint_rules=    ("P10_W415", "1",
+                      "P11_InferLatch", "1",
+                      "P12_CombLoop", "1",
+                      "P13_BufClk", "1",
+                      "P14_W146", "1",
+                      "P15_STARC05-2.2.3.3", "1",
+                      "P16_UndrivenInTerm-ML", "1",
+                      "P17_HangingNetPreReq-ML", "1",
+                      "P18_W287a", "1",
+                      "P19_STARC05-2.1.3.1", "1",
+                      "P20_W123", "1",
+                      "P21_UndrivenInTerm-ML", "1",
+                      "P22_FlopClockConstant", "1",
+                      "P23_W391", "1",
+                      "P25_W426", "1",
+                      "P26_W110", "1",
+                      "P27_W263", "1",
+                      "P28_W336", "1",
+                      "P29_W398", "1",
+                      "P30_W424", "1",
+                      "P31_W468", "1",
+                      "P32_W499", "1",
+                      "P33_sim_race02", "1",
+                      "P34_RegOutputs", "1",
+                      "P35_RegInput-ML", "1",
+                      "P36_W175", "1",
+                      "P37_W122", "1",
+                      "P38_W362", "1",
+                      "P39_STARC-2.10.6.1", "1",
+                      "P40_W116", "1",
+                      "P41_W164a", "1",
+                      "P42_W164b", "1",
+                      "P43_UnloadedInPort-ML", "1",
+                      "P44_UndrivenOutPort-ML", "1",
+                      "P45_FlopEConst", "1",
+                      "P46_NoAssignX-ML", "1",
+                      "P47_W486", "1",
+                      "P48_W480", "1");
+                       
+##### Process files from the results dir #########
+
+open(lint_summary_outF,">all_chiplets_lint_summary.csv") || die "Could not open all_chiplets_lint_summary.csv for writing the results\n";
+open(cdc_summary_outF,">all_chiplets_cdc_summary.csv") || die "Could not open all_chiplets_cdc_summary.csv for writing the results\n";
+if (($lint_or_cdc =~ /lint/) || ($lint_or_cdc =~ /both/)) {
+   print lint_summary_outF "chiplet,Lint_Fatal,Lint_mfix,Lint_Error,Lint_Warning\n";
+}
+if (($lint_or_cdc =~ /cdc/) || ($lint_or_cdc =~ /both/)) {
+   print cdc_summary_outF "chiplet,cdc_Fatal,cdc_Error,cdc_Warning\n";
+}
+
+foreach ($count=0;$count<=$#all_chiplets;$count++) {
+
+ $cur_chiplet=$all_chiplets[$count];
+ print "Curr chiplet is $cur_chiplet\n";
+ $sourceDir=$opt_PROJECT_ROOT."/RESULTS\/prelim_phase";
+ #$sourceDir=$opt_PROJECT_ROOT."\/f32"."\/".$cur_chiplet."\/spyglass\/RESULTS\/prelim_phase";
+ @allsubchips=();
+ $chiplet_mfix_errors = 0;
+ $chiplet_lint_errors = 0;
+ $chiplet_fatal_errors = 0;
+ $chiplet_lint_warnings = 0;
+ $chiplet_cdc_fatal_errors=0;
+ $chiplet_cdc_errors=0;
+ $chiplet_cdc_warnings=0;
+
+ opendir SUBCHIPDIR, $sourceDir;
+
+ #Step to get all subchip names assuming directory name is subchip based and skipping dot files
+ while(defined($subchip=readdir(SUBCHIPDIR))) {
+   next if $subchip =~ /^\.\.?$/;
+   next if $subchip =~ /HTML/;
+   next if $subchip =~ /Run/;
+   next if $subchip =~ /Final/;
+   next if $subchip =~ /^console/;
+   next if $subchip =~ /^\./;
+   push( @allsubchips,"$subchip");
+   
+   ##### Create output files for holding the results ######
+   if (($lint_or_cdc =~ /lint/) || ($lint_or_cdc =~ /both/)) {
+     $fname = ${cur_chiplet} . "_lint_summary\.csv";
+     if (-e $fname) {
+        system("mv ${cur_chiplet}_lint_summary.csv ${cur_chiplet}_lint_summary.csv.old");
+     }
+     open(lint_outF,">${cur_chiplet}_lint_summary.csv") || die "Could not open ${cur_chiplet}_lint_summary.csv for writing the results\n";
+     print lint_outF "\'*****        Auto-generated using parse_summary_files_pl script           *****\n";       
+     print lint_outF "\'****results dir: $sourceDir *****\n\n";       
+   }
+   
+   if (($lint_or_cdc =~ /cdc/) || ($lint_or_cdc =~ /both/)) {
+     $fname = ${cur_chiplet} . "_cdc_summary\.csv";
+     if (-e $fname) {
+        system("mv ${cur_chiplet}_cdc_summary.csv ${cur_chiplet}_cdc_summary.csv.old");
+     }
+     open(cdc_outF,">${cur_chiplet}_cdc_summary.csv") || die "Could not open ${cur_chiplet}_cdc_summary.csv for writing the results\n";
+     print cdc_outF "\'****         Auto-generated using parse_summary_files_pl script           *****\n";       
+     print cdc_outF "\'****results dir: $sourceDir *****\n\n";       
+   }
+   
+
+   #Get all the Run_Summary files for processing
+   if ($lint_or_cdc =~ /lint/) {
+     @Run_Sum_files = `ls -rt $sourceDir\/$subchip/$subchip/*lint*/*/spyglass_reports/summary.rpt`;
+  #   @Run_Sum_files_DFT = `ls -rt $sourceDir\/$subchip/$subchip/*dft*/*/spyglass_reports/summary.rpt`;
+#     push(@Run_Sum_files,@Run_Sum_files_DFT);
+   }
+   elsif ($lint_or_cdc =~ /cdc/) {
+     @Run_Sum_files = `ls -rt $sourceDir\/$subchip/$subchip/*cdc*/*struct*/spyglass_reports/summary.rpt`;
+     @cdc_rpt_files = `ls -rt $sourceDir\/$subchip/$subchip/*cdc**/*struct*/spyglass_reports/CDC-report.rpt`;
+     @ClockResetDetail_rpt_files = `ls -rt $sourceDir\/$subchip/$subchip/*cdc*/*struct*/spyglass_reports/Clock-Reset-Detail.rpt`;
+   }
+   else {
+     @Run_Sum_files = `ls -rt $sourceDir\/$subchip/$subchip/*/*/spyglass_reports/summary.rpt`;
+     @cdc_rpt_files = `ls -rt $sourceDir\/$subchip/$subchip/*cdc*/*/spyglass_reports/CDC-report.rpt`;
+     @ClockResetDetail_rpt_files = `ls -rt $sourceDir\/$subchip/$subchip/*cdc*/*/spyglass_reports/Clock-Reset-Detail.rpt`;
+   }
+
+   foreach ($file_cnt=0;$file_cnt<=$#Run_Sum_files;$file_cnt++) {
+	   # print $Run_Sum_files[$file_cnt],"\n";
+      if (($Run_Sum_files[$file_cnt] =~ /lintall/) || ($Run_Sum_files[$file_cnt] =~ /dft/)) {
+	 $GOAL_TAG = "LINT";
+      }
+      elsif ($Run_Sum_files[$file_cnt] =~ /cdc_/) {
+	 $GOAL_TAG = "CDC";
+      }
+
+      open(rpt, "$Run_Sum_files[$file_cnt]") || die "OPEN file : $Run_Sum_files[$file_cnt] FAILED \n ";
+      $valid_data = 0;
+      while ($_ = <rpt>) {
+           
+          ####### report analysis  ###########
+          if ($valid_data == 2) {
+	    if ($_ =~ /^\+\+.*/) {
+               $valid_data = 0;
+            }
+            if ($_ =~ /^ERROR/) {
+	       chomp;
+	       @l = split(/\s+/,$_);
+	       $error{$subchip}{$goal_name}{$l[1]} = $l[2];
+	       $rule_name = $rule_category{$l[1]} . $l[1];
+	       if ($mfix_lint_rules{$l[1]} == 1) {
+	         $mfix_rules{$goal_name}{$l[1]} = $l[1];
+	       } else {
+	         $all_error_rules{$goal_name}{$l[1]} = $l[1];
+               }
+	       #$all_error_rules{$goal_name}{$rule_name} = $rule_name;
+	    }
+            elsif ($_ =~ /^WARNING/) {
+	       chomp;
+	       @l = split(/\s+/,$_);
+	       $rule_name = $rule_category{$l[1]} . $l[1];
+	       $warn{$subchip}{$goal_name}{$l[1]} = $l[2];
+	       if ($mfix_lint_rules{$l[1]} == 1) {
+	          $mfix_rules{$goal_name}{$l[1]} = $l[1];
+	       } else {
+	          $all_warn_rules{$goal_name}{$l[1]} = $l[1];
+               }
+	       #$all_warn_rules{$goal_name}{$rule_name} = $rule_name;
+	    }
+            elsif ($_ =~ /^FATAL/) {
+	       chomp;
+	       @l = split(/\s+/,$_);
+	       $fatal{$subchip}{$goal_name}{$l[1]} = $l[2];
+	       $rule_name = $rule_category{$l[1]} . $l[1];
+	       $all_fatal_rules{$goal_name}{$l[1]} = $l[1];
+	    }
+            elsif ($_ =~ /^INFO/) {
+	       chomp;
+	       @l = split(/\s+/,$_);
+	       $info{$subchip}{$goal_name}{$l[1]} = $l[2];
+	       $rule_name = $rule_category{$l[1]} . $l[1];
+	       #$all_info_rules{$goal_name}{$l[1]} = $l[1];
+	       $all_info_rules{$goal_name}{$rule_name} = $rule_name;
+	    }
+	  }
+          elsif (($_ =~ /^================/) && ($valid_data == 1)) {
+            $valid_data = 2;
+	  }
+          elsif ((($_ =~ /^######.*Template\=.*########/) || ($_ =~ /^#####.*RuleGroup=Design Read.*#####/) || ($_ =~ /^#####.*FATAL MESSAGES.*#####/) || ($_ =~ /^############### Non-BuiltIn .*Goal=/) || ($_ =~ /^#####.*RuleGroup=Blackbox Resolution.*#####/) ) && ($valid_data == 0)) {
+	    @l = split(/[=\s]/,$_);
+	    if    ($l[4] =~ /Design/)    {$GOAL_INDEX = 1; }
+	    if    ($l[4] =~ /Blackbox/)  {$GOAL_INDEX = 1; }
+	    elsif ($l[1] =~ /FATAL/)     {$GOAL_INDEX = 1; }
+	    elsif ($l[4] =~ /structall/) {$GOAL_INDEX = 3; }
+	    elsif ($l[4] =~ /formal/)    {$GOAL_INDEX = 4; }
+	    elsif ($l[4] =~ /cdc_soc/)   {$GOAL_INDEX = 5; }
+	    elsif ($GOAL_TAG =~ /LINT/)   {$GOAL_INDEX = 2; }
+            if ($_ =~ /FATAL MESSAGES/) {
+	       $goal_name = $GOAL_TAG . $GOAL_INDEX . "_" . $l[1];
+	    } else {
+	       $goal_name = $GOAL_TAG . $GOAL_INDEX . "_" . $l[4];
+            }
+	    if ($goal_name =~ /NoTemplate/) {
+               $goal_name = "LINT_lintall_newrules";
+	    }
+	    $all_goals{$goal_name} = $goal_name;
+            $valid_data = 1;
+	  }
+
+      }
+   }
+   foreach ($file_cnt=0;$file_cnt<=$#cdc_rpt_files;$file_cnt++) {
+      $GOAL_TAG = "CDC";
+      $goal_name = $GOAL_TAG . "2_summ";
+      $all_goals{$goal_name} = $goal_name;
+      open(rpt, "$cdc_rpt_files[$file_cnt]") || die "OPEN file : $cdc_rpt_files[$file_cnt] FAILED \n ";
+      $valid_data = 0;
+      while ($_ = <rpt>) {
+         chomp;
+         if ($_ =~ /Number of cdc_false_path constraints/) {
+           s/^\s+//; 
+           ($dummy,$num_cdc_false{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /Number of set_case_analysis constraints/) {
+           s/^\s+//; 
+           ($dummy,$num_set_case{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /Number of user defined domains/) {
+           s/^\s+//; 
+           ($dummy,$num_clk_dom{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /Number of user defined resets/) {
+           s/^\s+//; 
+           ($dummy,$num_resets{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /Clock_info03a/) {
+           s/^\s+//; 
+           ($dummy,$num_reg_with_no_clock{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /Inferred qualifiers used to synchronize data crossings/) {
+           s/^\s+//; 
+           ($dummy,$num_infer_qualifiers{$subchip}) = split(/\:/,$_);
+         }
+         elsif ($_ =~ /User-defined qualifiers used to synchronize data crossings/) {
+           s/^\s+//; 
+           ($dummy,$num_userdef_qualifiers{$subchip}) = split(/\:/,$_);
+	   ## Reseting sync_type variable
+	   $sync_type = "";
+         }
+
+         if (($sync_type =~ /Ac_sync01/) || ($sync_type =~ /Ac_sync02/)) {
+            s/^\s+//; 
+            if ($_ =~ /^-- \D/) {
+               s/^-- //;
+	       ($scheme,$num) = split(/\:/,$_);
+	       $scheme =~ s/\s+$//;
+	       $sync_scheme{$scheme}{$subchip} += $num;
+	    }
+	 }
+
+	 if ($_ =~ /Synchronized Scalar Signal Crossings/) {
+	    $sync_type = "Ac_sync01";
+	 }
+	 if ($_ =~ /Synchronized Vector Signal Crossings/) {
+	    $sync_type = "Ac_sync02";
+	 }
+
+      }
+   }
+   foreach ($file_cnt=0;$file_cnt<=$#ClockResetDetail_rpt_files;$file_cnt++) {
+      $GOAL_TAG = "CDC";
+      $goal_name = $GOAL_TAG . "2_summ";
+      $all_goals{$goal_name} = $goal_name;
+      open(rpt, "$ClockResetDetail_rpt_files[$file_cnt]") || die "OPEN file : $ClockResetDetail_rpt_files[$file_cnt] FAILED \n ";
+      close rpt;
+      $i = $ClockResetDetail_rpt_files[$file_cnt];
+      $temp = `grep -B 5 "D.   Summary of " $i`;
+      $temp =~ s/^\s*//;
+      @l = split(/\s+/,$temp);
+      $num_filtered_masked_paths{$subchip} = $l[0];
+      $num_filtered_masked_paths{$subchip} =~ s/\.//;
+      if ($num_filtered_masked_paths{$subchip} =~ /\D/) {
+	      $num_filtered_masked_paths{$subchip} = 0;
+      }
+   }
+ }
+
+
+##### Printing section #######
+print lint_outF "BLOCK NAME,RULE DEFINITION,";
+
+foreach $schip ( @allsubchips ) {
+ print lint_outF $schip,",";
+}
+  print lint_outF "\n";
+
+print cdc_outF "BLOCK NAME,RULE DEFINITION,";
+
+foreach $schip ( @allsubchips ) {
+ print cdc_outF $schip,",";
+}
+  print cdc_outF "\n";
+
+ foreach $curr_goal (sort keys(%all_goals)){
+
+   #### lint goals #####
+   if ($curr_goal =~ /LINT/) { 
+      $mod_curr_goal = $curr_goal;## For printing purposes only
+      $mod_curr_goal =~ s/LINT._//;
+      print lint_outF "GOAL: $mod_curr_goal\n";
+   
+      foreach $curr_rule (sort keys %{ $all_fatal_rules{$curr_goal} } ) {
+         print lint_outF $curr_rule,":FATAL:,";
+         print lint_outF $rule_detail{$curr_rule},",";
+         foreach $schip ( @allsubchips ) {
+           print lint_outF $fatal{$schip}{$curr_goal}{$curr_rule},"," ;
+           $chiplet_fatal_errors += $fatal{$schip}{$curr_goal}{$curr_rule} ;
+         }
+         print lint_outF "\n";
+      }
+
+      if ($curr_goal =~ /lint/) {
+      	print lint_outF "MUST_FIX RULES\n";
+        foreach $curr_rule (sort keys (%mfix_lint_rules)) {
+	   $curr_rule =~ s/P\d\d_//;
+           print lint_outF $curr_rule,",";
+           print lint_outF $rule_detail{$curr_rule},",";
+           foreach $schip ( @allsubchips ) {
+             print lint_outF $error{$schip}{$curr_goal}{$curr_rule}+$warn{$schip}{$curr_goal}{$curr_rule},"," ;
+                $chiplet_mfix_errors += $error{$schip}{$curr_goal}{$curr_rule} + $warn{$schip}{$curr_goal}{$curr_rule};
+           }
+
+           print lint_outF "\n";
+        }
+        print lint_outF "\n";
+      }
+
+      if ($curr_goal =~ /lin/) {print lint_outF "\nOTHER LINT RULES\n";}
+      foreach $curr_rule (sort keys %{ $all_error_rules{$curr_goal} } ) {
+	$skip_rule = 0;
+        foreach $m_rule (sort keys (%mfix_lint_rules)) {
+	   $m_rule =~ s/P\d\d_//;
+	   if ($m_rule =~ /$curr_rule/) {
+              $skip_rule = 1; # This rule already in must fix category
+	   }
+	}
+	 if ($skip_rule == 0) {
+            print lint_outF $curr_rule,":ERROR:,";
+            print lint_outF $rule_detail{$curr_rule},",";
+            foreach $schip ( @allsubchips ) {
+              print lint_outF $error{$schip}{$curr_goal}{$curr_rule},"," ;
+              $chiplet_lint_errors += $error{$schip}{$curr_goal}{$curr_rule} ;
+            }
+            print lint_outF "\n";
+         }
+      }
+      print lint_outF "\n";
+      foreach $curr_rule (sort keys %{ $all_warn_rules{$curr_goal} } ) {
+	 $skip_rule = 0;
+         foreach $m_rule (sort keys (%mfix_lint_rules)) {
+	    $m_rule =~ s/P\d\d_//;
+	    if ($m_rule =~ /$curr_rule/) {
+               $skip_rule = 1; # This rule already in must fix category
+	    }
+	 }
+	 if ($skip_rule == 0) {
+            print lint_outF $curr_rule,":WARN:,";
+            print lint_outF $rule_detail{$curr_rule},",";
+            foreach $schip ( @allsubchips ) {
+              print lint_outF $warn{$schip}{$curr_goal}{$curr_rule},"," ;
+              $chiplet_lint_warnings += $warn{$schip}{$curr_goal}{$curr_rule} ;
+            }
+            print lint_outF "\n";
+         }
+      }
+      print lint_outF "\n";
+   } 
+
+   #### CDC goals #####
+   if ($curr_goal =~ /CDC/) { 
+      $mod_curr_goal = $curr_goal;## For printing purposes only
+      $mod_curr_goal =~ s/CDC._//;
+      print cdc_outF "GOAL: $mod_curr_goal\n";
+   
+      foreach $curr_rule (sort keys %{ $all_fatal_rules{$curr_goal} } ) {
+         print cdc_outF $curr_rule,":FATAL:,";
+         print cdc_outF $rule_detail{$curr_rule},",";
+         foreach $schip ( @allsubchips ) {
+           print cdc_outF $fatal{$schip}{$curr_goal}{$curr_rule},"," ;
+           $chiplet_cdc_fatal_errors += $fatal{$schip}{$curr_goal}{$curr_rule} ;
+         }
+         print cdc_outF "\n";
+      }
+
+      if ($curr_goal =~ /CDC2_summ/) {
+         print cdc_outF "# of clk_dom,NA,";                 foreach $schip ( @allsubchips ) {print cdc_outF $num_clk_dom{$schip},"," ;}; print cdc_outF "\n"; 
+         print cdc_outF "# of regs with no clock,NA,";      foreach $schip ( @allsubchips ) {print cdc_outF $num_reg_with_no_clock{$schip},"," ;} ; print cdc_outF "\n";
+         print cdc_outF "# of resets,NA,";                  foreach $schip ( @allsubchips ) {print cdc_outF $num_resets{$schip},"," ;} ; print cdc_outF "\n";
+         print cdc_outF "# of cdc_false_path_const,NA,";    foreach $schip ( @allsubchips ) {print cdc_outF $num_cdc_false{$schip},"," ;} ; print cdc_outF "\n";
+         print cdc_outF "# of set_case,NA,";                foreach $schip ( @allsubchips ) { print cdc_outF $num_set_case{$schip},"," ; }; print cdc_outF "\n";
+         print cdc_outF "# of inferred qualifiers,NA,";     foreach $schip ( @allsubchips ) {print cdc_outF $num_infer_qualifiers{$schip},"," ;} ; print cdc_outF "\n";
+         print cdc_outF "# of user def qualifiers,NA,";     foreach $schip ( @allsubchips ) {print cdc_outF $num_userdef_qualifiers{$schip},"," ;} ; print cdc_outF "\n";
+         print cdc_outF "# of paths_filtered_masked,NA,";   foreach $schip ( @allsubchips ) {print cdc_outF $num_filtered_masked_paths{$schip},"," ;} ; print cdc_outF "\n";
+
+         print cdc_outF "\n";
+	 print cdc_outF "CDC Synchronization schemes\n";
+
+         foreach $scheme (keys(%sync_scheme)){
+            print cdc_outF $scheme,",NA,";
+            foreach $schip ( @allsubchips ) {
+               print cdc_outF $sync_scheme{$scheme}{$schip},"," ;
+            }
+            print cdc_outF "\n";
+         }
+      }
+      else {
+          foreach $curr_rule (sort keys %{ $all_error_rules{$curr_goal} } ) {
+             print cdc_outF $curr_rule,":ERROR:,";
+             print cdc_outF $rule_detail{$curr_rule},",";
+             foreach $schip ( @allsubchips ) {
+               print cdc_outF $error{$schip}{$curr_goal}{$curr_rule},"," ;
+               $chiplet_cdc_errors += $error{$schip}{$curr_goal}{$curr_rule} ;
+             }
+             print cdc_outF "\n";
+          }
+          print cdc_outF "\n";
+          foreach $curr_rule (sort keys %{ $all_warn_rules{$curr_goal} } ) {
+             print cdc_outF $curr_rule,":WARN:,";
+             print cdc_outF $rule_detail{$curr_rule},",";
+             foreach $schip ( @allsubchips ) {
+               print cdc_outF $warn{$schip}{$curr_goal}{$curr_rule},"," ;
+               $chiplet_cdc_warnings += $warn{$schip}{$curr_goal}{$curr_rule} ;
+             }
+             print cdc_outF "\n";
+          }
+          print cdc_outF "\n";
+          if ($curr_goal =~ /cdc_struct/) { 
+             print cdc_outF "Ac_sync01:INFO:,Scalar synchronized paths,";
+             #print cdc_outF $rule_detail{$curr_rule},",";
+             foreach $schip ( @allsubchips ) {
+                print cdc_outF $info{$schip}{$curr_goal}{Ac_sync01},"," ;
+             }
+             print cdc_outF "\n";
+             print cdc_outF "Ac_sync02:INFO:,Vector synchronized paths,";
+             foreach $schip ( @allsubchips ) {
+                print cdc_outF $info{$schip}{$curr_goal}{Ac_sync02},"," ;
+             }
+             print cdc_outF "\n";
+          }
+      }
+
+      print cdc_outF "\n";
+   } 
+
+ }
+ if (($lint_or_cdc =~ /lint/) || ($lint_or_cdc =~ /both/)) {
+    print lint_summary_outF $cur_chiplet,"\,",$chiplet_fatal_errors,"\,",$chiplet_mfix_errors,"\,",$chiplet_lint_errors,"\,",$chiplet_lint_warnings,"\n";
+ }
+ if (($lint_or_cdc =~ /cdc/) || ($lint_or_cdc =~ /both/)) {
+    print cdc_summary_outF $cur_chiplet,"\,",$chiplet_cdc_fatal_errors,"\,",$chiplet_cdc_errors,"\,",$chiplet_cdc_warnings,"\n";
+ }
+
+ close lint_outF;
+ close cdc_outF;
+
+}
+
+close lint_summary_outF;
+close cdc_summary_outF;
+
+if ($lint_or_cdc =~ /both/) {
+   system("ls all_chiplets_lint_summary.csv all_chiplets_cdc_summary.csv > cdc_lint_results");
+}
+elsif ($lint_or_cdc =~ /cdc/) {
+   system("ls all_chiplets_cdc_summary.csv > cdc_lint_results");
+}
+elsif ($lint_or_cdc =~ /lint/) {
+   system("ls all_chiplets_lint_summary.csv > cdc_lint_results");
+}
+
+foreach ($count=0;$count<=$#all_chiplets;$count++) {
+  $cur_chiplet=$all_chiplets[$count];
+
+  if ($lint_or_cdc =~ /both/) {
+      system("ls  ${cur_chiplet}_lint_summary.csv ${cur_chiplet}_cdc_summary.csv >> cdc_lint_results");
+  }
+  elsif ($lint_or_cdc =~ /lint/) {
+     system("ls  ${cur_chiplet}_lint_summary.csv >> cdc_lint_results");
+  }
+  elsif ($lint_or_cdc =~ /cdc/) {
+     system("ls  ${cur_chiplet}_cdc_summary.csv >> cdc_lint_results");
+  }
+  system("$opt_PROJECT_ROOT/scripts/csv_to_excel_pl -in_csv_list  cdc_lint_results");
+}
+
+close(OUT);
+
+
+if (-e "mailme") { unlink "mailme"; }
+system ("(uuencode cdc_lint_results.xls cdc_lint_results.xls) > mailme");
+
+if ($ENV{mailto} =~ /.+/) {
+  # If the mail has to go to a different user/mailing list
+  system ("mail -s 'Spyglass Summary' $ENV{mailto} < mailme");
+} else {
+  system ("mail -s 'Spyglass Summary' $ENV{USER} < mailme");
+}
+if (-e "mailme") { unlink "mailme"; }
+exit(0);
+
+sub print_help_msg {
+    print <<EOFSTR;
+
+    COMMAND USAGE:
+    ########################################################################################
+    parse_summary_files_pl (options)
+    USAGE:
+        parse_summary_files_pl	-help		: Prints this help message
+                             	-PROJECT_ROOT	: PROJECT_ROOT variable
+                             	-chiplet	: chiplet name. "all" for all chiplets
+                             	-lint_or_cdc	: "lint" - lint only, "cdc" - cdc only, "both" - lint & cdc
+    ########################################################################################
+EOFSTR
+exit 0;
+}

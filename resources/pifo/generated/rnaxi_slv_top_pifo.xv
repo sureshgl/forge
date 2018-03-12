@@ -1,0 +1,351 @@
+module rnaxi_slv_top_pifo(clk,
+rst,
+u_req_valid_pifo,
+u_req_intr_pifo,
+u_req_type_pifo,
+u_req_attr_pifo,
+u_req_size_pifo,
+u_req_data_pifo,
+d_req_stall_pifo,
+u_req_stall_pifo,
+d_req_valid_pifo,
+d_req_intr_pifo,
+d_req_type_pifo,
+d_req_attr_pifo,
+d_req_size_pifo,
+d_req_data_pifo,
+pifo_mem_1_rd_data,
+pifo_mem_2_rd_data,
+pifo_mem_1_wr_data,
+pifo_mem_1_addr,
+pifo_mem_1_wr_en,
+pifo_mem_1_rd_en,
+pifo_mem_2_wr_data,
+pifo_mem_2_addr,
+pifo_mem_2_wr_en,
+pifo_mem_2_rd_en,
+pifo_pifo_mem_1_wr_en,
+pifo_pifo_mem_1_wr_data,
+pifo_pifo_mem_1_addr,
+pifo_pifo_mem_1_rd_en,
+pifo_pifo_mem_1_rd_data,
+pifo_pifo_mem_2_wr_en,
+pifo_pifo_mem_2_wr_data,
+pifo_pifo_mem_2_addr,
+pifo_pifo_mem_2_rd_en,
+pifo_pifo_mem_2_rd_data,
+pifo_func_write,
+pifo_func_wr_adr,
+pifo_func_din,
+pifo_func_read,
+pifo_func_rd_adr,
+pifo_func_rd_dout,
+arb_fifo_pkt_threshold_0_thresh,
+arb_fifo_pkt_threshold_0_thresh_wr_trigger,
+arb_fifo_pkt_threshold_0_thresh_rd_trigger,
+proc_pkt_threshold_0_thresh,
+proc_pkt_threshold_1_thresh,
+proc_pkt_threshold_2_thresh);
+
+
+//parameters from fex
+
+parameter REQ_TYPE_RES = 2'h3;
+parameter REQ_TYPE_READ = 2'h1;
+parameter REQ_TYPE_WRITE = 2'h0;
+parameter REQ_TYPE_FLUSH = 2'h2;
+parameter REQ_TYPE_WIDTH = 2;
+parameter REQ_ATTR_WIDTH = 3;
+parameter REQ_SIZE_WIDTH = 6;
+parameter REQ_DATA_WIDTH = 32;
+parameter REQ_MAX_BEATS = 64;
+parameter REQ_MAX_BITS = REQ_MAX_BEATS * REQ_DATA_WIDTH;
+parameter REQ_LAST_BEAT_FIELD = 1;
+parameter SLV_START_ADDR = 32'h0000_0000;
+parameter SLV_END_ADDR = 32'hFFFF_FFFF;
+parameter SLV_INTR_BIT = 31;
+parameter NUMRPRT = 1;
+parameter NUMWPRT = 1;
+parameter NUMADDR = 32;
+parameter BITDATA = 16;
+parameter BITADDR = $clog2(NUMADDR);
+parameter ECCWIDTH = 0;
+parameter MEMDWIDTH = BITDATA + ECCWIDTH;
+parameter HBUS_MEM_INTF_ADDR_WIDTH = 32;
+
+
+//ports from fex
+
+input clk;
+input rst;
+input u_req_valid_pifo;
+input u_req_intr_pifo;
+input [REQ_TYPE_WIDTH-1:0] u_req_type_pifo;
+input [REQ_ATTR_WIDTH-1:0] u_req_attr_pifo;
+input [REQ_SIZE_WIDTH-1:0] u_req_size_pifo;
+input [REQ_DATA_WIDTH-1:0] u_req_data_pifo;
+input  d_req_stall_pifo;
+output reg u_req_stall_pifo;
+output reg d_req_valid_pifo;
+output reg d_req_intr_pifo;
+output reg [REQ_TYPE_WIDTH-1:0] d_req_type_pifo;
+output reg [REQ_ATTR_WIDTH-1:0] d_req_attr_pifo;
+output reg [REQ_SIZE_WIDTH-1:0] d_req_size_pifo;
+output reg [REQ_DATA_WIDTH-1:0] d_req_data_pifo;
+input [31:0] pifo_mem_1_rd_data;
+input [63:0] pifo_mem_2_rd_data;
+output reg [31:0] pifo_mem_1_wr_data;
+output reg [31:0] pifo_mem_1_addr;
+output reg [0:0] pifo_mem_1_wr_en;
+output reg  pifo_mem_1_rd_en;
+output reg [63:0] pifo_mem_2_wr_data;
+output reg [31:0] pifo_mem_2_addr;
+output reg [1:0] pifo_mem_2_wr_en;
+output reg  pifo_mem_2_rd_en;
+input [0:0] pifo_pifo_mem_1_wr_en;
+input [31:0] pifo_pifo_mem_1_wr_data;
+input [31:0] pifo_pifo_mem_1_addr;
+input  pifo_pifo_mem_1_rd_en;
+output reg [31:0] pifo_pifo_mem_1_rd_data;
+input [0:0] pifo_pifo_mem_2_wr_en;
+input [31:0] pifo_pifo_mem_2_wr_data;
+input [31:0] pifo_pifo_mem_2_addr;
+input  pifo_pifo_mem_2_rd_en;
+output reg [31:0] pifo_pifo_mem_2_rd_data;
+input [NUMWPRT-1:0] pifo_func_write;
+input [BITADDR*NUMWPRT-1:0] pifo_func_wr_adr;
+input [MEMDWIDTH*NUMWPRT-1:0] pifo_func_din;
+input [NUMRPRT-1:0] pifo_func_read;
+input [BITADDR*NUMRPRT-1:0] pifo_func_rd_adr;
+output reg [MEMDWIDTH*NUMRPRT-1:0] pifo_func_rd_dout;
+output reg [15:0] arb_fifo_pkt_threshold_0_thresh;
+output reg  arb_fifo_pkt_threshold_0_thresh_wr_trigger;
+output reg  arb_fifo_pkt_threshold_0_thresh_rd_trigger;
+output reg [15:0] proc_pkt_threshold_0_thresh;
+output reg [15:0] proc_pkt_threshold_1_thresh;
+output reg [15:0] proc_pkt_threshold_2_thresh;
+
+wire ack_rcvd;
+wire mem_ack_rcvd;
+wire reg_ack_rcvd;
+
+//wires from fex
+
+wire [REQ_SIZE_WIDTH:0] req_size;
+wire  [2047:0] reg_rd_data;
+wire wr_req_rcvd;
+wire [31:0] req_addr;
+wire rd_req_rcvd;
+wire load_rd_data;
+wire [2047:0] reg_wr_data;
+wire [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_1_pifo_phy_wr_data;
+wire [HBUS_MEM_INTF_ADDR_WIDTH-1:0] hbus_pifo_mem_1_pifo_phy_addr;
+wire [3:0] hbus_pifo_mem_1_pifo_phy_wr_en;
+wire  hbus_pifo_mem_1_pifo_phy_rd_en;
+wire  [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_1_pifo_phy_rd_data;
+wire   hbus_pifo_mem_1_pifo_phy_ack;
+wire [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_2_pifo_phy_wr_data;
+wire [HBUS_MEM_INTF_ADDR_WIDTH-1:0] hbus_pifo_mem_2_pifo_phy_addr;
+wire [3:0] hbus_pifo_mem_2_pifo_phy_wr_en;
+wire  hbus_pifo_mem_2_pifo_phy_rd_en;
+wire  [MEMDWIDTH*NUMWPRT-1:0] hbus_pifo_mem_2_pifo_phy_rd_data;
+wire   hbus_pifo_mem_2_pifo_phy_ack;
+wire [2047:0] reg_data;
+wire [0:0] arb_fifo_pkt_threshold_0_wr_en;
+wire [0:0] arb_fifo_pkt_threshold_0_rd_en;
+wire [0:0] proc_pkt_threshold_0_wr_en;
+wire [0:0] proc_pkt_threshold_0_rd_en;
+wire [0:0] proc_pkt_threshold_1_wr_en;
+wire [0:0] proc_pkt_threshold_1_rd_en;
+wire [0:0] proc_pkt_threshold_2_wr_en;
+wire [0:0] proc_pkt_threshold_2_rd_en;
+wire  [31:0] arb_fifo_pkt_threshold_0_rdata;
+wire  [31:0] proc_pkt_threshold_0_rdata;
+wire  [31:0] proc_pkt_threshold_1_rdata;
+wire  [31:0] proc_pkt_threshold_2_rdata;
+
+
+
+
+
+rnaxi_slv# (.REQ_TYPE_RES(REQ_TYPE_RES),
+	.REQ_TYPE_READ(REQ_TYPE_READ),
+	.REQ_TYPE_WRITE(REQ_TYPE_WRITE),
+	.REQ_TYPE_FLUSH(REQ_TYPE_FLUSH),
+	.REQ_TYPE_WIDTH(REQ_TYPE_WIDTH),
+	.REQ_ATTR_WIDTH(REQ_ATTR_WIDTH),
+	.REQ_SIZE_WIDTH(REQ_SIZE_WIDTH),
+	.REQ_DATA_WIDTH(REQ_DATA_WIDTH),
+	.REQ_MAX_BEATS(REQ_MAX_BEATS),
+	.REQ_MAX_BITS(REQ_MAX_BITS),
+	.REQ_LAST_BEAT_FIELD(REQ_LAST_BEAT_FIELD),
+	.SLV_START_ADDR(SLV_START_ADDR),
+	.SLV_END_ADDR(SLV_END_ADDR),
+	.SLV_INTR_BIT(SLV_INTR_BIT)) 
+u_rnaxi_slv (.clk(clk),
+	.rst(rst),
+	.u_req_valid(u_req_valid_pifo),
+	.u_req_intr(u_req_intr_pifo),
+	.u_req_type(u_req_type_pifo),
+	.u_req_attr(u_req_attr_pifo),
+	.u_req_size(u_req_size_pifo),
+	.u_req_data(u_req_data_pifo),
+	.d_req_stall(d_req_stall_pifo),
+	.u_req_stall(u_req_stall_pifo),
+	.d_req_valid(d_req_valid_pifo),
+	.d_req_intr(d_req_intr_pifo),
+	.d_req_type(d_req_type_pifo),
+	.d_req_attr(d_req_attr_pifo),
+	.d_req_size(d_req_size_pifo),
+	.d_req_data(d_req_data_pifo),
+	.wr_req_rcvd(wr_req_rcvd),
+	.rd_req_rcvd(rd_req_rcvd),
+	.load_rd_data(load_rd_data),
+	.req_addr(req_addr),
+	.reg_wr_data(reg_wr_data),
+	.reg_rd_data(reg_rd_data),
+	.req_size(req_size),
+	.ack_rcvd(ack_rcvd));
+
+
+
+rnaxi_slv_addr_dec_pifo# (.REQ_TYPE_WIDTH(REQ_TYPE_WIDTH),
+	.REQ_ATTR_WIDTH(REQ_ATTR_WIDTH),
+	.REQ_SIZE_WIDTH(REQ_SIZE_WIDTH),
+	.REQ_DATA_WIDTH(REQ_DATA_WIDTH)) 
+u_rnaxi_slv_addr_dec_pifo (.req_size(req_size),
+	.reg_rd_data(reg_rd_data),
+	.clk(clk),
+	.rst(rst),
+	.arb_fifo_pkt_threshold_0_rdata(arb_fifo_pkt_threshold_0_rdata),
+	.proc_pkt_threshold_0_rdata(proc_pkt_threshold_0_rdata),
+	.proc_pkt_threshold_1_rdata(proc_pkt_threshold_1_rdata),
+	.proc_pkt_threshold_2_rdata(proc_pkt_threshold_2_rdata),
+	.pifo_mem_1_rd_data(pifo_mem_1_rd_data),
+	.pifo_mem_2_rd_data(pifo_mem_2_rd_data),
+	.arb_fifo_pkt_threshold_0_wr_en(arb_fifo_pkt_threshold_0_wr_en),
+	.arb_fifo_pkt_threshold_0_rd_en(arb_fifo_pkt_threshold_0_rd_en),
+	.proc_pkt_threshold_0_wr_en(proc_pkt_threshold_0_wr_en),
+	.proc_pkt_threshold_0_rd_en(proc_pkt_threshold_0_rd_en),
+	.proc_pkt_threshold_1_wr_en(proc_pkt_threshold_1_wr_en),
+	.proc_pkt_threshold_1_rd_en(proc_pkt_threshold_1_rd_en),
+	.proc_pkt_threshold_2_wr_en(proc_pkt_threshold_2_wr_en),
+	.proc_pkt_threshold_2_rd_en(proc_pkt_threshold_2_rd_en),
+	.pifo_mem_1_wr_data(pifo_mem_1_wr_data),
+	.pifo_mem_1_addr(pifo_mem_1_addr),
+	.pifo_mem_1_wr_en(pifo_mem_1_wr_en),
+	.pifo_mem_1_rd_en(pifo_mem_1_rd_en),
+	.pifo_mem_2_wr_data(pifo_mem_2_wr_data),
+	.pifo_mem_2_addr(pifo_mem_2_addr),
+	.pifo_mem_2_wr_en(pifo_mem_2_wr_en),
+	.pifo_mem_2_rd_en(pifo_mem_2_rd_en),
+	.wr_req_rcvd(wr_req_rcvd),
+	.req_addr(req_addr),
+	.rd_req_rcvd(rd_req_rcvd),
+	.load_rd_data(load_rd_data),
+	.reg_data(reg_data),
+	.reg_wr_data(reg_wr_data));
+
+
+rnaxi_mem_phy_wrap_pifo# () 
+u_rnaxi_mem_phy_wrap_pifo (.clk(clk),
+	.rst(rst),
+	.pifo_pifo_mem_1_wr_en(pifo_pifo_mem_1_wr_en),
+	.pifo_pifo_mem_1_wr_data(pifo_pifo_mem_1_wr_data),
+	.pifo_pifo_mem_1_addr(pifo_pifo_mem_1_addr),
+	.pifo_pifo_mem_1_rd_en(pifo_pifo_mem_1_rd_en),
+	.hbus_pifo_mem_1_pifo_phy_rd_data(hbus_pifo_mem_1_pifo_phy_rd_data),
+	.hbus_pifo_mem_1_pifo_phy_ack(hbus_pifo_mem_1_pifo_phy_ack),
+	.pifo_pifo_mem_1_rd_data(pifo_pifo_mem_1_rd_data),
+	.hbus_pifo_mem_1_pifo_phy_addr(hbus_pifo_mem_1_pifo_phy_addr),
+	.hbus_pifo_mem_1_pifo_phy_wr_data(hbus_pifo_mem_1_pifo_phy_wr_data),
+	.hbus_pifo_mem_1_pifo_phy_wr_en(hbus_pifo_mem_1_pifo_phy_wr_en),
+	.hbus_pifo_mem_1_pifo_phy_rd_en(hbus_pifo_mem_1_pifo_phy_rd_en),
+	.pifo_pifo_mem_2_wr_en(pifo_pifo_mem_2_wr_en),
+	.pifo_pifo_mem_2_wr_data(pifo_pifo_mem_2_wr_data),
+	.pifo_pifo_mem_2_addr(pifo_pifo_mem_2_addr),
+	.pifo_pifo_mem_2_rd_en(pifo_pifo_mem_2_rd_en),
+	.hbus_pifo_mem_2_pifo_phy_rd_data(hbus_pifo_mem_2_pifo_phy_rd_data),
+	.hbus_pifo_mem_2_pifo_phy_ack(hbus_pifo_mem_2_pifo_phy_ack),
+	.pifo_pifo_mem_2_rd_data(pifo_pifo_mem_2_rd_data),
+	.hbus_pifo_mem_2_pifo_phy_addr(hbus_pifo_mem_2_pifo_phy_addr),
+	.hbus_pifo_mem_2_pifo_phy_wr_data(hbus_pifo_mem_2_pifo_phy_wr_data),
+	.hbus_pifo_mem_2_pifo_phy_wr_en(hbus_pifo_mem_2_pifo_phy_wr_en),
+	.hbus_pifo_mem_2_pifo_phy_rd_en(hbus_pifo_mem_2_pifo_phy_rd_en),
+	.mem_ack_rcvd(mem_ack_rcvd));
+
+
+memory_pifo_mem_1_pifo_func_wrap# (.NUMRPRT(NUMRPRT),
+	.NUMWPRT(NUMWPRT),
+	.NUMADDR(NUMADDR),
+	.BITDATA(BITDATA),
+	.BITADDR(BITADDR),
+	.ECCWIDTH(ECCWIDTH),
+	.MEMDWIDTH(MEMDWIDTH),
+	.HBUS_MEM_INTF_ADDR_WIDTH(HBUS_MEM_INTF_ADDR_WIDTH)) 
+u_memory_pifo_mem_1_pifo_func_wrap (.clk(clk),
+	.rst(rst),
+	.pifo_func_write(pifo_func_write),
+	.pifo_func_wr_adr(pifo_func_wr_adr),
+	.pifo_func_din(pifo_func_din),
+	.pifo_func_read(pifo_func_read),
+	.pifo_func_rd_adr(pifo_func_rd_adr),
+	.hbus_pifo_mem_1_pifo_phy_wr_data(hbus_pifo_mem_1_pifo_phy_wr_data),
+	.hbus_pifo_mem_1_pifo_phy_addr(hbus_pifo_mem_1_pifo_phy_addr),
+	.hbus_pifo_mem_1_pifo_phy_wr_en(hbus_pifo_mem_1_pifo_phy_wr_en),
+	.hbus_pifo_mem_1_pifo_phy_rd_en(hbus_pifo_mem_1_pifo_phy_rd_en),
+	.pifo_func_rd_dout(pifo_func_rd_dout),
+	.hbus_pifo_mem_1_pifo_phy_rd_data(hbus_pifo_mem_1_pifo_phy_rd_data),
+	.hbus_pifo_mem_1_pifo_phy_ack(hbus_pifo_mem_1_pifo_phy_ack));
+
+
+memory_pifo_mem_2_pifo_func_wrap# (.NUMRPRT(NUMRPRT),
+	.NUMWPRT(NUMWPRT),
+	.NUMADDR(NUMADDR),
+	.BITDATA(BITDATA),
+	.BITADDR(BITADDR),
+	.ECCWIDTH(ECCWIDTH),
+	.MEMDWIDTH(MEMDWIDTH),
+	.HBUS_MEM_INTF_ADDR_WIDTH(HBUS_MEM_INTF_ADDR_WIDTH)) 
+u_memory_pifo_mem_2_pifo_func_wrap (.clk(clk),
+	.rst(rst),
+	.pifo_func_write(pifo_func_write),
+	.pifo_func_wr_adr(pifo_func_wr_adr),
+	.pifo_func_din(pifo_func_din),
+	.pifo_func_read(pifo_func_read),
+	.pifo_func_rd_adr(pifo_func_rd_adr),
+	.hbus_pifo_mem_2_pifo_phy_wr_data(hbus_pifo_mem_2_pifo_phy_wr_data),
+	.hbus_pifo_mem_2_pifo_phy_addr(hbus_pifo_mem_2_pifo_phy_addr),
+	.hbus_pifo_mem_2_pifo_phy_wr_en(hbus_pifo_mem_2_pifo_phy_wr_en),
+	.hbus_pifo_mem_2_pifo_phy_rd_en(hbus_pifo_mem_2_pifo_phy_rd_en),
+	.pifo_func_rd_dout(pifo_func_rd_dout),
+	.hbus_pifo_mem_2_pifo_phy_rd_data(hbus_pifo_mem_2_pifo_phy_rd_data),
+	.hbus_pifo_mem_2_pifo_phy_ack(hbus_pifo_mem_2_pifo_phy_ack));
+
+
+rnaxi_reg_wrap_pifo# () 
+u_rnaxi_reg_wrap_pifo (.clk(clk),
+	.rst(rst),
+	.reg_data(reg_data),
+	.reg_ack_rcvd(reg_ack_rcvd),
+	.arb_fifo_pkt_threshold_0_wr_en(arb_fifo_pkt_threshold_0_wr_en),
+	.arb_fifo_pkt_threshold_0_rd_en(arb_fifo_pkt_threshold_0_rd_en),
+	.proc_pkt_threshold_0_wr_en(proc_pkt_threshold_0_wr_en),
+	.proc_pkt_threshold_0_rd_en(proc_pkt_threshold_0_rd_en),
+	.proc_pkt_threshold_1_wr_en(proc_pkt_threshold_1_wr_en),
+	.proc_pkt_threshold_1_rd_en(proc_pkt_threshold_1_rd_en),
+	.proc_pkt_threshold_2_wr_en(proc_pkt_threshold_2_wr_en),
+	.proc_pkt_threshold_2_rd_en(proc_pkt_threshold_2_rd_en),
+	.arb_fifo_pkt_threshold_0_rdata(arb_fifo_pkt_threshold_0_rdata),
+	.proc_pkt_threshold_0_rdata(proc_pkt_threshold_0_rdata),
+	.proc_pkt_threshold_1_rdata(proc_pkt_threshold_1_rdata),
+	.proc_pkt_threshold_2_rdata(proc_pkt_threshold_2_rdata),
+	.arb_fifo_pkt_threshold_0_thresh(arb_fifo_pkt_threshold_0_thresh),
+	.arb_fifo_pkt_threshold_0_thresh_wr_trigger(arb_fifo_pkt_threshold_0_thresh_wr_trigger),
+	.arb_fifo_pkt_threshold_0_thresh_rd_trigger(arb_fifo_pkt_threshold_0_thresh_rd_trigger),
+	.proc_pkt_threshold_0_thresh(proc_pkt_threshold_0_thresh),
+	.proc_pkt_threshold_1_thresh(proc_pkt_threshold_1_thresh),
+	.proc_pkt_threshold_2_thresh(proc_pkt_threshold_2_thresh));
+
+assign ack_rcvd = mem_ack_rcvd || reg_ack_rcvd;
+endmodule

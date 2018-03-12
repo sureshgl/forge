@@ -1,0 +1,38 @@
+#!/bin/csh -f
+
+run show_all show_all
+
+setenv IFV_HIER des.algo_top.a2_loop.algo
+
+run mem_check mem_check
+run mem_range_check mem_range_check
+run np2_check np2_check
+run forward_check forward_check
+run rmem_check rmem_check
+run vdout_int_check vdout_int_check
+run fakemem_check fakemem_check
+run dout_check dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+
+run align_check align_check
+run mem_chk_check mem_chk_check
+run align_dout_check align_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+run stack_check stack_check
+run stack_dout_check stack_dout_check
+
+setenv IFV_HIER des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.stack_loop.infra
+
+run t1_mem_check  t1_mem_check 
+run t1_port_check t1_port_check
+
+setenv IFV_HIER des.algo_top.a2_loop.algo
+setenv IFV_HIER_2 des.algo_top.t\*_loop\[\*\].\*.align_loop.infra
+
+run pdout_check pdout_check
+run pdout_err_check pdout_err_check
+run port_check port_check

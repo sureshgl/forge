@@ -1,0 +1,49 @@
+module example_mem_3_mem_wrap(
+clk,
+rst,
+example_mem_3_hbus_phy_wr_data,
+example_mem_3_hbus_phy_rd_data,
+example_mem_3_hbus_phy_addr,
+example_mem_3_hbus_phy_wr_en,
+example_mem_3_hbus_phy_rd_en,
+example_mem_3_hbus_phy_ack,
+example_mem_3_hbus_mem_write,
+example_mem_3_hbus_mem_wr_adr,
+example_mem_3_hbus_mem_din,
+example_mem_3_hbus_mem_read,
+example_mem_3_hbus_mem_rd_adr,
+example_mem_3_hbus_mem_rd_dout,
+example_mem_3_hbus_mem_ack
+);
+
+input  clk;
+input  rst;
+input  example_mem_3_hbus_mem_ack;
+output example_mem_3_hbus_mem_write;
+output [32-1:0] example_mem_3_hbus_mem_wr_adr;
+output [(64 + 0)-1:0] example_mem_3_hbus_mem_din;
+output example_mem_3_hbus_mem_read;
+output [32-1:0] example_mem_3_hbus_mem_rd_adr;
+input [(64 + 0)-1:0] example_mem_3_hbus_phy_wr_data;
+input [32-1:0] example_mem_3_hbus_phy_addr;
+input [2-1:0] example_mem_3_hbus_phy_wr_en;   
+input  example_mem_3_hbus_phy_rd_en;
+input [(64 + 0)-1:0] example_mem_3_hbus_mem_rd_dout; //always gets from port0
+output reg [(64 + 0)-1:0] example_mem_3_hbus_phy_rd_data;
+output reg  example_mem_3_hbus_phy_ack;
+
+assign example_mem_3_hbus_phy_ack =  example_mem_3_hbus_mem_ack;
+
+assign example_mem_3_hbus_mem_write = |example_mem_3_hbus_phy_wr_en; //TODO consider bit writeable memories
+
+assign example_mem_3_hbus_mem_din = example_mem_3_hbus_phy_wr_data ;
+
+assign example_mem_3_hbus_mem_wr_adr = example_mem_3_hbus_phy_addr ;
+
+assign example_mem_3_hbus_mem_read = example_mem_3_hbus_phy_rd_en ; 
+
+assign example_mem_3_hbus_mem_rd_adr = example_mem_3_hbus_phy_addr ;
+
+assign example_mem_3_hbus_phy_rd_data = example_mem_3_hbus_mem_rd_dout;
+
+endmodule

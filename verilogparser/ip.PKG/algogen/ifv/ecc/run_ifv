@@ -1,0 +1,1 @@
+iev +64bit -F ecc.filelist +define+FORMAL +licq +top+ecc_sva +tcl+ecc_check.tcl -l ecc_check.log -q +exit

@@ -1,0 +1,112 @@
+// This is Logic Equivalence Check (LEC) script file
+//
+//  LEC process consists of checking equivalence between
+//  a) the Logic version of the design (RTL)
+//  AND
+//  b) Gate-version of the design (gate-level netlist output by synthesizer)
+
+
+//  The steps involved in the LEC process include:
+//  1) Reading in the source RTL & Gate-level netlists
+
+//  2) Setting up the translation rules to help the LEC tool match
+//     key-points (like inputs, outputs, internal flops between
+//     the two netlists
+//  NOTE: In practice this step is actually done before step 1)
+
+//  3) Doing the 'compare' - logic equivalence check between the two
+//  4) Generating reports
+
+
+// Begin Step-2  first...
+//----------------------------------------------------------------------------- 
+// Renaming Rules 
+//  These rules help the tool translate the RTL signal and register names 
+//  into the gate-level name. Synthesis changes the names of registers and 
+//  and nets and this helps the tool match key points based on names. 
+//  The USER is also urged to refer Cadence's LEC tool docs for other rules
+
+//  Some points to note below:
+//  'revised' => Gate-level netlist;  'golden' => RTL netlist
+
+set log file log/partition_rtl2gates_lec.log -replace 
+add renaming rule r1   \/U\$1 ""  -revised   
+add renaming rule g1   \/U\$1 ""  -golden   
+add renaming rule r2   \[%d\] _@1 -revised 
+add renaming rule g2   \[%d\] _@1 -golden 
+add renaming rule g3   \/\    _   -golden 
+add renaming rule r3   \/\    _   -revised 
+
+// Set mapping methods. 
+// -unreach = map those key points that do not affect (reach) an output. 
+set mapping method -unreach  
+// -name first = map matching names then work on the remaining key points. 
+set mapping method -name first 
+// By default the compare effort is low...
+set compare effort medium 
+
+//------------------step-2 complete------------------------------
+
+
+
+// Begin step-1
+
+// Reading the Golden Design   (rtl netlist)
+// 
+read library -both -sensitive -verilog -define functional verilog_primitives.v \
+<memory-core name>.v           // memory-core file name in the output rtl directory
+
+//----------------------------------------------------------------------------- 
+// Elaborate the Golden Design  (understand the design hierarchy)
+// 
+//  We need to do this before we read the revised design.
+//  We do 'elaborate' as a separate step & not part of the 'read'
+//  to allow reading of multiple design files first (if needed)
+// 
+
+elaborate design -golden 
+
+
+//----------------------------------------------------------------------------- 
+// Reading the Revised Design  (Gate-level netlist of the memory-core)
+// 
+read design -verilog -revised -sensitive -noelaborate \ 
+ <verilog_gatelevel_filename>.v  
+//----------------------------------------------------------------------------- 
+// Elaborate the Revised Design 
+// 
+elaborate design -revised 
+
+
+// Begin Step-3
+//
+// Constraints on the Two Designs 
+// 
+//on intial LEC runs, do not use this line.  Only set to 0 after identifying all undriven signals in golden 
+set undriven signal 0  
+// -phase = map key points with an inverted phase. 
+set mapping method -phase           // whatever names not found, use phase method to match them
+// Set flattening methods -  do not convert a DFF to a D-Latch if the clock port is zero. 
+set flatten model -NODFF_TO_DLAT_FEEDBACK 
+
+
+// Compare the Two Designs 
+// Flat compare  (slower with fewer differences) 
+set system mode lec -nomap                        // go into compare mode
+//read mapped points partition.map            //if you have dont it once then just read in the prev file again
+map key points 
+add compare points -all                 //adding all the compare points
+compare                               // do the logic equi check
+
+// -----------Step-3 done -------------------------------------
+
+
+// Begin Step-4
+// Report Generation 
+// 
+report compare data -noneq      > reports/partition_rtl2gates_noneq_points.rpt 
+report unmapped points -revised > reports/partition_rtl2gates_revised_unmapped_points.rpt 
+report unmapped points -golden  > reports/partition_rtl2gates_golden_unmapped_points.rpt 
+report unmapped points -summary > reports/partition_rtl2gates_mapping_summary.rpt
+
+// ---------- Step-4 done

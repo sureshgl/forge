@@ -1,0 +1,1 @@
+iev +64bit -F np2.filelist +define+FORMAL +licq +top+infra_np2_sva +tcl+np2_check.tcl -l np2_check.log -q +exit 

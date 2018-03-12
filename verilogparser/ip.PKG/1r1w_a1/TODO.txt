@@ -1,0 +1,13 @@
+0.  D [sree] recode mem_beh module.
+1.  D [sree] Cleanup parameters
+2.  D [chishein] both of these have to be parameterized
+       ecc_calc.param.v  
+       ecc_check.param.v
+3.  D [sree] bring in fw_clk_rst, fw_dbg
+4.  D [sree] package in to perl
+5.    [chishein] cleanup testbench if needed.
+6.    [sree] gen dir shouldn't have any files
+7.  D [sree] random seed - update this - run env to manage this
+8.    [sree] all parameters to be passed to all generated modules
+9.    [sree] select beh or structural mem in vcs/simv
+10.   [sree] write tb for mem_beh.v

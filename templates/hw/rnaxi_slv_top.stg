@@ -1,0 +1,50 @@
+rnaxi_slv_top(rnaxiSlvTopForStg)::=<<
+
+module <rnaxiSlvTopForStg.fsName>_rnaxi_slv_top();
+
+rnaxi_slv   u_<rnaxiSlvTopForStg.fsName>_rnaxi_slv(
+	.u_req_valid (u_req_valid_<rnaxiSlvTopForStg.fsName>),
+	.u_req_intr  (u_req_intr_<rnaxiSlvTopForStg.fsName>),
+	.u_req_type  (u_req_type_<rnaxiSlvTopForStg.fsName>),
+	.u_req_attr  (u_req_attr_<rnaxiSlvTopForStg.fsName>),
+	.u_req_size  (u_req_size_<rnaxiSlvTopForStg.fsName>),
+	.u_req_data  (u_req_data_<rnaxiSlvTopForStg.fsName>),
+	.d_req_stall (d_req_stall_<rnaxiSlvTopForStg.fsName>),
+	.u_req_stall (u_req_stall_<rnaxiSlvTopForStg.fsName>),
+	.d_req_valid (d_req_valid_<rnaxiSlvTopForStg.fsName>),
+	.d_req_intr  (d_req_intr_<rnaxiSlvTopForStg.fsName>),
+	.d_req_type  (d_req_type_<rnaxiSlvTopForStg.fsName>),
+	.d_req_attr  (d_req_attr_<rnaxiSlvTopForStg.fsName>),
+	.d_req_size  (d_req_size_<rnaxiSlvTopForStg.fsName>),
+	.d_req_data  (d_req_data_<rnaxiSlvTopForStg.fsName>)
+);
+
+wire ack_rcvd;
+
+<rnaxiSlvTopForStg.fsName>_rnaxi_slv_addr_dec  u_<rnaxiSlvTopForStg.fsName>_rnaxi_slv_addr_dec ();
+
+<if(rnaxiSlvTopForStg.hasMemories)>
+wire mem_ack_rcvd;
+<rnaxiSlvTopForStg.fsName>_rnaxi_mem_phy_wrap  u_<rnaxiSlvTopForStg.fsName>_rnaxi_mem_phy_wrap ();
+<rnaxiSlvTopForStg.memories:{memory |<memory.instances:{ mem_inst |<rnaxiSlvTopForStg.fsName>_<mem_inst.name>_mem_wrap u_<rnaxiSlvTopForStg.fsName>_<mem_inst.name>_mem_wrap() ;<\n>}>}>
+<endif>
+
+<if(rnaxiSlvTopForStg.hasRegisters)>
+wire reg_ack_rcvd;
+<rnaxiSlvTopForStg.fsName>_rnaxi_reg_wrap u_<rnaxiSlvTopForStg.fsName>_rnaxi_reg_wrap ();
+<endif>
+
+<if(rnaxiSlvTopForStg.hasMemories)>
+<if(rnaxiSlvTopForStg.hasRegisters)>
+assign ack_rcvd = mem_ack_rcvd || reg_ack_rcvd;
+<else>
+assign ack_rcvd = mem_ack_rcvd;
+<endif>
+<else>
+<if(rnaxiSlvTopForStg.hasRegisters)>
+assign ack_rcvd = reg_ack_rcvd;
+<endif>
+<endif>
+
+endmodule
+>>
