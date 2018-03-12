@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="cfg"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="target"/>
+	<classpathentry kind="src" path="tools"/>
+	<classpathentry kind="src" path="utils"/>
+	<classpathentry kind="src" path="templates"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/antlr-4.5-complete.jar"/>
+	<classpathentry kind="lib" path="lib/guava-10.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jcommander-1.29.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/lombok-1.16.18.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
